@@ -1,10 +1,12 @@
 # COMP-2800-DTC08-CABBAGE_PATCH
-A web application that allows for users to easily search for unique cultural ingredients in Vancouver.
+A web application designed to reduce the difficulty of finding unique or specific cultural ingredients in Vancouver.
+User sourced data will be used to share information on where and when ingredients were found. In the event that someone
+was unable to find an ingredient, they will be able to make a request that is viewable by store owners.
 
 ## About Us
 Team Name: DTC-08
 Team Members:
-- Fin
+- Finn
 - Kelsen
 - David
 - Andrew
