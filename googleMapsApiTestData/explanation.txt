@@ -1,0 +1,2 @@
+This test data is pulled from the Google Maps API by doing a query for all information.
+This is so we have a dataset to test and base our queries off of without risking our API query limits.
