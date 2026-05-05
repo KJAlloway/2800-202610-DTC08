@@ -1,2 +1,14 @@
 This test data is pulled from the Google Maps API by doing a query for all information.
 This is so we have a dataset to test and base our queries off of without risking our API query limits.
+
+Places and IDs:
+Loblaws:                ChIJZV8uqmdxhlQRL4MIXiV6jbI
+T&T:                    ChIJY_YvuHtxhlQROmgdZbhFxXc
+Costco:                 ChIJy4_1hntxhlQRiALuTQK-_-E
+Mexican Stop:           ChIJKexPZ55xhlQRE_zjdgcwPHc
+Sunrise Market:         ChIJx3zUbnFxhlQRkFx1t73k5VU
+Mercato De Luigi:       ChIJmaXZ_KhxhlQRLi-vU-PIKUw
+Bosa Foods:             ChIJcaLUPj5xhlQRltU0Llz3mjQ
+Snack Land:             ChIJQwfpneNzhlQRM0s23N_YYbM
+East West Market:       ChIJ5yrJZ_dzhlQRJcdgeDysIxY
+Windsor Quality Meats:  ChIJT03aXvdzhlQRkkuy6uW-bSQ
