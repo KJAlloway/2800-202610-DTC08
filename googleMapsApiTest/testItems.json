@@ -1,0 +1,55 @@
+{
+    "testItems": [
+        {
+            "name": "square",
+            "currentLocations": [
+                "ChIJZV8uqmdxhlQRL4MIXiV6jbI",
+                "ChIJY_YvuHtxhlQROmgdZbhFxXc"
+            ],
+            "pastLocations": [
+                "ChIJy4_1hntxhlQRiALuTQK-_-E"
+            ]
+        },
+        {
+            "name": "triangle",
+            "currentLocations": [
+                "ChIJy4_1hntxhlQRiALuTQK-_-E",
+                "ChIJY_YvuHtxhlQROmgdZbhFxXc",
+                "ChIJx3zUbnFxhlQRkFx1t73k5VU",
+                "ChIJcaLUPj5xhlQRltU0Llz3mjQ"
+            ],
+            "pastLocations": [
+                "ChIJQwfpneNzhlQRM0s23N_YYbM",
+                "ChIJmaXZ_KhxhlQRLi-vU-PIKUw"
+            ]
+        },
+        {
+            "name": "octahedral polygon",
+            "currentLocations": [
+                "ChIJcaLUPj5xhlQRltU0Llz3mjQ"
+            ],
+            "pastLocations": []
+        },
+        {
+            "name": "cube",
+            "currentLocations": [
+                "ChIJT03aXvdzhlQRkkuy6uW-bSQ",
+                "ChIJy4_1hntxhlQRiALuTQK-_-E",
+                "ChIJ5yrJZ_dzhlQRJcdgeDysIxY",
+                "ChIJQwfpneNzhlQRM0s23N_YYbM",
+                "ChIJmaXZ_KhxhlQRLi-vU-PIKUw",
+                "ChIJY_YvuHtxhlQROmgdZbhFxXc"
+            ],
+            "pastLocations": []
+        },
+        {
+            "name": "circle",
+            "currentLocations": [],
+            "pastLocations": [
+                "ChIJY_YvuHtxhlQROmgdZbhFxXc",
+                "ChIJQwfpneNzhlQRM0s23N_YYbM",
+                "ChIJT03aXvdzhlQRkkuy6uW-bSQ"
+            ]
+        }
+    ]
+}
