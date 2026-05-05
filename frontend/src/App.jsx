@@ -1,122 +1,106 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
+// Main React component for frontend, decides what appears on the screen by returning the login page.
+//
+// author: David Lukac
+// version 1.0
 function App() {
-  const [count, setCount] = useState(0)
+    // use the current year
+    const currentYear = new Date().getFullYear()
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    const handleLoginSubmit = (event) => {
+        event.preventDefault()
 
-      <div className="ticks"></div>
+        // TODO: replace with real login logic
+        console.log('login submitted')
+    }
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+    const handleRegisterClick = () => {
+        // TODO: replace with navigation to register screen
+        console.log('go to register screen')
+    }
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    const handleGuestClick = () => {
+        // TODO: replace with guest-mode navigation
+        console.log('continue without an account')
+    }
+
+
+    // Certain parts of this code were extracted from W3Schools and ChatGPT
+    return (
+        <main className="login-page">
+            {/* small title above the card to match the sketch */}
+            <p className="login-page-title">Login Page</p>
+
+            <section className="login-card" aria-labelledby="login-heading">
+                <header className="login-card-header">
+                    {/* logo placeholder */}
+                    <div className="brand-badge" aria-hidden="true">
+                        <span className="brand-badge-emoji">🥬</span>
+                    </div>
+
+                    <div className="brand-name" aria-label="Cabbage Patch">
+                        <span>Cabbage</span>
+                        <span>Patch</span>
+                    </div>
+                </header>
+
+                <div className="login-card__body">
+                    <h1 id="login-heading" className="sr-only">Log in to Cabbage Patch</h1>
+
+                    <form className="login-form" onSubmit={handleLoginSubmit}>
+                        <label className="sr-only" htmlFor="login-identifier">Username or email</label>
+                        <input
+                            id="login-identifier"
+                            className="login-input"
+                            type="text"
+                            name="identifier"
+                            placeholder="Username/Email"
+                            autoComplete="username"
+                        />
+
+                        <label className="sr-only" htmlFor="login-password">Password</label>
+                        <input
+                            id="login-password"
+                            className="login-input"
+                            type="password"
+                            name="password"
+                            placeholder="Password"
+                            autoComplete="current-password"
+                        />
+
+                        <div className="login-actions">
+                            <button
+                                type="button"
+                                className="action-button"
+                                onClick={handleRegisterClick}
+                            >
+                                Sign Up/Register
+                            </button>
+
+                            <button type="submit" className="action-button">
+                                Login
+                            </button>
+                        </div>
+                    </form>
+
+                    <button
+                        type="button"
+                        className="action-button action-button--guest"
+                        onClick={handleGuestClick}
+                    >
+                        Continue without an account
+                    </button>
+                </div>
+
+                <footer className="login-card__footer">
+                    <div className="login-card__footer-line" aria-hidden="true"></div>
+                    <p>Copyright DTC-08</p>
+                    <p className="login-card__year">{currentYear}</p>
+                </footer>
+            </section>
+        </main>
+    )
 }
 
 export default App
