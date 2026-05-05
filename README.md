@@ -14,3 +14,7 @@ Team Members:
 
 ## More details to come
 TBA
+
+## Running the backend
+Run each command in "required installations.txt"
+Run: `nodemon server.js` (auto refreshing server), or `node server.js` (not auto refreshing server)
