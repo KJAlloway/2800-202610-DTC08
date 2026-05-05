@@ -1,8 +1,9 @@
-import {MongoClient} from "mongodb";
+const {MongoClient} = require("mongodb");
+require("dotenv").config()
 
 
 // const db_uri = process.env.MONGO_URI;
-const db_uri = 'mongodb+srv://findlaywylie_db_user:SJdouGTTZTXTQgYL@cluster0.k5w4qfx.mongodb.net/?appName=Cluster0';
+const db_uri = process.env.MONGODB_URI;
 
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
