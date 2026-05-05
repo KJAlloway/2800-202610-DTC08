@@ -1,16 +1,6 @@
 import './locationInfoPage.css'
+import { NavBar, Footer } from './sharedComponents';
 
-function NavBar() {
-    return (
-        <div className="nav">
-            <div className="leftNav">
-                <img src="../public/favicon.svg"></img>
-                <h2>Cabbage Patch</h2>
-            </div>
-            <button>Log Out</button>
-        </div>
-    )
-}
 
 function MiddleSection() {
     return (
@@ -60,14 +50,7 @@ function RightColumn() {
     )
 }
 
-function Footer() {
-    return (
-        <div className='footer'>
-            <h2>Copyright DTC-08</h2>
-            <p>2026</p>
-        </div>
-    )
-}
+
 
 function StorePage() {
     return (

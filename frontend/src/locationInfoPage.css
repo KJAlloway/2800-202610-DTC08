@@ -1,12 +1,5 @@
-.leftNav {
-    display: flex;
-    flex-direction: row;
-}
-.nav {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
+
+
 
 .leftColumn {
     display: flex;
@@ -29,13 +22,3 @@
     flex-direction: column;
 }
 
-.footer {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    background-color: grey;
-    width: 100%;
-
-}

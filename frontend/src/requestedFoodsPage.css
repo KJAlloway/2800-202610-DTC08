@@ -1,0 +1,12 @@
+.foodNameAndLocationList {
+    display: flex;
+    flex-direction: column;
+}
+
+.listElement {
+    display: flex;
+    flex-direction: row;
+}
+
+.backButton {
+}
