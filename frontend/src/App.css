@@ -7,7 +7,11 @@ Version: 1.0
 
 
 
-/* Page shell */
+/*
+Page shell
+
+Was helped with ChatGPT
+*/
 .login-page {
     min-height: 100vh;
     display: flex;
