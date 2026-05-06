@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../TemplateButtons/Button'
 import cabbageLogo from '../assets/cabbage-logo.svg'
 import './LoginPage.css'
@@ -7,11 +7,30 @@ function LoginPage({ onLogin, onGuest, onRegister }) {
     // Gets the current year automatically for the footer.
     const currentYear = new Date().getFullYear()
 
+    // This key is used to store the user's popup preference in localStorage.
+    const popupPreferenceKey = 'hideLoginTrustPopup'
+
     // Stores the user's input for both login fields.
     const [loginForm, setLoginForm] = useState({
         identifier: '',
         password: '',
     })
+
+    // Controls whether the popup is currently visible on the page.
+    const [showTrustPopup, setShowTrustPopup] = useState(false)
+
+    // Tracks whether the user checked "Don't show this again".
+    const [disablePopupPermanently, setDisablePopupPermanently] = useState(false)
+
+    // Runs once when the component first loads.
+    // Checks whether the user previously chose to hide this popup.
+    useEffect(() => {
+        const savedPreference = localStorage.getItem(popupPreferenceKey)
+
+        if (savedPreference !== 'true') {
+            setShowTrustPopup(true)
+        }
+    }, [])
 
     // Updates the correct field whenever the user types.
     const handleInputChange = (event) => {
@@ -21,6 +40,21 @@ function LoginPage({ onLogin, onGuest, onRegister }) {
             ...currentForm,
             [name]: value,
         }))
+    }
+
+    // Runs when the user checks or unchecks the popup's disable option.
+    const handleDisablePopupChange = (event) => {
+        setDisablePopupPermanently(event.target.checked)
+    }
+
+    // Closes the popup.
+    // If the user asked not to see it again, we save that choice in localStorage.
+    const handleCloseTrustPopup = () => {
+        if (disablePopupPermanently) {
+            localStorage.setItem(popupPreferenceKey, 'true')
+        }
+
+        setShowTrustPopup(false)
     }
 
     // Runs when the login form is submitted.
@@ -90,6 +124,48 @@ function LoginPage({ onLogin, onGuest, onRegister }) {
                         </div>
                     </div>
                 </header>
+
+                {/* Trust popup, explains why logging in matters, but still allows guest use. */}
+                {showTrustPopup && (
+                    <aside
+                        className="login-trust-popup"
+                        aria-label="Why logging in matters"
+                    >
+                        <div className="login-trust-popup__header">
+                            <h2 className="login-trust-popup__title">
+                                Why log in?
+                            </h2>
+
+                            <button
+                                type="button"
+                                className="login-trust-popup__close"
+                                onClick={handleCloseTrustPopup}
+                                aria-label="Close popup"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <p className="login-trust-popup__text">
+                            Information provided when you are logged in is more
+                            trustworthy and valuable to other users.
+                        </p>
+
+                        <p className="login-trust-popup__text">
+                            Logged-in users are marked as verified users, while
+                            guest users can still contribute anonymously.
+                        </p>
+
+                        <label className="login-trust-popup__checkbox-row">
+                            <input
+                                type="checkbox"
+                                checked={disablePopupPermanently}
+                                onChange={handleDisablePopupChange}
+                            />
+                            <span>Don&apos;t show this again</span>
+                        </label>
+                    </aside>
+                )}
 
                 {/* Middle section with form fields and buttons */}
                 <div className="login-body">
