@@ -35,7 +35,11 @@ function ItemSearch() {
 
             <ul>
                 {filteredResults.map((item, index) => {
-                    return <li key={index}>{item}</li>
+                    return (
+                    <div>
+                        <button key={index}>{item}</button>
+                    </div>
+                    )
                 })}
             </ul>
         </div>
