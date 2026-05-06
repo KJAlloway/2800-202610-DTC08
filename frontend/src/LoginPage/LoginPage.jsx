@@ -3,7 +3,7 @@ import Button from '../TemplateButtons/Button'
 import cabbageLogo from '../assets/cabbage-logo.svg'
 import './LoginPage.css'
 
-function LoginPage() {
+function LoginPage({ onLogin, onGuest, onRegister }) {
     // Gets the current year automatically for the footer.
     const currentYear = new Date().getFullYear()
 
@@ -25,22 +25,36 @@ function LoginPage() {
 
     // Runs when the login form is submitted.
     const handleLoginSubmit = (event) => {
-        // Prevents the page from refreshing when the form is submitted.
+        // Prevents the browser from refreshing the page.
         event.preventDefault()
 
         // TODO: Replace this later with real login/authentication logic.
         console.log('Login submitted:', loginForm)
+
+        if (onLogin) {
+            onLogin()
+        }
     }
 
     // Runs when the user clicks the register button.
     const handleRegisterClick = () => {
-        // TODO: Replace this later with navigation to the register page.
+        // If a register-page callback exists later, use it.
+        if (onRegister) {
+            onRegister()
+            return
+        }
+
         console.log('Go to register page')
     }
 
     // Runs when the user wants to continue without signing in.
     const handleGuestClick = () => {
-        // TODO: Replace this later with guest-mode navigation.
+        // Sends the user straight to the home page in guest mode.
+        if (onGuest) {
+            onGuest()
+            return
+        }
+
         console.log('Continue without an account')
     }
 
@@ -79,7 +93,7 @@ function LoginPage() {
 
                 {/* Middle section with form fields and buttons */}
                 <div className="login-body">
-                    {/* Hidden heading for screen readers and accessibility */}
+                    {/* Hidden heading for accessibility */}
                     <h1 id="login-heading" className="sr-only">
                         Log in to Cabbage Patch
                     </h1>
