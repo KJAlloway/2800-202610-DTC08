@@ -8,22 +8,23 @@
     <h1>Item Search</h1>
     <form>
         <label for="itemSearch">
+            
+            <!-- oninput triggers the function when input changes (add or delete). this.value is the text in the box -->
             <input type="text" id="itemSearch" oninput="parseSearch(this.value)">
         </label>
     </form>
 
     <ul id="results"></ul>
 
-    <script type="module" src="dbTest.js"></script>
-
-
     <script>
+        // Called by search bar after every input
         function parseSearch(text) {
             addFoundItemToResults(text, getData())
         }
 
+        // gets and normalizes data from DB
         function getData() {
-            // DB query returns array of ingredient names
+            // array "test" would be sourced from the database
             let test = [
                 "test1",
                 "TEST2",
@@ -38,15 +39,23 @@
             return test
         }
 
+        // adds results to UL below search bar
         function addFoundItemToResults(text, data) {
+
+            // clears the old data in result when called
             let results = document.getElementById("results")
             while (results.hasChildNodes()) {
                 results.removeChild(results.firstChild);
             }
 
+            // normalizes the input text
             text = normalizeString(text)
             for (let i = 0; i < data.length; ++i) {
+
+                // prevents all data from being returned by requiring a len != 0
                 if (text.length !== 0 && data[i].includes(text)) {
+
+                    // Create and append a new element with the text that matches. Could be of any element type.
                     const node = document.createElement("li");
                     const textNode = document.createTextNode(data[i]);
                     node.appendChild(textNode);
@@ -55,27 +64,10 @@
             }
         }
 
+        // Basic text normalization function
         function normalizeString(string) {
             return string.toLowerCase().replaceAll(" ", "")
         }
-
-        // import {MongoClient} from "mongodb";
-        // import ("dotenv").configure()
-        // const db_uri = process.env.MONGODB_URI;
-        //
-        // // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-        // const client = new MongoClient(db_uri);
-        //
-        // async function run() {
-        //     try {
-        //         const database = client.db("googleApiTest");
-        //         const testItems = database.collection("testItems")
-        //         console.log(await testItems.find({"name": "triangle"}).toArray())
-        //     } finally {
-        //         // Ensures that the client will close when you finish/error
-        //         await client.close();
-        //     }
-        // }
     </script>
 </body>
 </html>
