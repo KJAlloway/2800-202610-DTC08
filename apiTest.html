@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>API Test</title>
+
+    <!--    <script src="https://cdn.jsdelivr.net/npm/mongodb@7.2.0/lib/cmap/auth/aws_temporary_credentials.min.js"></script>-->
+    <!--    <script type="importmap">-->
+    <!--        {-->
+    <!--          "imports": {-->
+    <!--            "axios": "https://esm.sh/axios",-->
+    <!--            "my-utils": "./utils.js"-->
+    <!--          }-->
+    <!--        }-->
+    <!--    </script>-->
 </head>
 <body>
     <h1>Item Search</h1>
@@ -10,14 +20,12 @@
         <label for="itemSearch">
             <input type="text" id="itemSearch" oninput="parseSearch(this.value)">
         </label>
-        <button onclick="run()">Search!</button>
     </form>
 
     <ul id="results"></ul>
 
-    <!--    <script type="module" src="dbTest.js"></script>-->
-    <!--    <script type="module" src="apiTest.js"></script>-->
-    <!--    <script type="module" src="test.js"></script>-->
+    <script type="module" src="dbTest.js"></script>
+
 
     <script>
         function parseSearch(text) {
