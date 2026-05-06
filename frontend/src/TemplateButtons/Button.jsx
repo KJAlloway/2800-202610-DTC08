@@ -1,14 +1,25 @@
-import React from 'react';
-import './Button.css';
+import React from 'react'
+import './Button.css'
 
-const Button = (props) => {
-  return (
-    <button className={`general-button ${props.className || ""}`} onClick={props.onClick}>
+const Button = ({
+                    text,
+                    className = '',
+                    onClick,
+                    type = 'button',
+                    ...rest
+                }) => {
+    return (
+        <button
+            type={type}
+            className={`general-button ${className}`.trim()}
+            onClick={onClick}
+            {...rest}
+        >
       <span className="button-content">
-        {props.text}
+        {text}
       </span>
-    </button>
-  );
-};
+        </button>
+    )
+}
 
-export default Button;
+export default Button
