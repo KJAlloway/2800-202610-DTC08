@@ -14,9 +14,7 @@ export async function run() {
 
         let placeId = await getPlaceId()
         await getPlaceMapsLink(placeId, testLocations)
-
-        let result = await testLocations.findOne({"id" : placeId}, {projection: {_id: 0, googleMapsUri: 1}})
-        usePlaceUri(result.googleMapsUri);
+        await getPlaceName(placeId, testLocations)
 
 
     } finally {
@@ -25,17 +23,22 @@ export async function run() {
     }
 }
 
-async function getPlaceMapsLink(placeId, testLocations) {
-    let place = await testLocations.findOne({"id" : placeId})
-    place.get
+function usePlaceUri(placeUri){
+    console.log(placeUri);
 }
 
 async function getPlaceId() {
     return "ChIJZV8uqmdxhlQRL4MIXiV6jbI"
 }
 
-function usePlaceUri(placeUri){
-    console.log(placeUri);
+async function getPlaceMapsLink(placeId, testLocations) {
+    let place = await testLocations.findOne({"id" : placeId}, {projection: {_id: 0, googleMapsUri: 1}})
+    usePlaceUri(place.googleMapsUri);
+}
+
+async function getPlaceName(placeId, testLocations){
+    let place = await testLocations.findOne({"id" : placeId}, {projection: {_id: 0, displayName: 1}})
+    usePlaceUri(place.displayName.text);
 }
 
 run().catch(console.dir);
