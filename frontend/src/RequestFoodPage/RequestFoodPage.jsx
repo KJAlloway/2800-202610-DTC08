@@ -49,6 +49,9 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
     return (
         <main className="request-food-page-wrapper">
+            {/* Small page label above the card, matching the login page style */}
+            <p className="request-food-page-context-title">Request a food</p>
+
             <section
                 className="request-food-card"
                 aria-labelledby="request-food-heading"
@@ -61,7 +64,7 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
                         onClick={handleBackClick}
                         aria-label="Go back to home page"
                     >
-                        ←
+                        &larr;
                     </button>
                 </div>
 
