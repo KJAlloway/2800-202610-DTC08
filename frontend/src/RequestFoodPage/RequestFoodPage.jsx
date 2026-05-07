@@ -1,14 +1,49 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../TemplateButtons/Button'
 import './RequestFoodPage.css'
 
 function RequestFoodPage({ onBack, onSubmitRequest }) {
+    // This key is used to remember whether the user wants to hide the popup.
+    const popupPreferenceKey = 'hideRequestFoodPopup'
+
     // Stores the text the user types into the request box.
     const [requestedFood, setRequestedFood] = useState('')
+
+    // Controls whether the popup is currently visible.
+    const [showRequestPopup, setShowRequestPopup] = useState(false)
+
+    // Tracks whether the user checked "Don't show this again".
+    const [disablePopupPermanently, setDisablePopupPermanently] = useState(false)
+
+    // Runs once when the page loads.
+    // It checks whether the user has already chosen to hide this popup before.
+    useEffect(() => {
+        const savedPreference = localStorage.getItem(popupPreferenceKey)
+
+        // Only show the popup if the user has not disabled it.
+        if (savedPreference !== 'true') {
+            setShowRequestPopup(true)
+        }
+    }, [])
 
     // Updates the textarea whenever the user types.
     const handleRequestedFoodChange = (event) => {
         setRequestedFood(event.target.value)
+    }
+
+    // Runs when the user checks or unchecks the popup disable option.
+    const handleDisablePopupChange = (event) => {
+        setDisablePopupPermanently(event.target.checked)
+    }
+
+    // Closes the popup.
+    // If the user checked the disable option, that choice is saved in localStorage.
+    const handleCloseRequestPopup = () => {
+        if (disablePopupPermanently) {
+            localStorage.setItem(popupPreferenceKey, 'true')
+        }
+
+        setShowRequestPopup(false)
     }
 
     // Runs when the user submits the food request form.
@@ -67,6 +102,53 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
                         &larr;
                     </button>
                 </div>
+
+                {/* Help popup that explains how to write a better food request. */}
+                {showRequestPopup && (
+                    <aside
+                        className="request-food-popup"
+                        aria-label="Request food tips"
+                    >
+                        <div className="request-food-popup__header">
+                            <h2 className="request-food-popup__title">
+                                Request tip
+                            </h2>
+
+                            <button
+                                type="button"
+                                className="request-food-popup__close"
+                                onClick={handleCloseRequestPopup}
+                                aria-label="Close popup"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <p className="request-food-popup__text">
+                            Please enter the specific name of the food you want
+                            to request.
+                        </p>
+
+                        <p className="request-food-popup__text">
+                            Clear, specific requests help us better track what
+                            people in your area need.
+                        </p>
+
+                        <p className="request-food-popup__text">
+                            Example: write &quot;rice noodles&quot; instead of
+                            just &quot;noodles&quot;.
+                        </p>
+
+                        <label className="request-food-popup__checkbox-row">
+                            <input
+                                type="checkbox"
+                                checked={disablePopupPermanently}
+                                onChange={handleDisablePopupChange}
+                            />
+                            <span>Don&apos;t show this again</span>
+                        </label>
+                    </aside>
+                )}
 
                 {/* Main content area */}
                 <div className="request-food-body">

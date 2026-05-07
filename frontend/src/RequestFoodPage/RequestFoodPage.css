@@ -71,6 +71,61 @@
     outline-offset: 2px;
 }
 
+/* Popup card that explains how to make a good request */
+.request-food-popup {
+    margin-bottom: 22px;
+    padding: 14px 16px;
+    border: 1px solid #d7c39f;
+    border-radius: 12px;
+    background-color: #fff7e8;
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Top row of the popup with title and close button */
+.request-food-popup__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+/* Popup title */
+.request-food-popup__title {
+    margin: 0;
+    font-size: 18px;
+    color: #7a5a1f;
+}
+
+/* Small close button in the top-right of the popup */
+.request-food-popup__close {
+    border: none;
+    background: transparent;
+    color: #7a5a1f;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Main text inside the popup */
+.request-food-popup__text {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #6a5c43;
+}
+
+/* Keeps the checkbox and text together on one line */
+.request-food-popup__checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #6a5c43;
+    cursor: pointer;
+}
+
 /* Centers the form inside the card */
 .request-food-body {
     flex: 1;
@@ -160,6 +215,11 @@
 
     .request-food-top-row {
         margin-bottom: 14px;
+    }
+
+    .request-food-popup {
+        margin-bottom: 18px;
+        padding: 12px 14px;
     }
 
     .request-food-form {
