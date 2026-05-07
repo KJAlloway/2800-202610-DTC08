@@ -2,6 +2,7 @@ import { useState } from 'react'
 import LoginPage from './LoginPage/LoginPage'
 import MainPage from './MainPage/MainPage'
 import RequestFoodPage from './RequestFoodPage/RequestFoodPage'
+import FoodLocationPage from './FoodLocation/FoodLocationPage'
 
 function App() {
     // Keeps track of which screen should currently be displayed.
@@ -20,6 +21,11 @@ function App() {
     // Opens the "request a food" form page.
     const goToRequestFoodPage = () => {
         setCurrentPage('request-food')
+    }
+
+    // Opens the food location page.
+    const goToFoodLocationPage = () => {
+        setCurrentPage('food-locations')
     }
 
     // Returns the user from the request page back to the home page.
@@ -53,11 +59,22 @@ function App() {
         )
     }
 
+    // Shows the food location page
+    if (currentPage === 'food-locations') {
+        return (
+            <FoodLocationPage
+                onLogout={goToLoginPage}
+                onBack={goToHomePage} 
+            />
+        )
+    }
+
     // If no earlier condition matched, show the home/main page.
     return (
         <MainPage
             onLogout={goToLoginPage}
             onOpenRequestPage={goToRequestFoodPage}
+            onOpenFoodLocationPage={goToFoodLocationPage}
         />
     )
 }
