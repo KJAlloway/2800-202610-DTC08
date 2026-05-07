@@ -1,5 +1,5 @@
 import './requestedFoodsPage.css'
-import { NavBar, Footer } from './sharedComponents'
+import { NavBar, Footer } from '../Navbar and Footer(andrew)/sharedComponents'
 
 function ListElement() {
     return (
