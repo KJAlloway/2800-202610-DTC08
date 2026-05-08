@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import './FoodLocationPage.css';
 import ScrollableList from '../TemplateScrollableLists/ScrollableList';
 import Button from '../TemplateButtons/Button'

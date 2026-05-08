@@ -1,0 +1,35 @@
+.interractionHint {
+    position: fixed;
+
+  
+
+    transform: translateY(-50);
+
+    width: 200px;
+    max-width: 25vw;
+
+    background-color: rgba(30, 30, 30, 0.95);
+    color: white;
+
+    padding: 4px;
+    border-radius: 4px;
+
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.3);
+
+    /* Brings it to front layer */
+    z-index: 1000;
+
+    font-size: 0.95rem;
+    line-height: 1.4;
+
+}
+
+.interractionPositionLeft0Top150 {
+    left: 0px;
+    top: 150px;
+}
+
+.interractionPositionLeft0Top50 {
+    left: 0px;
+    top: 50px;
+}
