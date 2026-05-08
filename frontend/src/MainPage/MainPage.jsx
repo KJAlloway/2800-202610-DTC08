@@ -10,7 +10,7 @@ function MainPage({
     onLogout,
     onBack,
     onOpenRequestPage,
-    onOpenRequestedFoodsPage, // Fixed missing prop from your handlers
+    onOpenRequestedFoodsPage,
     showHints,
     onDisableHints
 }) {
