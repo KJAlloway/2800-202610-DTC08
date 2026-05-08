@@ -1,29 +1,13 @@
-/*
-Global stylesheet for frontend app.
-
-Author: David Lukac
-Version: 1.0
- */
+/* Clanker assisted */
 
 
 
-/*
-Was helped with ChatGPT
- */
 :root {
-    /* Main colors for the hand-drawn/paper-like login screen feel */
-    --page-bg: #efe7db;
-    --panel: #faf8f3;
-    --line: #7f7f7f;
-    --line-soft: #b2b2b2;
-    --ink: #2e2e2e;
-    --shadow: rgba(60, 48, 35, 0.12);
-
     font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
     line-height: 1.4;
     font-weight: 400;
-    color: var(--ink);
-    background: var(--page-bg);
+    color: #2e2e2e;
+    background-color: #fdfaf5;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -34,21 +18,17 @@ Was helped with ChatGPT
     box-sizing: border-box;
 }
 
-html {
-    background: var(--page-bg);
+html,
+body,
+#root {
+    min-height: 100vh;
 }
 
 body {
     margin: 0;
-    min-width: 320px;
-    background: var(--page-bg);
 }
 
 button,
 input {
     font: inherit;
-}
-
-#root {
-    min-height: 100vh;
 }

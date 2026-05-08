@@ -1,105 +1,81 @@
-import './App.css'
+import { useState } from 'react'
+import LoginPage from './LoginPage/LoginPage'
+import MainPage from './MainPage/MainPage'
+import RequestFoodPage from './RequestFoodPage/RequestFoodPage'
+import FoodLocationPage from './FoodLocation/FoodLocationPage'
 
-// Main React component for frontend, decides what appears on the screen by returning the login page.
-//
-// author: David Lukac
-// version 1.0
 function App() {
-    // use the current year
-    const currentYear = new Date().getFullYear()
+    // Keeps track of which screen should currently be displayed.
+    const [currentPage, setCurrentPage] = useState('login')
 
-    const handleLoginSubmit = (event) => {
-        event.preventDefault()
-
-        // TODO: replace with real login logic
-        console.log('login submitted')
+    // Sends the user from login to the home/main page.
+    const goToHomePage = () => {
+        setCurrentPage('home')
     }
 
-    const handleRegisterClick = () => {
-        // TODO: replace with navigation to register screen
-        console.log('go to register screen')
+    // Sends the user back to the login page.
+    const goToLoginPage = () => {
+        setCurrentPage('login')
     }
 
-    const handleGuestClick = () => {
-        // TODO: replace with guest-mode navigation
-        console.log('continue without an account')
+    // Opens the "request a food" form page.
+    const goToRequestFoodPage = () => {
+        setCurrentPage('request-food')
     }
 
+    // Opens the food location page.
+    const goToFoodLocationPage = () => {
+        setCurrentPage('food-locations')
+    }
 
-    // Certain parts of this code were extracted from W3Schools and ChatGPT
+    // Returns the user from the request page back to the home page.
+    const goBackToHomePage = () => {
+        setCurrentPage('home')
+    }
+
+    // Handles what should happen after a request is submitted.
+    const handleFoodRequestSubmit = (foodName) => {
+        console.log('Food request submitted from App:', foodName)
+        setCurrentPage('home')
+    }
+
+    // Shows the login screen first.
+    if (currentPage === 'login') {
+        return (
+            <LoginPage
+                onLogin={goToHomePage}
+                onGuest={goToHomePage}
+            />
+        )
+    }
+
+    // Shows the new request form page.
+    if (currentPage === 'request-food') {
+        return (
+            <RequestFoodPage
+                onBack={goBackToHomePage}
+                onSubmitRequest={handleFoodRequestSubmit}
+            />
+        )
+    }
+
+    // Shows the food location page
+    if (currentPage === 'food-locations') {
+        return (
+            <FoodLocationPage
+                onLogout={goToLoginPage}
+                onBack={goToHomePage} 
+            />
+        )
+    }
+
+    // If no earlier condition matched, show the home/main page.
     return (
-        <main className="login-page">
-            {/* small title above the card to match the sketch */}
-            <p className="login-page-title">Login Page</p>
-
-            <section className="login-card" aria-labelledby="login-heading">
-                <header className="login-card-header">
-                    {/* logo placeholder */}
-                    <div className="brand-badge" aria-hidden="true">
-                        <span className="brand-badge-emoji">🥬</span>
-                    </div>
-
-                    <div className="brand-name" aria-label="Cabbage Patch">
-                        <span>Cabbage</span>
-                        <span>Patch</span>
-                    </div>
-                </header>
-
-                <div className="login-card__body">
-                    <h1 id="login-heading" className="sr-only">Log in to Cabbage Patch</h1>
-
-                    <form className="login-form" onSubmit={handleLoginSubmit}>
-                        <label className="sr-only" htmlFor="login-identifier">Username or email</label>
-                        <input
-                            id="login-identifier"
-                            className="login-input"
-                            type="text"
-                            name="identifier"
-                            placeholder="Username/Email"
-                            autoComplete="username"
-                        />
-
-                        <label className="sr-only" htmlFor="login-password">Password</label>
-                        <input
-                            id="login-password"
-                            className="login-input"
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            autoComplete="current-password"
-                        />
-
-                        <div className="login-actions">
-                            <button
-                                type="button"
-                                className="action-button"
-                                onClick={handleRegisterClick}
-                            >
-                                Sign Up/Register
-                            </button>
-
-                            <button type="submit" className="action-button">
-                                Login
-                            </button>
-                        </div>
-                    </form>
-
-                    <button
-                        type="button"
-                        className="action-button action-button--guest"
-                        onClick={handleGuestClick}
-                    >
-                        Continue without an account
-                    </button>
-                </div>
-
-                <footer className="login-card__footer">
-                    <div className="login-card__footer-line" aria-hidden="true"></div>
-                    <p>Copyright DTC-08</p>
-                    <p className="login-card__year">{currentYear}</p>
-                </footer>
-            </section>
-        </main>
+        <MainPage
+            onLogout={goToLoginPage}
+            onOpenRequestPage={goToRequestFoodPage}
+            onOpenFoodLocationPage={goToFoodLocationPage}
+        />
     )
 }
 

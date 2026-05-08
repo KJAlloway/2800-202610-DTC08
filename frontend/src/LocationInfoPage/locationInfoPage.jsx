@@ -1,5 +1,6 @@
 import './locationInfoPage.css'
-import { NavBar, Footer } from './sharedComponents';
+import { NavBar, Footer } from '../Navbar and Footer(andrew)/sharedComponents';
+import '../Interraction hints/hints.css'
 
 
 function MiddleSection() {
@@ -50,14 +51,36 @@ function RightColumn() {
     )
 }
 
+function Hints() {
+    return (
+        <div>
+            <div className='interractionHint' style={{top: "175px", left: "0px"}}>
+                Open the GoogleMaps directions to this location
+            </div>
+            <div className='interractionHint' style={{top: "575px", left: "0px"}}>
+                Click to confirm the lack of this item at this location
+            </div>
+            <div className='interractionHint' style={{top: "700px", left: "0px"}}>
+                Click to confirm the presence of this item at this location
+            </div>
+            <div className='interractionHint' style={{top: "300px", right: "0px"}}>
+                The most recent dates when a verified (logged in) user confirmed the presence of this item at this location
+            </div>
+            
+        </div>
+    )
+}
+
 
 
 function StorePage() {
     return (
+
         <div>
             <NavBar />
             <MiddleSection />
             <Footer />
+            <Hints />
         </div>
         
     )
