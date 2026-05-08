@@ -1,28 +1,54 @@
 // import React from 'react';
-import './FoodLocationPage.css';
-import ScrollableList from '../TemplateScrollableLists/ScrollableList';
+import './FoodLocationPage.css'
+import ScrollableList from '../TemplateScrollableLists/ScrollableList'
 import Button from '../TemplateButtons/Button'
-import cabbageLogo from '../assets/cabbage-logo.svg';
-import FirstTimeHint from '../FirstTimeHint/FirstTimeHint';
-import BackButton from '../BackButtonTemplate/BackButton';
+import FirstTimeHint from '../FirstTimeHint/FirstTimeHint'
+import BackButton from '../BackButtonTemplate/BackButton'
+import PageLabel from '../PageLabel/PageLabel'
+import cabbageLogo from '../assets/cabbage-logo.svg'
 
-const FoodLocationPage = ({ 
-    onLogout, 
-    onBack, 
-    showHints, 
-    onDisableHints 
-}) => {
-    const locations = ["Location #1", "Location #2", "Location #3", "Location #4", "Location #5", "Location #6", "Location #7", "Location #8", "Location #9", "Location #10", "Location #11", "Location #12"];
+const FoodLocationPage = ({
+                              onLogout,
+                              onBack,
+                              showHints,
+                              onDisableHints,
+                              searchedFoodName,
+                          }) => {
+    const locations = [
+        'Location #1',
+        'Location #2',
+        'Location #3',
+        'Location #4',
+        'Location #5',
+        'Location #6',
+        'Location #7',
+        'Location #8',
+        'Location #9',
+        'Location #10',
+        'Location #11',
+        'Location #12',
+    ]
+
+    // Creates a small line of text showing what was searched.
+    const searchSummary = searchedFoodName
+        ? `Results for: ${searchedFoodName}`
+        : 'Browse available locations below.'
 
     return (
         <div className="main-page-wrapper">
+            <PageLabel text="Food Locations" />
+
             <div className="main-card">
                 <div className="main-header">
                     <div className="header-left">
                         <div className="logo-nav-stack">
                             <div className="brand-outer-frame">
                                 <div className="brand-inner-tray">
-                                    <img src={cabbageLogo} alt="Logo" className="brand-logo" />
+                                    <img
+                                        src={cabbageLogo}
+                                        alt="Logo"
+                                        className="brand-logo"
+                                    />
                                 </div>
                             </div>
 
@@ -46,6 +72,9 @@ const FoodLocationPage = ({
                     />
                 </div>
 
+                {/* Shows the last search term that was submitted from MainPage */}
+                <p className="food-location-search-summary">{searchSummary}</p>
+
                 {showHints && (
                     <FirstTimeHint
                         title="Using the list"
@@ -58,7 +87,7 @@ const FoodLocationPage = ({
                     <Button
                         text="Filter"
                         className="filter-button-main"
-                        onClick={() => console.log("Filter clicked")}
+                        onClick={() => console.log('Filter clicked')}
                     />
                 </div>
 
@@ -81,7 +110,7 @@ const FoodLocationPage = ({
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default FoodLocationPage;
+export default FoodLocationPage

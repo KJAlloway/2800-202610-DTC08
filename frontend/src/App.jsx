@@ -8,7 +8,9 @@ function App() {
     // Keeps track of which screen should currently be displayed.
     const [currentPage, setCurrentPage] = useState('food-locations')
 
-    // The page-specific hint states
+    // Stores the last food name submitted from the search bar.
+    const [searchedFoodName, setSearchedFoodName] = useState('')
+
     const [showMainHint, setShowMainHint] = useState(false)
     const [showLocationHint, setShowLocationHint] = useState(false)
 
@@ -16,18 +18,24 @@ function App() {
     const MAIN_HINT_KEY = 'cabbagepatch_hint_main_hidden'
     const LOCATION_HINT_KEY = 'cabbagepatch_hint_location_hidden'
 
-    // Check for when the first time hint is shown
+    // Checks whether the first-time hints should still be shown.
     useEffect(() => {
-        if (localStorage.getItem(MAIN_HINT_KEY) !== 'true') setShowMainHint(true)
-        if (localStorage.getItem(LOCATION_HINT_KEY) !== 'true') setShowLocationHint(true)
+        if (localStorage.getItem(MAIN_HINT_KEY) !== 'true') {
+            setShowMainHint(true)
+        }
+
+        if (localStorage.getItem(LOCATION_HINT_KEY) !== 'true') {
+            setShowLocationHint(true)
+        }
     }, [])
 
-    // Dismiss Handlers for each page (For when you click on the understood with hints)
+    // Hides the main-page hint permanently.
     const dismissMainHint = () => {
         localStorage.setItem(MAIN_HINT_KEY, 'true')
         setShowMainHint(false)
     }
 
+    // Hides the location-page hint permanently.
     const dismissLocationHint = () => {
         localStorage.setItem(LOCATION_HINT_KEY, 'true')
         setShowLocationHint(false)
@@ -43,13 +51,15 @@ function App() {
         setCurrentPage('login')
     }
 
-    // Opens the "request a food" form page.
+    // Opens the request-a-food form page.
     const goToRequestFoodPage = () => {
         setCurrentPage('request-food')
     }
 
-    // Opens the food location page.
-    const goToFoodLocationPage = () => {
+    // Opens the food-location page.
+    // If a food name is provided, save it first so the next page can use it.
+    const goToFoodLocationPage = (foodName = '') => {
+        setSearchedFoodName(foodName)
         setCurrentPage('food-locations')
     }
 
@@ -64,7 +74,6 @@ function App() {
         setCurrentPage('home')
     }
 
-    // Shows the login screen first.
     if (currentPage === 'login') {
         return (
             <LoginPage
@@ -74,7 +83,6 @@ function App() {
         )
     }
 
-    // Shows the new request form page.
     if (currentPage === 'request-food') {
         return (
             <RequestFoodPage
@@ -84,7 +92,6 @@ function App() {
         )
     }
 
-    // Shows the food location page
     if (currentPage === 'food-locations') {
         return (
             <FoodLocationPage
@@ -92,11 +99,11 @@ function App() {
                 onBack={goToHomePage}
                 showHints={showLocationHint}
                 onDisableHints={dismissLocationHint}
+                searchedFoodName={searchedFoodName}
             />
         )
     }
 
-    // If no earlier condition matched, show the home/main page.
     return (
         <MainPage
             onLogout={goToLoginPage}
