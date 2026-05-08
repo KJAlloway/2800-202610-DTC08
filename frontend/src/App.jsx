@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LoginPage from './LoginPage/LoginPage'
 import MainPage from './MainPage/MainPage'
 import RequestFoodPage from './RequestFoodPage/RequestFoodPage'
@@ -6,7 +6,32 @@ import FoodLocationPage from './FoodLocation/FoodLocationPage'
 
 function App() {
     // Keeps track of which screen should currently be displayed.
-    const [currentPage, setCurrentPage] = useState('login')
+    const [currentPage, setCurrentPage] = useState('food-locations')
+
+    // The page-specific hint states
+    const [showMainHint, setShowMainHint] = useState(false)
+    const [showLocationHint, setShowLocationHint] = useState(false)
+
+    // The keys for the hints
+    const MAIN_HINT_KEY = 'cabbagepatch_hint_main_hidden'
+    const LOCATION_HINT_KEY = 'cabbagepatch_hint_location_hidden'
+
+    // Check for when the first time hint is shown
+    useEffect(() => {
+        if (localStorage.getItem(MAIN_HINT_KEY) !== 'true') setShowMainHint(true)
+        if (localStorage.getItem(LOCATION_HINT_KEY) !== 'true') setShowLocationHint(true)
+    }, [])
+
+    // Dismiss Handlers for each page (For when you click on the understood with hints)
+    const dismissMainHint = () => {
+        localStorage.setItem(MAIN_HINT_KEY, 'true')
+        setShowMainHint(false)
+    }
+
+    const dismissLocationHint = () => {
+        localStorage.setItem(LOCATION_HINT_KEY, 'true')
+        setShowLocationHint(false)
+    }
 
     // Sends the user from login to the home/main page.
     const goToHomePage = () => {
@@ -64,7 +89,9 @@ function App() {
         return (
             <FoodLocationPage
                 onLogout={goToLoginPage}
-                onBack={goToHomePage} 
+                onBack={goToHomePage}
+                showHints={showLocationHint}
+                onDisableHints={dismissLocationHint}
             />
         )
     }
@@ -75,6 +102,8 @@ function App() {
             onLogout={goToLoginPage}
             onOpenRequestPage={goToRequestFoodPage}
             onOpenFoodLocationPage={goToFoodLocationPage}
+            showHints={showMainHint}
+            onDisableHints={dismissMainHint}
         />
     )
 }
