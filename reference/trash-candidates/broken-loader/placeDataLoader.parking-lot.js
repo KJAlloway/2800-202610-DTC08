@@ -1,16 +1,20 @@
+/**
+ * PARKING LOT FILE — see README.md in this folder before reusing.
+ */
+
 import {MongoClient} from "mongodb";
 import 'dotenv/config'
 
 const db_uri = process.env.MONGODB_URI;
 
-
 const client = new MongoClient(db_uri);
 
-export async function run() {
+async function run(newDocument) {
     try {
         const database = client.db("googleApiTest");
-        const testItems = database.collection("testItems")
-        console.log(await testItems.find({"name": "triangle"}).toArray())
+        const testLocations = database.collection("testLocations")
+        await testLocations.insertOne(newDocument)
+        console.log("new document added to location db")
     } finally {
         // Ensures that the client will close when you finish/error
         await client.close();

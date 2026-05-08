@@ -1,3 +1,7 @@
+/**
+ * PARKING LOT FILE — see README.md in this folder before reusing.
+ */
+
 import {MongoClient} from "mongodb";
 import mongoose from "mongoose";
 import 'dotenv/config'

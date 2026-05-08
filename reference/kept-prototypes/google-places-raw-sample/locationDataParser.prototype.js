@@ -1,3 +1,20 @@
+/**
+ * PROTOTYPE ARCHIVE — not imported by the app.
+ *
+ * Why this is kept:
+ * - Shows the first attempt to retrieve selected fields from stored Google Places data.
+ * - Captures the idea that provider data should be parsed into smaller app-facing fields.
+ *
+ * Why this is not used directly:
+ * - Talks directly to a hard-coded `googleApiTest` database and collection.
+ * - Pulls Google-specific fields directly instead of normalizing through a provider adapter.
+ * - Logs data instead of returning a reusable normalized vendor object.
+ * - Opens and closes its own Mongo client as a one-off script.
+ *
+ * Future use:
+ * - Mine this for field names when writing `googlePlacesVendorProvider.js` later.
+ */
+
 import {MongoClient} from "mongodb";
 import 'dotenv/config'
 
