@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react'
 import './MainPage.css'
 import Button from '../TemplateButtons/Button'
@@ -41,6 +42,16 @@ function MainPage({
 
         console.log('Open requested foods list page')
     }
+=======
+import React from 'react';
+import './MainPage.css';
+import Button from '../TemplateButtons/Button';
+import SearchBar from '../SearchBar/SearchBar';
+import cabbageLogo from '../assets/cabbage-logo.svg';
+
+function MainPage() {
+    const currentYear = new Date().getFullYear();
+>>>>>>> 677c910dda0f367d0e6b5c9412150d80e53a3e06
 
     return (
         <main className="main-page-wrapper">
@@ -49,7 +60,10 @@ function MainPage({
             <section className="main-card">
                 <header className="main-header">
                     <div className="header-left">
+<<<<<<< HEAD
                         {/* Logo frame */}
+=======
+>>>>>>> 677c910dda0f367d0e6b5c9412150d80e53a3e06
                         <div className="brand-outer-frame">
                             <div className="brand-inner-tray">
                                 <img
@@ -59,8 +73,11 @@ function MainPage({
                                 />
                             </div>
                         </div>
+<<<<<<< HEAD
 
                         {/* App name frame */}
+=======
+>>>>>>> 677c910dda0f367d0e6b5c9412150d80e53a3e06
                         <div className="brand-text-outer">
                             <div className="brand-text-tray">
                                 <div className="brand-name-stacked">
@@ -70,26 +87,43 @@ function MainPage({
                             </div>
                         </div>
                     </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 677c910dda0f367d0e6b5c9412150d80e53a3e06
                     <div className="header-right">
                         <Button
                             text="Log out"
                             className="logout-btn"
+<<<<<<< HEAD
                             onClick={handleLogoutClick}
+=======
+                            onClick={() => console.log("Logout")}
+>>>>>>> 677c910dda0f367d0e6b5c9412150d80e53a3e06
                         />
                     </div>
                 </header>
 
+<<<<<<< HEAD
                 {/* Search area */}
                 <section className="search-section">
                     <SearchBar text="Search for any food" />
                 </section>
 
                 {/* Main action buttons */}
+=======
+                <section className="search-section">
+                    <SearchBar
+                        placeholder="Search for any food..."
+                    />
+                </section>
+
+>>>>>>> 677c910dda0f367d0e6b5c9412150d80e53a3e06
                 <section className="action-section">
                     <Button
                         text="Submit a request for unavailable food"
                         className="full-width-action"
+<<<<<<< HEAD
                         onClick={handleOpenRequestPage}
                     />
 
@@ -112,3 +146,27 @@ function MainPage({
 }
 
 export default MainPage
+=======
+                    />
+                    <Button
+                        text="View local commonly requested foods"
+                        className="full-width-action"
+                    />
+                </section>
+
+                <footer className="main-card-footer">
+                    <div
+                        className="footer-line">
+                    </div>
+                    <p>Copyright DTC-08</p>
+                    <p
+                        className="footer-year">{currentYear}
+                    </p>
+                </footer>
+            </section>
+        </main>
+    );
+}
+
+export default MainPage;
+>>>>>>> 677c910dda0f367d0e6b5c9412150d80e53a3e06
