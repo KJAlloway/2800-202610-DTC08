@@ -1,0 +1,4 @@
+
+How to run the app:
+1. cd .\frontend
+2. npm run dev
