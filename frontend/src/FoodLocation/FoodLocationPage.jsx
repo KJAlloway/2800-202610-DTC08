@@ -3,8 +3,15 @@ import './FoodLocationPage.css';
 import ScrollableList from '../TemplateScrollableLists/ScrollableList';
 import Button from '../TemplateButtons/Button'
 import cabbageLogo from '../assets/cabbage-logo.svg';
+import FirstTimeHint from '../FirstTimeHint/FirstTimeHint';
+import BackButton from '../BackButtonTemplate/BackButton';
 
-const FoodLocationPage = ({ onLogout }) => {
+const FoodLocationPage = ({ 
+    onLogout, 
+    onBack, 
+    showHints, 
+    onDisableHints 
+}) => {
     const locations = ["Location #1", "Location #2", "Location #3", "Location #4", "Location #5", "Location #6", "Location #7", "Location #8", "Location #9", "Location #10", "Location #11", "Location #12"];
 
     return (
@@ -12,11 +19,16 @@ const FoodLocationPage = ({ onLogout }) => {
             <div className="main-card">
                 <div className="main-header">
                     <div className="header-left">
-                        <div className="brand-outer-frame">
-                            <div className="brand-inner-tray">
-                                <img src={cabbageLogo} alt="Logo" className="brand-logo" />
+                        <div className="logo-nav-stack">
+                            <div className="brand-outer-frame">
+                                <div className="brand-inner-tray">
+                                    <img src={cabbageLogo} alt="Logo" className="brand-logo" />
+                                </div>
                             </div>
+
+                            <BackButton onClick={onBack} />
                         </div>
+
                         <div className="brand-text-outer">
                             <div className="brand-text-tray">
                                 <div className="brand-name-stacked">
@@ -33,6 +45,14 @@ const FoodLocationPage = ({ onLogout }) => {
                         className="logout-button-override"
                     />
                 </div>
+
+                {showHints && (
+                    <FirstTimeHint
+                        title="Using the list"
+                        message="Scroll through the locations or filter them to get the type of location you want."
+                        onDismiss={onDisableHints}
+                    />
+                )}
 
                 <div className="filter-section">
                     <Button
