@@ -3,6 +3,41 @@ import './MainPage.css'
 import Button from '../TemplateButtons/Button'
 import SearchBar from '../SearchBar/SearchBar'
 import cabbageLogo from '../assets/cabbage-logo.svg'
+import sampleFoods from '../data/sampleFoods'
+
+// Returns true when any searchable food text includes the user's input.
+function foodMatchesSearch(food, searchText) {
+    const normalizedSearch = searchText.trim().toLowerCase()
+
+    if (!normalizedSearch) {
+        return false
+    }
+
+    const searchableValues = [
+        food.name,
+        food.category,
+        ...food.cuisines,
+        ...food.alternateNames,
+        ...food.searchTerms,
+    ]
+
+    return searchableValues.some((value) =>
+        value.toLowerCase().includes(normalizedSearch)
+    )
+}
+
+// Converts matching foods into the suggestion format used by SearchBar.
+function getFoodSuggestions(searchText) {
+    return sampleFoods
+        .filter((food) => foodMatchesSearch(food, searchText))
+        .slice(0, 5)
+        .map((food) => ({
+            id: food.id,
+            name: food.name,
+            detail: food.alternateNames.slice(0, 2).join(', '),
+        }))
+}
+
 
 function MainPage({
                       onLogout,
@@ -44,24 +79,6 @@ function MainPage({
 
     const [searchValue, setSearchValue] = useState('')
 
-    const sampleAiSuggestions = [
-        {
-            id: 'kimchi',
-            name: 'Kimchi',
-            detail: 'Also known as kimchee or napa cabbage kimchi',
-        },
-        {
-            id: 'gochujang',
-            name: 'Gochujang',
-            detail: 'Korean chili paste',
-        },
-        {
-            id: 'banh-pho',
-            name: 'Banh pho noodles',
-            detail: 'Flat rice noodles often used for pho',
-        },
-    ]
-
     const handleSearchChange = (event) => {
         setSearchValue(event.target.value)
     }
@@ -70,6 +87,7 @@ function MainPage({
         setSearchValue(suggestion.name)
     }
 
+    const foodSuggestions = getFoodSuggestions(searchValue)
 
     return (
         <main className="main-page-wrapper">
@@ -115,7 +133,7 @@ function MainPage({
                         text="Search for any food"
                         value={searchValue}
                         onChange={handleSearchChange}
-                        suggestions={searchValue ? sampleAiSuggestions : []}
+                        suggestions={foodSuggestions}
                         onSuggestionSelect={handleSuggestionSelect}
                     />
                 </section>
