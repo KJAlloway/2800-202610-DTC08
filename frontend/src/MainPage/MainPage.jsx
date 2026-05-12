@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './MainPage.css'
 import Button from '../TemplateButtons/Button'
 import SearchBar from '../SearchBar/SearchBar'
@@ -42,6 +42,35 @@ function MainPage({
         console.log('Open requested foods list page')
     }
 
+    const [searchValue, setSearchValue] = useState('')
+
+    const sampleAiSuggestions = [
+        {
+            id: 'kimchi',
+            name: 'Kimchi',
+            detail: 'Also known as kimchee or napa cabbage kimchi',
+        },
+        {
+            id: 'gochujang',
+            name: 'Gochujang',
+            detail: 'Korean chili paste',
+        },
+        {
+            id: 'banh-pho',
+            name: 'Banh pho noodles',
+            detail: 'Flat rice noodles often used for pho',
+        },
+    ]
+
+    const handleSearchChange = (event) => {
+        setSearchValue(event.target.value)
+    }
+
+    const handleSuggestionSelect = (suggestion) => {
+        setSearchValue(suggestion.name)
+    }
+
+
     return (
         <main className="main-page-wrapper">
             <p className="page-context-title">Main Page</p>
@@ -82,7 +111,13 @@ function MainPage({
 
                 {/* Search area */}
                 <section className="search-section">
-                    <SearchBar text="Search for any food" />
+                    <SearchBar
+                        text="Search for any food"
+                        value={searchValue}
+                        onChange={handleSearchChange}
+                        suggestions={searchValue ? sampleAiSuggestions : []}
+                        onSuggestionSelect={handleSuggestionSelect}
+                    />
                 </section>
 
                 {/* Main action buttons */}
