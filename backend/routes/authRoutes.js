@@ -4,7 +4,8 @@ const router = express.Router();
 const {
     loginUser,
     registerUser,
-    logoutUser
+    logoutUser,
+    getUserInfo
 } = require("../controllers/authController")
 
 const { isAuthenticated } = require("..middleware/authMiddleware")
@@ -18,7 +19,10 @@ router.post("/register", registerUser);
 // logout
 router.get("/logout", logoutUser);
 
+router.get("/userInfo", isAuthenticated, getUserInfo);
+
 router.get("/testAuth", isAuthenticated, (req, res) => {
+    console.log("User is logged in");
     res.send("Welcome to dashboard");
 });
 

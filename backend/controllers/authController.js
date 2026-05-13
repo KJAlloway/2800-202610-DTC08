@@ -28,6 +28,11 @@ async function logoutUser(req, res) {
     });
 }
 
+async function getUserInfo(req, res) {
+    username = req.body.username;
+    res.send({username})
+}
+
 module.exports = {
-    loginUser, registerUser, logoutUser
+    loginUser, registerUser, logoutUser, getUserInfo
 };
