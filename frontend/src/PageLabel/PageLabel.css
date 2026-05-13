@@ -1,0 +1,11 @@
+/* Assisted with ChatGPT 5.4*/
+
+
+
+/* Reusable page label shown above page cards */
+.page-label {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #555555;
+    text-align: center;
+}
