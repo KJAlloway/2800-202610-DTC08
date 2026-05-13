@@ -2,8 +2,6 @@
 /* I need to change a few things here to make the AI work. */
 /* As per instructions, parts of this file were changed by AI */
 
-
-
 import React from 'react'
 import './SearchBar.css'
 import searchIcon from '../assets/search-icon.svg'
@@ -15,6 +13,7 @@ const SearchBar = ({
                        suggestions = [],
                        onSuggestionSelect,
                    }) => {
+    // Checks whether there are suggestions to show below the search input.
     const hasSuggestions = suggestions.length > 0
 
     return (
@@ -38,38 +37,43 @@ const SearchBar = ({
                 </div>
             </div>
 
+            {/* Shows AI suggestions only when the backend returns at least one result. */}
             {hasSuggestions && (
-                <div className="ai-suggestion-list">
-                    {suggestions.map((suggestion) => {
-                        // The backend may include alternate names and search terms as relatedNames.
-                        // We only show the first few so the suggestion card stays readable.
-                        const relatedNames = Array.isArray(suggestion.relatedNames)
-                            ? suggestion.relatedNames.slice(0, 3)
-                            : []
+                <div className="ai-suggestion-panel" aria-label="AI suggestions">
+                    <p className="ai-suggestion-label">AI suggestions</p>
 
-                        return (
-                            <button
-                                key={suggestion.id}
-                                type="button"
-                                className="ai-suggestion-button"
-                                onClick={() => onSuggestionSelect?.(suggestion)}
-                            >
-                <span className="ai-suggestion-name">
-                    {suggestion.name}
-                </span>
+                    <div className="ai-suggestion-list">
+                        {suggestions.map((suggestion) => {
+                            // The backend may include alternate names and search terms as relatedNames.
+                            // We only show the first few so the suggestion card stays readable.
+                            const relatedNames = Array.isArray(suggestion.relatedNames)
+                                ? suggestion.relatedNames.slice(0, 3)
+                                : []
 
-                                <span className="ai-suggestion-detail">
-                    {suggestion.detail}
-                </span>
+                            return (
+                                <button
+                                    key={suggestion.id}
+                                    type="button"
+                                    className="ai-suggestion-button"
+                                    onClick={() => onSuggestionSelect?.(suggestion)}
+                                >
+                                    <span className="ai-suggestion-name">
+                                        {suggestion.name}
+                                    </span>
 
-                                {relatedNames.length > 0 && (
-                                    <span className="ai-related-names">
-                        Related: {relatedNames.join(', ')}
-                    </span>
-                                )}
-                            </button>
-                        )
-                    })}
+                                    <span className="ai-suggestion-detail">
+                                        {suggestion.detail}
+                                    </span>
+
+                                    {relatedNames.length > 0 && (
+                                        <span className="ai-related-names">
+                                            Related: {relatedNames.join(', ')}
+                                        </span>
+                                    )}
+                                </button>
+                            )
+                        })}
+                    </div>
                 </div>
             )}
         </div>
@@ -77,3 +81,4 @@ const SearchBar = ({
 }
 
 export default SearchBar
+
