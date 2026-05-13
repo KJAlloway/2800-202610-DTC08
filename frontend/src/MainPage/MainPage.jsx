@@ -5,7 +5,68 @@ import SearchBar from '../SearchBar/SearchBar'
 import cabbageLogo from '../assets/cabbage-logo.svg'
 import sampleFoods from '../data/sampleFoods'
 
-// Returns true when any searchable food text includes the user's input.
+// Measures how many single-character changes are needed to turn one word into another.
+// As per instructions, this function was assisted with by AI.
+function getEditDistance(firstText, secondText) {
+    const first = firstText.toLowerCase()
+    const second = secondText.toLowerCase()
+
+    const distances = Array.from({ length: first.length + 1 }, () =>
+        Array(second.length + 1).fill(0)
+    )
+
+    for (let row = 0; row <= first.length; row += 1) {
+        distances[row][0] = row
+    }
+
+    for (let column = 0; column <= second.length; column += 1) {
+        distances[0][column] = column
+    }
+
+    for (let row = 1; row <= first.length; row += 1) {
+        for (let column = 1; column <= second.length; column += 1) {
+            const lettersMatch = first[row - 1] === second[column - 1]
+            const substitutionCost = lettersMatch ? 0 : 1
+
+            distances[row][column] = Math.min(
+                distances[row - 1][column] + 1,
+                distances[row][column - 1] + 1,
+                distances[row - 1][column - 1] + substitutionCost
+            )
+        }
+    }
+
+    return distances[first.length][second.length]
+}
+
+// Allows close matches so small typos can still return useful food suggestions.
+// As per instructions, this function was assisted with by AI.
+function isFuzzyMatch(searchText, candidateText) {
+    const normalizedSearch = searchText.trim().toLowerCase()
+    const normalizedCandidate = candidateText.trim().toLowerCase()
+
+    if (!normalizedSearch || !normalizedCandidate) {
+        return false
+    }
+
+    const searchWords = normalizedSearch.split(/\s+/)
+    const candidateWords = normalizedCandidate.split(/\s+/)
+
+    return searchWords.some((searchWord) =>
+        candidateWords.some((candidateWord) => {
+            const distance = getEditDistance(searchWord, candidateWord)
+
+            if (searchWord.length <= 4) {
+                return distance <= 1
+            }
+
+            return distance <= 2
+        })
+    )
+}
+
+// Returns true when searchable food text includes the user's input or closely matches it.
+// As per instructions, this function was assisted with by AI.
 function foodMatchesSearch(food, searchText) {
     const normalizedSearch = searchText.trim().toLowerCase()
 
@@ -21,9 +82,14 @@ function foodMatchesSearch(food, searchText) {
         ...food.searchTerms,
     ]
 
-    return searchableValues.some((value) =>
-        value.toLowerCase().includes(normalizedSearch)
-    )
+    return searchableValues.some((value) => {
+        const normalizedValue = value.toLowerCase()
+
+        return (
+            normalizedValue.includes(normalizedSearch) ||
+            isFuzzyMatch(normalizedSearch, normalizedValue)
+        )
+    })
 }
 
 // Converts matching foods into the suggestion format used by SearchBar.
