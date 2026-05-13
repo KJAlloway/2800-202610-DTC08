@@ -13,11 +13,13 @@ const SearchBar = ({
                        suggestions = [],
                        onSuggestionSelect,
                    }) => {
-    // Checks whether there are suggestions to show below the search input.
+    // This controls whether the AI suggestion area should appear.
+    // If the backend returns an empty array, the panel stays hidden.
     const hasSuggestions = suggestions.length > 0
 
     return (
         <div className="search-wrapper">
+            {/* Main search input frame */}
             <div className="search-outer-frame">
                 <div className="search-inner-tray">
                     <img
@@ -37,15 +39,15 @@ const SearchBar = ({
                 </div>
             </div>
 
-            {/* Shows AI suggestions only when the backend returns at least one result. */}
+            {/* AI suggestions only show after the backend sends matching results. */}
             {hasSuggestions && (
                 <div className="ai-suggestion-panel" aria-label="AI suggestions">
                     <p className="ai-suggestion-label">AI suggestions</p>
 
                     <div className="ai-suggestion-list">
                         {suggestions.map((suggestion) => {
-                            // The backend may include alternate names and search terms as relatedNames.
-                            // We only show the first few so the suggestion card stays readable.
+                            // Related names come from the backend.
+                            // They include alternate cultural names and useful search terms.
                             const relatedNames = Array.isArray(suggestion.relatedNames)
                                 ? suggestion.relatedNames.slice(0, 3)
                                 : []
@@ -81,4 +83,3 @@ const SearchBar = ({
 }
 
 export default SearchBar
-
