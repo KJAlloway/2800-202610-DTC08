@@ -50,8 +50,76 @@ app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
-// Checks whether a food item contains the user's search text.
-// This is the temporary "AI-style" matching logic until a real AI service is added.
+// AI
+// Measures how many single-character edits are needed to turn one word into another.
+// This helps catch small spelling mistakes like "kimche" instead of "kimchi".
+function getEditDistance(firstText, secondText) {
+    const first = firstText.toLowerCase()
+    const second = secondText.toLowerCase()
+
+    const distances = Array.from({ length: first.length + 1 }, () =>
+        Array(second.length + 1).fill(0)
+    )
+
+    // Fill the first column with deletion costs.
+    for (let row = 0; row <= first.length; row += 1) {
+        distances[row][0] = row
+    }
+
+    // Fill the first row with insertion costs.
+    for (let column = 0; column <= second.length; column += 1) {
+        distances[0][column] = column
+    }
+
+    // Fill the rest of the matrix with the cheapest edit path.
+    for (let row = 1; row <= first.length; row += 1) {
+        for (let column = 1; column <= second.length; column += 1) {
+            const lettersMatch = first[row - 1] === second[column - 1]
+            const substitutionCost = lettersMatch ? 0 : 1
+
+            distances[row][column] = Math.min(
+                distances[row - 1][column] + 1,
+                distances[row][column - 1] + 1,
+                distances[row - 1][column - 1] + substitutionCost
+            )
+        }
+    }
+
+    return distances[first.length][second.length]
+}
+
+// AI
+// Compares the user's words against candidate food words.
+// This catches close matches without requiring the full phrase to be exact.
+function isFuzzyMatch(searchText, candidateText) {
+    const normalizedSearch = searchText.trim().toLowerCase()
+    const normalizedCandidate = candidateText.trim().toLowerCase()
+
+    if (!normalizedSearch || !normalizedCandidate) {
+        return false
+    }
+
+    const searchWords = normalizedSearch.split(/\s+/)
+    const candidateWords = normalizedCandidate.split(/\s+/)
+
+    return searchWords.some((searchWord) =>
+        candidateWords.some((candidateWord) => {
+            const distance = getEditDistance(searchWord, candidateWord)
+
+            // Short words need stricter matching so random tiny inputs do not match too much.
+            if (searchWord.length <= 4) {
+                return distance <= 1
+            }
+
+            // Longer words can allow two small mistakes.
+            return distance <= 2
+        })
+    )
+}
+
+// AI
+// Checks whether a food item matches the user's search text.
+// It first checks normal partial text matching, then fuzzy matching for typos.
 function foodMatchesSearch(food, searchText) {
     const normalizedSearch = searchText.trim().toLowerCase()
 
@@ -63,9 +131,17 @@ function foodMatchesSearch(food, searchText) {
         ...food.searchTerms,
     ]
 
-    return searchableValues.some((value) =>
-        value.toLowerCase().includes(normalizedSearch)
-    )
+    return searchableValues.some((value) => {
+        const normalizedValue = value.toLowerCase()
+
+        // Normal match: catches exact and partial searches like "gochu" or "pho".
+        const isPartialMatch = normalizedValue.includes(normalizedSearch)
+
+        // Fuzzy match: catches small spelling mistakes like "kimche" or "lemongras".
+        const isCloseTypoMatch = isFuzzyMatch(normalizedSearch, normalizedValue)
+
+        return isPartialMatch || isCloseTypoMatch
+    })
 }
 
 // Shapes backend food data into the format expected by the frontend suggestion UI.
