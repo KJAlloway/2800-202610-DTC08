@@ -7,6 +7,8 @@ const sampleFoods = require('./data/sampleFoods')
 const app = express()
 const PORT = 3000
 
+const MAX_SEARCH_TEXT_LENGTH = 80
+
 // Allows the backend to read JSON request bodies sent from the frontend.
 // Without this, req.body would be undefined for POST requests.
 app.use(express.json())
@@ -79,38 +81,80 @@ function createSuggestion(food) {
     }
 }
 
-// AI suggestion endpoint used by the frontend search bar and request cleanup flow.
-// It accepts user text and returns food suggestions in a consistent format.
-app.post('/api/ai-suggestions', (req, res) => {
-    const searchText = req.body.searchText
-
-    // Guardrail: reject missing or non-text input before searching.
+// Validates the search text before the route tries to generate suggestions.
+// Keeping this separate makes the route easier to read and keeps validation consistent.
+function validateSearchText(searchText) {
+    // The frontend should send searchText as a string in the JSON request body.
     if (typeof searchText !== 'string') {
-        return res.status(400).json({
-            error: 'searchText must be a string.',
-            suggestions: [],
-        })
+        return {
+            isValid: false,
+            statusCode: 400,
+            message: 'searchText must be a string.',
+        }
     }
 
     const cleanedSearchText = searchText.trim()
 
-    // Guardrail: empty searches should return no suggestions.
+    // Empty input is not an error, but it should return no suggestions.
     if (!cleanedSearchText) {
+        return {
+            isValid: true,
+            cleanedSearchText: '',
+        }
+    }
+
+    // Guardrail: avoid processing extremely long input.
+    // This protects the route from weird input and keeps autocomplete fast.
+    if (cleanedSearchText.length > MAX_SEARCH_TEXT_LENGTH) {
+        return {
+            isValid: false,
+            statusCode: 400,
+            message: `searchText must be ${MAX_SEARCH_TEXT_LENGTH} characters or fewer.`,
+        }
+    }
+
+    return {
+        isValid: true,
+        cleanedSearchText,
+    }
+}
+
+// AI suggestion endpoint used by the frontend search bar and request cleanup flow.
+// It accepts user text and returns food suggestions in a consistent format.
+app.post('/api/ai-suggestions', (req, res) => {
+    try {
+        const validation = validateSearchText(req.body.searchText)
+
+        // If input is invalid, return a predictable error shape to the frontend.
+        if (!validation.isValid) {
+            return res.status(validation.statusCode).json({
+                error: validation.message,
+                suggestions: [],
+            })
+        }
+
+        // Empty searches are valid, but there is nothing useful to suggest.
+        if (!validation.cleanedSearchText) {
+            return res.json({
+                suggestions: [],
+            })
+        }
+
+        const suggestions = sampleFoods
+            .filter((food) => foodMatchesSearch(food, validation.cleanedSearchText))
+            .slice(0, 5)
+            .map(createSuggestion)
+
         return res.json({
+            suggestions,
+        })
+    } catch (error) {
+        // Final guardrail: unexpected backend errors should not crash the server.
+        console.error('AI suggestion route error:', error)
+
+        return res.status(500).json({
+            error: 'Unable to generate suggestions right now.',
             suggestions: [],
         })
     }
-
-    const suggestions = sampleFoods
-        .filter((food) => foodMatchesSearch(food, cleanedSearchText))
-        .slice(0, 5)
-        .map(createSuggestion)
-
-    res.json({
-        suggestions,
-    })
-})
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`)
 })
