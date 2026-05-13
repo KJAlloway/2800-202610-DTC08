@@ -2,7 +2,7 @@
 
 
 
-export const sampleFoods = [
+const sampleFoods = [
     {
         id: 'kimchi',
         name: 'Kimchi',

@@ -39,27 +39,37 @@ const SearchBar = ({
             </div>
 
             {hasSuggestions && (
-                <div className="ai-suggestion-panel" aria-label="AI suggestions">
-                    <p className="ai-suggestion-label">AI suggestions</p>
+                <div className="ai-suggestion-list">
+                    {suggestions.map((suggestion) => {
+                        // The backend may include alternate names and search terms as relatedNames.
+                        // We only show the first few so the suggestion card stays readable.
+                        const relatedNames = Array.isArray(suggestion.relatedNames)
+                            ? suggestion.relatedNames.slice(0, 3)
+                            : []
 
-                    <div className="ai-suggestion-list">
-                        {suggestions.map((suggestion) => (
+                        return (
                             <button
                                 key={suggestion.id}
                                 type="button"
                                 className="ai-suggestion-button"
                                 onClick={() => onSuggestionSelect?.(suggestion)}
                             >
-                                <span className="ai-suggestion-name">
-                                    {suggestion.name}
-                                </span>
+                <span className="ai-suggestion-name">
+                    {suggestion.name}
+                </span>
 
                                 <span className="ai-suggestion-detail">
-                                    {suggestion.detail}
-                                </span>
+                    {suggestion.detail}
+                </span>
+
+                                {relatedNames.length > 0 && (
+                                    <span className="ai-related-names">
+                        Related: {relatedNames.join(', ')}
+                    </span>
+                                )}
                             </button>
-                        ))}
-                    </div>
+                        )
+                    })}
                 </div>
             )}
         </div>
