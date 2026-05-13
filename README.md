@@ -16,4 +16,7 @@ Team Members:
 TBA
 
 ## Running the backend
-Run: `nodemon server.js` (auto refreshing server), or `node server.js` (not auto refreshing server)
+#### macOS or Linux:
+Run: `nodemon ./backend/server.js` (auto refreshing server), or `node ./backend/server.js` (not auto refreshing server)
+#### Windows:
+Run: `nodemon .\backend\server.js` (auto refreshing server), or `node .\backend\server.js` (not auto refreshing server)
