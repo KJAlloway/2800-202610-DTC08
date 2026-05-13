@@ -1,89 +1,115 @@
+import { useState } from 'react';
 import './locationInfoPage.css'
-import { NavBar, Footer } from '../Navbar and Footer(andrew)/sharedComponents';
+import Button from '../TemplateButtons/Button';
+import BackButton from '../BackButtonTemplate/BackButton';
+import cabbageLogo from '../assets/cabbage-logo.svg';
+import { NavBar, Footer } from '../NavbarAndFooter/sharedComponents';
+import ScrollableList from '../TemplateScrollableLists/ScrollableList';
 import '../Interraction hints/hints.css'
 
-
 function MiddleSection() {
+    const [reportType, setReportType] = useState('verified');
+    const verifiedDates = ["May 10, 2026", "May 08, 2026", "May 05, 2026", "April 30, 2026"];
+    const anonymousDates = ["May 11, 2026", "May 09, 2026", "May 04, 2026"];
+
+    const currentDates = reportType === 'verified' ? verifiedDates : anonymousDates;
+
     return (
         <div className='middleSection'>
-        
-            <LeftColumn />
-            <RightColumn />
-            
+            <LeftColumn setReportType={setReportType} currentType={reportType} />
+            <RightColumn dates={currentDates} reportType={reportType} />
         </div>
-    )
+    );
 }
 
 function navigateToGoogleMaps() {
     return 0;
 }
 
-function LeftColumn() {
-    return (
+function LeftColumn({ setReportType, currentType }) {
+return (
         <div className="leftColumn">
-            <img src="../public/favicon.svg" alt="" />
-            <button onClick={navigateToGoogleMaps}>Open Google Maps</button>
-            <h2>Times found by a verified user</h2>
-            <h2>Times found by an anonymous user</h2>
-            <button>I didn't find this item here</button>
-            <button>I found this item here</button>
-        </div>
-    )
-}
-
-function DatesList() {
-    return (
-        <div className='datesList'>
-            <h2>Date 1</h2>
-            <h2>Date 2</h2>
-            <h2>Date 3</h2>
-            <h2>Date 4</h2>
-        </div>
-    )
-}
-
-function RightColumn() {
-    return (
-        <div className='rightColumn'>
-            <h2>Last Reported dates (verified users)</h2>
-            <DatesList />
-        </div>
-    )
-}
-
-function Hints() {
-    return (
-        <div>
-            <div className='interractionHint' style={{top: "175px", left: "0px"}}>
-                Open the GoogleMaps directions to this location
-            </div>
-            <div className='interractionHint' style={{top: "575px", left: "0px"}}>
-                Click to confirm the lack of this item at this location
-            </div>
-            <div className='interractionHint' style={{top: "700px", left: "0px"}}>
-                Click to confirm the presence of this item at this location
-            </div>
-            <div className='interractionHint' style={{top: "300px", right: "0px"}}>
-                The most recent dates when a verified (logged in) user confirmed the presence of this item at this location
+            <div className="info-box-outer">
+                <div className="info-box-inner">
+                    Address Placeholder
+                </div>
             </div>
             
+            <Button
+                text="Link to Google Maps"
+                onClick={navigateToGoogleMaps}
+                className="full-width-action"
+            />
+            
+            <div className="stats-box">
+                <div className="info-box-outer">
+                    <div className="info-box-inner">
+                        Times found by a verified user
+                    </div>
+                </div>
+                <div className="info-box-outer">
+                    <div className="info-box-inner">
+                        Times found by an anonymous user
+                    </div>
+                </div>
+            </div>
         </div>
-    )
+    );
 }
 
-
-
-function StorePage() {
+function BottomActions() {
     return (
-
-        <div>
-            <NavBar />
-            <MiddleSection />
-            <Footer />
-            <Hints />
+        <div className="report-actions-row">
+            <Button text="I didn't find this item here" className="danger-btn" />
+            <Button text="I found this item here" className="success-btn" />
         </div>
-        
-    )
+    );
 }
 
-export default StorePage
+function DatesList({ dates }) {
+    return (
+        <div className='datesList'>
+            {dates.map((date, i) => (
+                <div key={i} className="date-pill">{date}</div>
+            ))}
+        </div>
+    );
+}
+
+function RightColumn({ dates, reportType }) {
+return (
+        <div className='rightColumn'>
+            <div className="info-box-outer header-box">
+                <div className="info-box-inner">
+                    Last reported dates ({reportType})
+                </div>
+            </div>
+
+            <ScrollableList maxHeight="240px">
+                {dates.map((date, i) => (
+                    <div key={i} className="date-pill-outer">
+                        <div className="date-pill-inner">
+                            {date}
+                        </div>
+                    </div>
+                ))}
+            </ScrollableList>
+        </div>
+    );
+}
+
+function FoodInformationPage({ onBack, onLogout }) {
+    return (
+        <div className="main-page-wrapper">
+            <p className="page-context-title">Location Details</p>
+            <div className="main-card wide-card">
+                <NavBar onBack={onBack} onLogout={onLogout} />
+                <MiddleSection />
+                <BottomActions />
+                <Footer />
+            </div>
+        </div>
+    );
+}
+
+export default FoodInformationPage
