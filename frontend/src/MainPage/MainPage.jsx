@@ -1,108 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './MainPage.css'
 import Button from '../TemplateButtons/Button'
 import SearchBar from '../SearchBar/SearchBar'
 import cabbageLogo from '../assets/cabbage-logo.svg'
-import sampleFoods from '../data/sampleFoods'
 
-// Measures how many single-character changes are needed to turn one word into another.
-// As per instructions, this function was assisted with by AI.
-function getEditDistance(firstText, secondText) {
-    const first = firstText.toLowerCase()
-    const second = secondText.toLowerCase()
-
-    const distances = Array.from({ length: first.length + 1 }, () =>
-        Array(second.length + 1).fill(0)
-    )
-
-    for (let row = 0; row <= first.length; row += 1) {
-        distances[row][0] = row
-    }
-
-    for (let column = 0; column <= second.length; column += 1) {
-        distances[0][column] = column
-    }
-
-    for (let row = 1; row <= first.length; row += 1) {
-        for (let column = 1; column <= second.length; column += 1) {
-            const lettersMatch = first[row - 1] === second[column - 1]
-            const substitutionCost = lettersMatch ? 0 : 1
-
-            distances[row][column] = Math.min(
-                distances[row - 1][column] + 1,
-                distances[row][column - 1] + 1,
-                distances[row - 1][column - 1] + substitutionCost
-            )
-        }
-    }
-
-    return distances[first.length][second.length]
-}
-
-// Allows close matches so small typos can still return useful food suggestions.
-// As per instructions, this function was assisted with by AI.
-function isFuzzyMatch(searchText, candidateText) {
-    const normalizedSearch = searchText.trim().toLowerCase()
-    const normalizedCandidate = candidateText.trim().toLowerCase()
-
-    if (!normalizedSearch || !normalizedCandidate) {
-        return false
-    }
-
-    const searchWords = normalizedSearch.split(/\s+/)
-    const candidateWords = normalizedCandidate.split(/\s+/)
-
-    return searchWords.some((searchWord) =>
-        candidateWords.some((candidateWord) => {
-            const distance = getEditDistance(searchWord, candidateWord)
-
-            if (searchWord.length <= 4) {
-                return distance <= 1
-            }
-
-            return distance <= 2
-        })
-    )
-}
-
-// Returns true when searchable food text includes the user's input or closely matches it.
-// As per instructions, this function was assisted with by AI.
-function foodMatchesSearch(food, searchText) {
-    const normalizedSearch = searchText.trim().toLowerCase()
-
-    if (!normalizedSearch) {
-        return false
-    }
-
-    const searchableValues = [
-        food.name,
-        food.category,
-        ...food.cuisines,
-        ...food.alternateNames,
-        ...food.searchTerms,
-    ]
-
-    return searchableValues.some((value) => {
-        const normalizedValue = value.toLowerCase()
-
-        return (
-            normalizedValue.includes(normalizedSearch) ||
-            isFuzzyMatch(normalizedSearch, normalizedValue)
-        )
-    })
-}
-
-// Converts matching foods into the suggestion format used by SearchBar.
-function getFoodSuggestions(searchText) {
-    return sampleFoods
-        .filter((food) => foodMatchesSearch(food, searchText))
-        .slice(0, 5)
-        .map((food) => ({
-            id: food.id,
-            name: food.name,
-            detail: food.alternateNames.slice(0, 2).join(', '),
-        }))
-}
 
 
 function MainPage({
@@ -144,6 +45,9 @@ function MainPage({
     }
 
     const [searchValue, setSearchValue] = useState('')
+    const [aiSuggestions, setAiSuggestions] = useState([])
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
+    const [suggestionError, setSuggestionError] = useState('')
 
     const handleSearchChange = (event) => {
         setSearchValue(event.target.value)
@@ -153,7 +57,62 @@ function MainPage({
         setSearchValue(suggestion.name)
     }
 
-    const foodSuggestions = getFoodSuggestions(searchValue)
+    // Watches the search input and asks the backend for AI food suggestions.
+    // The request is delayed slightly so the app does not call the API after every single keypress.
+    useEffect(() => {
+        const cleanedSearchValue = searchValue.trim()
+
+        // If the search box is empty, clear the suggestion state and stop here.
+        if (!cleanedSearchValue) {
+            setAiSuggestions([])
+            setSuggestionError('')
+            setIsLoadingSuggestions(false)
+            return
+        }
+
+        // Wait 300ms before calling the backend so fast typing does not create too many requests.
+        const requestDelay = setTimeout(async () => {
+            setIsLoadingSuggestions(true)
+            setSuggestionError('')
+
+            try {
+                // Send the current search text to the backend AI suggestion route.
+                const response = await fetch('http://localhost:3000/api/ai-suggestions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        searchText: cleanedSearchValue,
+                    }),
+                })
+
+                // If the backend returns an error status, move into the catch block.
+                if (!response.ok) {
+                    throw new Error('Suggestion request failed.')
+                }
+
+                const data = await response.json()
+
+                // Guardrail: only update the UI if suggestions came back as an array.
+                // This prevents unexpected backend responses from breaking the page.
+                setAiSuggestions(Array.isArray(data.suggestions) ? data.suggestions : [])
+            } catch (error) {
+                // If the backend is down or the request fails, keep the app usable.
+                console.error('AI suggestion error:', error)
+                setAiSuggestions([])
+                setSuggestionError('Suggestions are unavailable right now.')
+            } finally {
+                // Loading ends whether the request succeeds or fails.
+                setIsLoadingSuggestions(false)
+            }
+        }, 300)
+
+        // Cleanup: if the user types again before 300ms passes, cancel the old request.
+        return () => clearTimeout(requestDelay)
+    }, [searchValue])
+
+
 
     return (
         <main className="main-page-wrapper">
@@ -196,10 +155,14 @@ function MainPage({
                 {/* Search area */}
                 <section className="search-section">
                     <SearchBar
-                        text="Search for any food"
+                        text={
+                            isLoadingSuggestions
+                                ? 'Loading suggestions...'
+                                : suggestionError || 'Search for any food'
+                        }
                         value={searchValue}
                         onChange={handleSearchChange}
-                        suggestions={foodSuggestions}
+                        suggestions={aiSuggestions}
                         onSuggestionSelect={handleSuggestionSelect}
                     />
                 </section>
