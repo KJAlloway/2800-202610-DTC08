@@ -33,9 +33,10 @@ function App() {
         setCurrentPage('home')
     }
 
-    // Handles what should happen after a request is submitted.
-    const handleFoodRequestSubmit = (foodName) => {
-        console.log('Food request submitted from App:', foodName)
+    // Receives the final request object from the request form.
+    // Later, this is the object we can send to a backend/database route.
+    const handleFoodRequestSubmit = (requestData) => {
+        console.log('Food request submitted from App:', requestData)
         setCurrentPage('home')
     }
 

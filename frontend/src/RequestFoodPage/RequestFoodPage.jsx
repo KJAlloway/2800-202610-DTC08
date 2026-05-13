@@ -61,13 +61,30 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
     // Sends the final request upward after the user has either accepted AI cleanup
     // or chosen to keep their original wording.
-    const submitFinalRequest = (finalFoodName) => {
-        console.log('Food request submitted:', finalFoodName)
-
-        if (onSubmitRequest) {
-            onSubmitRequest(finalFoodName)
+    //
+    // Instead of sending only a string, this creates a structured request object.
+    // This makes the data easier to save to a database later because we keep both
+    // the original user text and the final cleaned request.
+    const submitFinalRequest = ({
+                                    originalRequest,
+                                    cleanedRequest,
+                                    wasAiCleaned,
+                                    aiSuggestion = null,
+                                }) => {
+        const requestData = {
+            originalRequest,
+            cleanedRequest,
+            wasAiCleaned,
+            aiSuggestion,
         }
 
+        console.log('Food request submitted:', requestData)
+
+        if (onSubmitRequest) {
+            onSubmitRequest(requestData)
+        }
+
+        // Reset the form and AI cleanup state after submission.
         setRequestedFood('')
         setCleanupSuggestion(null)
         setPendingOriginalRequest('')
@@ -117,7 +134,11 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
             // If there is no useful AI suggestion, submit the user's original request.
             if (!firstSuggestion || !firstSuggestion.name) {
-                submitFinalRequest(cleanedFoodName)
+                submitFinalRequest({
+                    originalRequest: cleanedFoodName,
+                    cleanedRequest: cleanedFoodName,
+                    wasAiCleaned: false,
+                })
                 return
             }
 
@@ -126,7 +147,12 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
             // If the AI suggestion is basically the same as the user's input, submit normally.
             if (originalName === suggestedName) {
-                submitFinalRequest(cleanedFoodName)
+                submitFinalRequest({
+                    originalRequest: cleanedFoodName,
+                    cleanedRequest: cleanedFoodName,
+                    wasAiCleaned: false,
+                    aiSuggestion: firstSuggestion,
+                })
                 return
             }
 
@@ -136,22 +162,39 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
             // If AI cleanup fails, keep the app usable and let the original request submit.
             console.error('AI cleanup error:', error)
             setCleanupError('AI cleanup is unavailable, so your original request was submitted.')
-            submitFinalRequest(cleanedFoodName)
+
+            submitFinalRequest({
+                originalRequest: cleanedFoodName,
+                cleanedRequest: cleanedFoodName,
+                wasAiCleaned: false,
+            })
         } finally {
             setIsCheckingCleanup(false)
         }
     }
 
     // Runs when the user accepts the AI-cleaned food name.
+    // The original text is still saved so the app can show what AI changed.
     const handleAcceptCleanupSuggestion = () => {
         if (cleanupSuggestion?.name) {
-            submitFinalRequest(cleanupSuggestion.name)
+            submitFinalRequest({
+                originalRequest: pendingOriginalRequest,
+                cleanedRequest: cleanupSuggestion.name,
+                wasAiCleaned: true,
+                aiSuggestion: cleanupSuggestion,
+            })
         }
     }
 
     // Runs when the user rejects the AI suggestion and keeps their original wording.
+    // We still preserve the AI suggestion for possible review or future analytics.
     const handleKeepOriginalRequest = () => {
-        submitFinalRequest(pendingOriginalRequest)
+        submitFinalRequest({
+            originalRequest: pendingOriginalRequest,
+            cleanedRequest: pendingOriginalRequest,
+            wasAiCleaned: false,
+            aiSuggestion: cleanupSuggestion,
+        })
     }
 
 
