@@ -127,3 +127,10 @@
     font-size: 13px;
     color: #666666;
 }
+
+.ai-related-names {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #4f6f55;
+}
