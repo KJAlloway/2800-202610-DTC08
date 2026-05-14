@@ -4,6 +4,26 @@ import './RequestFoodPage.css'
 
 
 
+// AI
+// Checks whether an AI cleanup suggestion is safe enough to show to the user.
+function isValidCleanupSuggestion(suggestion) {
+    return Boolean(
+        suggestion &&
+        typeof suggestion.name === 'string' &&
+        suggestion.name.trim()
+    )
+}
+
+// Checks whether the backend duplicate response has the fields needed for the UI.
+function isValidDuplicateRequest(duplicate) {
+    return Boolean(
+        duplicate &&
+        typeof duplicate.id === 'string' &&
+        typeof duplicate.cleanedRequest === 'string' &&
+        duplicate.cleanedRequest.trim()
+    )
+}
+
 function RequestFoodPage({ onBack, onSubmitRequest }) {
     // This key is used to remember whether the user wants to hide the popup.
     const popupPreferenceKey = 'hideRequestFoodPopup'
@@ -121,7 +141,7 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
             const data = await response.json()
 
             // If the backend finds a duplicate, pause submission and let the user decide.
-            if (data.duplicate) {
+            if (isValidDuplicateRequest(data.duplicate)) {
                 setDuplicateRequest(data.duplicate)
                 setPendingRequestData(requestData)
                 return
@@ -173,11 +193,11 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
             // Guardrail: only use the first suggestion if the backend returns a valid array.
             const firstSuggestion = Array.isArray(data.suggestions)
-                ? data.suggestions[0]
+                ? data.suggestions.find(isValidCleanupSuggestion)
                 : null
 
             // If there is no useful AI suggestion, submit the user's original request.
-            if (!firstSuggestion || !firstSuggestion.name) {
+            if (!firstSuggestion) {
                 await submitFinalRequest({
                     originalRequest: cleanedFoodName,
                     cleanedRequest: cleanedFoodName,

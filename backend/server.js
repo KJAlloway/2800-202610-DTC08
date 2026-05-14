@@ -9,6 +9,8 @@ const app = express()
 const PORT = 3000
 
 const MAX_SEARCH_TEXT_LENGTH = 80
+const MAX_SUGGESTION_TEXT_LENGTH = 60
+const MAX_RELATED_NAMES = 5
 
 // Allows the backend to read JSON request bodies sent from the frontend.
 // Without this, req.body would be undefined for POST requests.
@@ -145,16 +147,91 @@ function foodMatchesSearch(food, searchText) {
     })
 }
 
+// AI
+// Shortens long AI/backend text so suggestions do not break the UI.
+function limitText(text, maxLength = MAX_SUGGESTION_TEXT_LENGTH) {
+    if (typeof text !== 'string') {
+        return ''
+    }
+
+    const cleanedText = text.trim()
+
+    if (cleanedText.length <= maxLength) {
+        return cleanedText
+    }
+
+    return `${cleanedText.slice(0, maxLength - 3)}...`
+}
+
+// AI
+// Removes invalid values and repeated names from related-name lists.
+function cleanTextList(values, maxItems = MAX_RELATED_NAMES) {
+    const seenValues = new Set()
+    const cleanedValues = []
+
+    for (const value of values) {
+        const cleanedValue = limitText(value)
+
+        if (!cleanedValue) {
+            continue
+        }
+
+        const normalizedValue = cleanedValue.toLowerCase()
+
+        if (seenValues.has(normalizedValue)) {
+            continue
+        }
+
+        seenValues.add(normalizedValue)
+        cleanedValues.push(cleanedValue)
+
+        if (cleanedValues.length >= maxItems) {
+            break
+        }
+    }
+
+    return cleanedValues
+}
+
+// AI
+// Removes duplicate food suggestions before sending them to the frontend.
+function removeDuplicateSuggestions(suggestions) {
+    const seenSuggestions = new Set()
+
+    return suggestions.filter((suggestion) => {
+        const suggestionKey = `${suggestion.id}-${suggestion.name}`.toLowerCase()
+
+        if (seenSuggestions.has(suggestionKey)) {
+            return false
+        }
+
+        seenSuggestions.add(suggestionKey)
+        return true
+    })
+}
+
 // Shapes backend food data into the format expected by the frontend suggestion UI.
 // The relatedNames field helps users recognize cultural names and alternate terms.
 function createSuggestion(food) {
+    const name = limitText(food.name)
+    const alternateNames = cleanTextList(food.alternateNames || [], 2)
+    const relatedNames = cleanTextList([
+        ...(food.alternateNames || []),
+        ...(food.searchTerms || []),
+    ])
+
+    // Guardrail: suggestions without a usable name should not be displayed.
+    if (!name) {
+        return null
+    }
+
     return {
         id: food.id,
-        name: food.name,
-        detail: food.alternateNames.slice(0, 2).join(', '),
-        category: food.category,
-        cuisines: food.cuisines,
-        relatedNames: [...food.alternateNames, ...food.searchTerms].slice(0, 5),
+        name,
+        detail: alternateNames.join(', '),
+        category: limitText(food.category),
+        cuisines: cleanTextList(food.cuisines || []),
+        relatedNames,
     }
 }
 
@@ -232,10 +309,13 @@ app.post('/api/ai-suggestions', (req, res) => {
             })
         }
 
-        const suggestions = sampleFoods
-            .filter((food) => foodMatchesSearch(food, validation.cleanedSearchText))
-            .slice(0, 5)
-            .map(createSuggestion)
+        const suggestions = removeDuplicateSuggestions(
+            sampleFoods
+                .filter((food) => foodMatchesSearch(food, validation.cleanedSearchText))
+                .map(createSuggestion)
+                .filter(Boolean)
+        ).slice(0, 5)
+
 
         return res.json({
             suggestions,
