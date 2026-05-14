@@ -3,11 +3,14 @@
 
 const express = require('express')
 const sampleFoods = require('./data/sampleFoods')
+const sampleRequests = require('./data/sampleRequests')
 
 const app = express()
 const PORT = 3000
 
 const MAX_SEARCH_TEXT_LENGTH = 80
+const MAX_SUGGESTION_TEXT_LENGTH = 60
+const MAX_RELATED_NAMES = 5
 
 // Allows the backend to read JSON request bodies sent from the frontend.
 // Without this, req.body would be undefined for POST requests.
@@ -144,16 +147,91 @@ function foodMatchesSearch(food, searchText) {
     })
 }
 
+// AI
+// Shortens long AI/backend text so suggestions do not break the UI.
+function limitText(text, maxLength = MAX_SUGGESTION_TEXT_LENGTH) {
+    if (typeof text !== 'string') {
+        return ''
+    }
+
+    const cleanedText = text.trim()
+
+    if (cleanedText.length <= maxLength) {
+        return cleanedText
+    }
+
+    return `${cleanedText.slice(0, maxLength - 3)}...`
+}
+
+// AI
+// Removes invalid values and repeated names from related-name lists.
+function cleanTextList(values, maxItems = MAX_RELATED_NAMES) {
+    const seenValues = new Set()
+    const cleanedValues = []
+
+    for (const value of values) {
+        const cleanedValue = limitText(value)
+
+        if (!cleanedValue) {
+            continue
+        }
+
+        const normalizedValue = cleanedValue.toLowerCase()
+
+        if (seenValues.has(normalizedValue)) {
+            continue
+        }
+
+        seenValues.add(normalizedValue)
+        cleanedValues.push(cleanedValue)
+
+        if (cleanedValues.length >= maxItems) {
+            break
+        }
+    }
+
+    return cleanedValues
+}
+
+// AI
+// Removes duplicate food suggestions before sending them to the frontend.
+function removeDuplicateSuggestions(suggestions) {
+    const seenSuggestions = new Set()
+
+    return suggestions.filter((suggestion) => {
+        const suggestionKey = `${suggestion.id}-${suggestion.name}`.toLowerCase()
+
+        if (seenSuggestions.has(suggestionKey)) {
+            return false
+        }
+
+        seenSuggestions.add(suggestionKey)
+        return true
+    })
+}
+
 // Shapes backend food data into the format expected by the frontend suggestion UI.
 // The relatedNames field helps users recognize cultural names and alternate terms.
 function createSuggestion(food) {
+    const name = limitText(food.name)
+    const alternateNames = cleanTextList(food.alternateNames || [], 2)
+    const relatedNames = cleanTextList([
+        ...(food.alternateNames || []),
+        ...(food.searchTerms || []),
+    ])
+
+    // Guardrail: suggestions without a usable name should not be displayed.
+    if (!name) {
+        return null
+    }
+
     return {
         id: food.id,
-        name: food.name,
-        detail: food.alternateNames.slice(0, 2).join(', '),
-        category: food.category,
-        cuisines: food.cuisines,
-        relatedNames: [...food.alternateNames, ...food.searchTerms].slice(0, 5),
+        name,
+        detail: alternateNames.join(', '),
+        category: limitText(food.category),
+        cuisines: cleanTextList(food.cuisines || []),
+        relatedNames,
     }
 }
 
@@ -195,6 +273,21 @@ function validateSearchText(searchText) {
     }
 }
 
+// Normalizes request names so capitalization and extra spaces do not affect matching.
+function normalizeRequestName(requestName) {
+    return requestName.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// Checks whether the cleaned request already exists in the request list.
+// Later, this function can be replaced with a database query.
+function findDuplicateRequest(cleanedRequest) {
+    const normalizedCleanedRequest = normalizeRequestName(cleanedRequest)
+
+    return sampleRequests.find((existingRequest) =>
+        normalizeRequestName(existingRequest.cleanedRequest) === normalizedCleanedRequest
+    )
+}
+
 // AI suggestion endpoint used by the frontend search bar and request cleanup flow.
 // It accepts user text and returns food suggestions in a consistent format.
 app.post('/api/ai-suggestions', (req, res) => {
@@ -216,10 +309,13 @@ app.post('/api/ai-suggestions', (req, res) => {
             })
         }
 
-        const suggestions = sampleFoods
-            .filter((food) => foodMatchesSearch(food, validation.cleanedSearchText))
-            .slice(0, 5)
-            .map(createSuggestion)
+        const suggestions = removeDuplicateSuggestions(
+            sampleFoods
+                .filter((food) => foodMatchesSearch(food, validation.cleanedSearchText))
+                .map(createSuggestion)
+                .filter(Boolean)
+        ).slice(0, 5)
+
 
         return res.json({
             suggestions,
@@ -233,4 +329,49 @@ app.post('/api/ai-suggestions', (req, res) => {
             suggestions: [],
         })
     }
+})
+
+// Duplicate request endpoint used before the frontend submits a final food request.
+// For now, it checks sample backend data. Later, it should check the database.
+app.post('/api/check-duplicate-request', (req, res) => {
+    try {
+        const cleanedRequest = req.body.cleanedRequest
+
+        // Guardrail: the frontend must send cleanedRequest as text.
+        if (typeof cleanedRequest !== 'string') {
+            return res.status(400).json({
+                error: 'cleanedRequest must be a string.',
+                duplicate: null,
+            })
+        }
+
+        const trimmedRequest = cleanedRequest.trim()
+
+        // Empty request text is valid, but it cannot be a duplicate.
+        if (!trimmedRequest) {
+            return res.json({
+                duplicate: null,
+            })
+        }
+
+        const duplicate = findDuplicateRequest(trimmedRequest)
+
+        return res.json({
+            duplicate: duplicate || null,
+        })
+    } catch (error) {
+        // Final guardrail: unexpected backend errors should not crash the server.
+        console.error('Duplicate request route error:', error)
+
+        return res.status(500).json({
+            error: 'Unable to check duplicate requests right now.',
+            duplicate: null,
+        })
+    }
+})
+
+// Starts the backend server.
+// If this message appears in the terminal, the API is running.
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`)
 })

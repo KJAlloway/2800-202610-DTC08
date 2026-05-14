@@ -273,6 +273,63 @@
     text-align: center;
 }
 
+/* Panel shown when the request looks like an existing request */
+.request-duplicate-panel {
+    width: min(100%, 320px);
+    border: 1px solid #d9c58d;
+    border-radius: 12px;
+    background-color: #fff8df;
+    padding: 12px 14px;
+    text-align: left;
+}
+
+/* Small heading for the duplicate warning */
+.request-duplicate-title {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #735b13;
+}
+
+/* Main duplicate warning text */
+.request-duplicate-text {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: #333333;
+}
+
+/* Shows extra context like request count */
+.request-duplicate-detail {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #66551c;
+}
+
+/* Keeps duplicate choice buttons side by side */
+.request-duplicate-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Shared styling for duplicate choice buttons */
+.request-duplicate-button {
+    flex: 1;
+    border: 1px solid #9d9d9d;
+    border-radius: 8px;
+    background-color: #ffffff;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Highlights the option that uses the existing request */
+.request-duplicate-button-primary {
+    border-color: #b89425;
+    background-color: #f5e8b8;
+    color: #5f4b0d;
+}
+
 /* Small-screen adjustments so spacing stays comfortable on phones */
 @media (max-width: 420px) {
     .request-food-card {

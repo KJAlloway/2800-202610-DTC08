@@ -38,6 +38,24 @@ function ActionSection({ onOpenRequest, onOpenRequestedFoods }) {
     )
 }
 
+// AI
+// Cleans suggestions from the backend before they reach the SearchBar UI.
+// This is a frontend guardrail in case the API ever returns malformed data.
+function sanitizeSuggestions(suggestions) {
+    if (!Array.isArray(suggestions)) {
+        return []
+    }
+
+    return suggestions
+        .filter((suggestion) =>
+            suggestion &&
+            typeof suggestion.id === 'string' &&
+            typeof suggestion.name === 'string' &&
+            suggestion.name.trim()
+        )
+        .slice(0, 5)
+}
+
 function MainPage({
     onLogout,
     onOpenRequestPage,
@@ -99,7 +117,7 @@ function MainPage({
 
                 // Guardrail: only update the UI if suggestions came back as an array.
                 // This prevents unexpected backend responses from breaking the page.
-                setAiSuggestions(Array.isArray(data.suggestions) ? data.suggestions : [])
+                setAiSuggestions(sanitizeSuggestions(data.suggestions))
             } catch (error) {
                 // If the backend is down or the request fails, keep the app usable.
                 console.error('AI suggestion error:', error)
