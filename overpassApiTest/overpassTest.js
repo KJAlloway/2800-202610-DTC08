@@ -1,7 +1,7 @@
 let name = "Loblaws"
 
 let query = `
-    [out:json];
+    [out:json][timeout:10];
 area[name="Vancouver"]->.searchArea;
 node["name"="${name}"](area.searchArea);
 out body;
