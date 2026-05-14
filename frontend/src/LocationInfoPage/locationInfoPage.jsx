@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import './locationInfoPage.css'
+import FirstTimeHint from '../FirstTimeHint/FirstTimeHint';
+import { useFirstTimeHint } from '../FirstTimeHint/useFirstTimeHint';
 import Button from '../TemplateButtons/Button';
 import BackButton from '../BackButtonTemplate/BackButton';
 import cabbageLogo from '../assets/cabbage-logo.svg';
@@ -27,31 +29,31 @@ function navigateToGoogleMaps() {
 }
 
 function LeftColumn({ setReportType, currentType }) {
-return (
+    return (
         <div className="leftColumn">
             <div className="info-box-outer">
                 <div className="info-box-inner">
                     Address Placeholder
                 </div>
             </div>
-            
+
             <Button
                 text="Link to Google Maps"
                 onClick={navigateToGoogleMaps}
                 className="full-width-action"
             />
-            
+
             <div className="stats-box">
-                <div className="info-box-outer">
-                    <div className="info-box-inner">
-                        Times found by a verified user
-                    </div>
-                </div>
-                <div className="info-box-outer">
-                    <div className="info-box-inner">
-                        Times found by an anonymous user
-                    </div>
-                </div>
+                <Button
+                    text="Times found by a verified user"
+                    className={`info-button ${currentType === 'verified' ? 'active' : ''}`}
+                    onClick={() => setReportType('verified')}
+                />
+                <Button
+                    text="Times found by an anonymous user"
+                    className={`info-button ${currentType === 'anonymous' ? 'active' : ''}`}
+                    onClick={() => setReportType('anonymous')}
+                />
             </div>
         </div>
     );
@@ -77,7 +79,7 @@ function DatesList({ dates }) {
 }
 
 function RightColumn({ dates, reportType }) {
-return (
+    return (
         <div className='rightColumn'>
             <div className="info-box-outer header-box">
                 <div className="info-box-inner">
@@ -99,11 +101,22 @@ return (
 }
 
 function FoodInformationPage({ onBack, onLogout }) {
+    const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_info_hint_hidden');
+    
     return (
         <div className="main-page-wrapper">
             <p className="page-context-title">Location Details</p>
             <div className="main-card wide-card">
                 <NavBar onBack={onBack} onLogout={onLogout} />
+
+                {showHints && (
+                    <FirstTimeHint
+                        title="Viewing Location Stats"
+                        message="Check out the verified users and anonymous reporters (Guest) sightings by clicking on either of the buttons!"
+                        onDismiss={onDisableHints}
+                    />
+                )}
+
                 <MiddleSection />
                 <BottomActions />
                 <Footer />

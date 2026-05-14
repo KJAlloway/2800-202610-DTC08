@@ -65,9 +65,19 @@ function App() {
         return (
             <FoodLocationPage
                 onLogout={goToLoginPage}
-                onBack={goToHomePage} 
+                onBack={goToHomePage}
             />
         )
+    }
+
+    // Shows the food information page
+    if (currentPage === 'food-information') {
+        return (
+            <FoodInformationPage
+                onBack={() => setCurrentPage('food-locations')}
+                onLogout={goToLoginPage}
+            />
+        );
     }
 
     // If no earlier condition matched, show the home/main page.
