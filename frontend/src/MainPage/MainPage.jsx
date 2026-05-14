@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useFirstTimeHint } from '../hooks/useFirstTimeHint';
+import { useFirstTimeHint } from '../FirstTimeHint/useFirstTimeHint';
 import './MainPage.css'
 import Button from '../TemplateButtons/Button'
 import SearchBar from '../SearchBar/SearchBar'
