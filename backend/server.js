@@ -3,6 +3,7 @@
 
 const express = require('express')
 const sampleFoods = require('./data/sampleFoods')
+const sampleRequests = require('./data/sampleRequests')
 
 const app = express()
 const PORT = 3000
@@ -195,6 +196,21 @@ function validateSearchText(searchText) {
     }
 }
 
+// Normalizes request names so capitalization and extra spaces do not affect matching.
+function normalizeRequestName(requestName) {
+    return requestName.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// Checks whether the cleaned request already exists in the request list.
+// Later, this function can be replaced with a database query.
+function findDuplicateRequest(cleanedRequest) {
+    const normalizedCleanedRequest = normalizeRequestName(cleanedRequest)
+
+    return sampleRequests.find((existingRequest) =>
+        normalizeRequestName(existingRequest.cleanedRequest) === normalizedCleanedRequest
+    )
+}
+
 // AI suggestion endpoint used by the frontend search bar and request cleanup flow.
 // It accepts user text and returns food suggestions in a consistent format.
 app.post('/api/ai-suggestions', (req, res) => {
@@ -233,4 +249,49 @@ app.post('/api/ai-suggestions', (req, res) => {
             suggestions: [],
         })
     }
+})
+
+// Duplicate request endpoint used before the frontend submits a final food request.
+// For now, it checks sample backend data. Later, it should check the database.
+app.post('/api/check-duplicate-request', (req, res) => {
+    try {
+        const cleanedRequest = req.body.cleanedRequest
+
+        // Guardrail: the frontend must send cleanedRequest as text.
+        if (typeof cleanedRequest !== 'string') {
+            return res.status(400).json({
+                error: 'cleanedRequest must be a string.',
+                duplicate: null,
+            })
+        }
+
+        const trimmedRequest = cleanedRequest.trim()
+
+        // Empty request text is valid, but it cannot be a duplicate.
+        if (!trimmedRequest) {
+            return res.json({
+                duplicate: null,
+            })
+        }
+
+        const duplicate = findDuplicateRequest(trimmedRequest)
+
+        return res.json({
+            duplicate: duplicate || null,
+        })
+    } catch (error) {
+        // Final guardrail: unexpected backend errors should not crash the server.
+        console.error('Duplicate request route error:', error)
+
+        return res.status(500).json({
+            error: 'Unable to check duplicate requests right now.',
+            duplicate: null,
+        })
+    }
+})
+
+// Starts the backend server.
+// If this message appears in the terminal, the API is running.
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`)
 })
