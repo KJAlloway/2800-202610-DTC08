@@ -1,6 +1,10 @@
+import React from 'react';
 import './sharedComponents.css'
+import BackButton from '../BackButtonTemplate/BackButton';
+import Button from '../TemplateButtons/Button';
+import cabbageLogo from '../assets/cabbage-logo.svg';
 
-export function NavBar() {
+export function NavBar({ onBack, onLogout }) {
     return (
         <header className="main-header">
             <div className="header-left">
@@ -25,7 +29,6 @@ export function NavBar() {
         </header>
     );
 }
-
 export function Footer() {
     return (
         <footer className="main-card-footer">
