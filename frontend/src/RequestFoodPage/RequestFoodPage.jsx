@@ -2,40 +2,7 @@ import { useEffect, useState } from 'react'
 import Button from '../TemplateButtons/Button'
 import './RequestFoodPage.css'
 
-// Temporary sample data used for duplicate checking.
-// Later, this should come from the database instead of being hardcoded.
-const existingFoodRequests = [
-    {
-        id: 'request-kimchi',
-        cleanedRequest: 'Kimchi',
-        requestCount: 8,
-    },
-    {
-        id: 'request-gochujang',
-        cleanedRequest: 'Gochujang',
-        requestCount: 5,
-    },
-    {
-        id: 'request-banh-pho',
-        cleanedRequest: 'Banh pho noodles',
-        requestCount: 4,
-    },
-]
 
-// Normalizes request names before comparison.
-// This keeps simple differences like capitalization and extra spaces from creating duplicates.
-function normalizeRequestName(requestName) {
-    return requestName.trim().toLowerCase().replace(/\s+/g, ' ')
-}
-
-// Looks for an existing request with the same cleaned food name.
-function findDuplicateRequest(cleanedRequest) {
-    const normalizedCleanedRequest = normalizeRequestName(cleanedRequest)
-
-    return existingFoodRequests.find((existingRequest) =>
-        normalizeRequestName(existingRequest.cleanedRequest) === normalizedCleanedRequest
-    )
-}
 
 function RequestFoodPage({ onBack, onSubmitRequest }) {
     // This key is used to remember whether the user wants to hide the popup.
@@ -118,14 +85,14 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
         setPendingRequestData(null)
     }
 
-    // Checks the cleaned request against existing requests before final submission.
-    // If a duplicate exists, the user gets to choose whether to use it or submit anyway.
-    const submitFinalRequest = ({
-                                    originalRequest,
-                                    cleanedRequest,
-                                    wasAiCleaned,
-                                    aiSuggestion = null,
-                                }) => {
+    // Checks the backend before final submission to see whether this request already exists.
+    // This keeps duplicate checking out of the frontend and prepares the app for database use.
+    const submitFinalRequest = async ({
+                                          originalRequest,
+                                          cleanedRequest,
+                                          wasAiCleaned,
+                                          aiSuggestion = null,
+                                      }) => {
         const requestData = {
             originalRequest,
             cleanedRequest,
@@ -135,15 +102,37 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
             wasDuplicateOverride: false,
         }
 
-        const matchingRequest = findDuplicateRequest(cleanedRequest)
+        try {
+            // Ask the backend whether the cleaned request matches an existing request.
+            const response = await fetch('http://localhost:3000/api/check-duplicate-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    cleanedRequest,
+                }),
+            })
 
-        if (matchingRequest) {
-            setDuplicateRequest(matchingRequest)
-            setPendingRequestData(requestData)
-            return
+            if (!response.ok) {
+                throw new Error('Duplicate check failed.')
+            }
+
+            const data = await response.json()
+
+            // If the backend finds a duplicate, pause submission and let the user decide.
+            if (data.duplicate) {
+                setDuplicateRequest(data.duplicate)
+                setPendingRequestData(requestData)
+                return
+            }
+
+            completeRequestSubmission(requestData)
+        } catch (error) {
+            // If duplicate checking fails, keep the app usable and submit normally.
+            console.error('Duplicate check error:', error)
+            completeRequestSubmission(requestData)
         }
-
-        completeRequestSubmission(requestData)
     }
 
     // Runs when the user submits the food request form.
@@ -189,7 +178,7 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
             // If there is no useful AI suggestion, submit the user's original request.
             if (!firstSuggestion || !firstSuggestion.name) {
-                submitFinalRequest({
+                await submitFinalRequest({
                     originalRequest: cleanedFoodName,
                     cleanedRequest: cleanedFoodName,
                     wasAiCleaned: false,
@@ -202,7 +191,7 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
             // If the AI suggestion is basically the same as the user's input, submit normally.
             if (originalName === suggestedName) {
-                submitFinalRequest({
+                await submitFinalRequest({
                     originalRequest: cleanedFoodName,
                     cleanedRequest: cleanedFoodName,
                     wasAiCleaned: false,
@@ -218,7 +207,7 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
             console.error('AI cleanup error:', error)
             setCleanupError('AI cleanup is unavailable, so your original request was submitted.')
 
-            submitFinalRequest({
+            await submitFinalRequest({
                 originalRequest: cleanedFoodName,
                 cleanedRequest: cleanedFoodName,
                 wasAiCleaned: false,
@@ -230,15 +219,26 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
     // Runs when the user accepts the AI-cleaned food name.
     // The original text is still saved so the app can show what AI changed.
-    const handleAcceptCleanupSuggestion = () => {
+    const handleAcceptCleanupSuggestion = async () => {
         if (cleanupSuggestion?.name) {
-            submitFinalRequest({
+            await submitFinalRequest({
                 originalRequest: pendingOriginalRequest,
                 cleanedRequest: cleanupSuggestion.name,
                 wasAiCleaned: true,
                 aiSuggestion: cleanupSuggestion,
             })
         }
+    }
+
+    // Runs when the user rejects the AI suggestion and keeps their original wording.
+    // We still preserve the AI suggestion for possible review or future analytics.
+    const handleKeepOriginalRequest = async () => {
+        await submitFinalRequest({
+            originalRequest: pendingOriginalRequest,
+            cleanedRequest: pendingOriginalRequest,
+            wasAiCleaned: false,
+            aiSuggestion: cleanupSuggestion,
+        })
     }
 
     // Runs when the user chooses the already-existing request instead of submitting a duplicate.
