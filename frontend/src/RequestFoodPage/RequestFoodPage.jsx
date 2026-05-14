@@ -2,6 +2,41 @@ import { useEffect, useState } from 'react'
 import Button from '../TemplateButtons/Button'
 import './RequestFoodPage.css'
 
+// Temporary sample data used for duplicate checking.
+// Later, this should come from the database instead of being hardcoded.
+const existingFoodRequests = [
+    {
+        id: 'request-kimchi',
+        cleanedRequest: 'Kimchi',
+        requestCount: 8,
+    },
+    {
+        id: 'request-gochujang',
+        cleanedRequest: 'Gochujang',
+        requestCount: 5,
+    },
+    {
+        id: 'request-banh-pho',
+        cleanedRequest: 'Banh pho noodles',
+        requestCount: 4,
+    },
+]
+
+// Normalizes request names before comparison.
+// This keeps simple differences like capitalization and extra spaces from creating duplicates.
+function normalizeRequestName(requestName) {
+    return requestName.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+// Looks for an existing request with the same cleaned food name.
+function findDuplicateRequest(cleanedRequest) {
+    const normalizedCleanedRequest = normalizeRequestName(cleanedRequest)
+
+    return existingFoodRequests.find((existingRequest) =>
+        normalizeRequestName(existingRequest.cleanedRequest) === normalizedCleanedRequest
+    )
+}
+
 function RequestFoodPage({ onBack, onSubmitRequest }) {
     // This key is used to remember whether the user wants to hide the popup.
     const popupPreferenceKey = 'hideRequestFoodPopup'
@@ -26,6 +61,12 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
     // Stores a simple message if the AI cleanup check fails.
     const [cleanupError, setCleanupError] = useState('')
+
+    // Stores a possible duplicate request while the user decides what to do.
+    const [duplicateRequest, setDuplicateRequest] = useState(null)
+
+    // Stores the final request data until the duplicate check is resolved.
+    const [pendingRequestData, setPendingRequestData] = useState(null)
 
 
     // Runs once when the page loads.
@@ -59,25 +100,9 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
         setShowRequestPopup(false)
     }
 
-    // Sends the final request upward after the user has either accepted AI cleanup
-    // or chosen to keep their original wording.
-    //
-    // Instead of sending only a string, this creates a structured request object.
-    // This makes the data easier to save to a database later because we keep both
-    // the original user text and the final cleaned request.
-    const submitFinalRequest = ({
-                                    originalRequest,
-                                    cleanedRequest,
-                                    wasAiCleaned,
-                                    aiSuggestion = null,
-                                }) => {
-        const requestData = {
-            originalRequest,
-            cleanedRequest,
-            wasAiCleaned,
-            aiSuggestion,
-        }
-
+    // Sends the final request upward after all AI cleanup and duplicate checks are done.
+    // This is the final step that actually leaves the request page.
+    const completeRequestSubmission = (requestData) => {
         console.log('Food request submitted:', requestData)
 
         if (onSubmitRequest) {
@@ -89,6 +114,36 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
         setCleanupSuggestion(null)
         setPendingOriginalRequest('')
         setCleanupError('')
+        setDuplicateRequest(null)
+        setPendingRequestData(null)
+    }
+
+    // Checks the cleaned request against existing requests before final submission.
+    // If a duplicate exists, the user gets to choose whether to use it or submit anyway.
+    const submitFinalRequest = ({
+                                    originalRequest,
+                                    cleanedRequest,
+                                    wasAiCleaned,
+                                    aiSuggestion = null,
+                                }) => {
+        const requestData = {
+            originalRequest,
+            cleanedRequest,
+            wasAiCleaned,
+            aiSuggestion,
+            duplicateRequestId: null,
+            wasDuplicateOverride: false,
+        }
+
+        const matchingRequest = findDuplicateRequest(cleanedRequest)
+
+        if (matchingRequest) {
+            setDuplicateRequest(matchingRequest)
+            setPendingRequestData(requestData)
+            return
+        }
+
+        completeRequestSubmission(requestData)
     }
 
     // Runs when the user submits the food request form.
@@ -186,14 +241,30 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
         }
     }
 
-    // Runs when the user rejects the AI suggestion and keeps their original wording.
-    // We still preserve the AI suggestion for possible review or future analytics.
-    const handleKeepOriginalRequest = () => {
-        submitFinalRequest({
-            originalRequest: pendingOriginalRequest,
-            cleanedRequest: pendingOriginalRequest,
-            wasAiCleaned: false,
-            aiSuggestion: cleanupSuggestion,
+    // Runs when the user chooses the already-existing request instead of submitting a duplicate.
+    // For now, we log the link to the existing request. Later, this could increase a request count.
+    const handleUseExistingRequest = () => {
+        if (!pendingRequestData || !duplicateRequest) {
+            return
+        }
+
+        completeRequestSubmission({
+            ...pendingRequestData,
+            cleanedRequest: duplicateRequest.cleanedRequest,
+            duplicateRequestId: duplicateRequest.id,
+            wasDuplicateOverride: false,
+        })
+    }
+
+    // Runs when the user decides their request should still be submitted separately.
+    const handleSubmitDuplicateAnyway = () => {
+        if (!pendingRequestData) {
+            return
+        }
+
+        completeRequestSubmission({
+            ...pendingRequestData,
+            wasDuplicateOverride: true,
         })
     }
 
@@ -331,6 +402,40 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
                                         onClick={handleKeepOriginalRequest}
                                     >
                                         Keep original
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Duplicate warning shown when the cleaned request already exists. */}
+                        {duplicateRequest && (
+                            <div className="request-duplicate-panel">
+                                <p className="request-duplicate-title">Similar request found</p>
+
+                                <p className="request-duplicate-text">
+                                    This looks like an existing request for{' '}
+                                    <strong>{duplicateRequest.cleanedRequest}</strong>.
+                                </p>
+
+                                <p className="request-duplicate-detail">
+                                    {duplicateRequest.requestCount} people have already requested this.
+                                </p>
+
+                                <div className="request-duplicate-actions">
+                                    <button
+                                        type="button"
+                                        className="request-duplicate-button request-duplicate-button-primary"
+                                        onClick={handleUseExistingRequest}
+                                    >
+                                        Use existing
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="request-duplicate-button"
+                                        onClick={handleSubmitDuplicateAnyway}
+                                    >
+                                        Submit anyway
                                     </button>
                                 </div>
                             </div>
