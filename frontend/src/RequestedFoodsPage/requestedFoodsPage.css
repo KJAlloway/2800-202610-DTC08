@@ -1,12 +1,47 @@
-.foodNameAndLocationList {
+.requested-row {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 12px;
+    width: 100%;
 }
 
-.listElement {
-    display: flex;
-    flex-direction: row;
+.requested-item-btn {
+    flex: 1; 
+    min-width: 0;
 }
 
-.backButton {
+.requested-item-btn .button-content {
+    padding: 10px 5px;
+    font-size: 14px;
+    justify-content: center;
+}
+
+.requested-row .info-box-outer {
+    flex: 1;
+}
+
+.requested-row .info-box-inner {
+    padding: 12px 5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.filter-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.filter-button-main {
+    width: auto;
+    min-width: 140px;
+}
+
+.wide-card {
+    max-width: 420px;
 }
