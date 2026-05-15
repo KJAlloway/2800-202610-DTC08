@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import LoginPage from './LoginPage/LoginPage'
 import MainPage from './MainPage/MainPage'
 import RequestFoodPage from './RequestFoodPage/RequestFoodPage'
 import FoodLocationPage from './FoodLocation/FoodLocationPage'
+import axios from "axios";
 
 function App() {
     // Keeps track of which screen should currently be displayed.
@@ -69,11 +70,22 @@ function App() {
         )
     }
 
+    const apiCall = async () => {
+        try {
+            await axios.get('http://localhost:3000/browse').then((response) => {
+                console.log(response.data)
+                console.log(response)
+            })
+        } catch (err) {
+            console.log(111)
+        }
+    }
+
     // If no earlier condition matched, show the home/main page.
     return (
         <MainPage
             onLogout={goToLoginPage}
-            onOpenRequestPage={goToRequestFoodPage}
+            onOpenRequestPage={apiCall}
             onOpenFoodLocationPage={goToFoodLocationPage}
         />
     )
