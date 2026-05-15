@@ -18,6 +18,6 @@ const sampleRequests = [
         cleanedRequest: 'Banh pho noodles',
         requestCount: 4,
     },
-]
+];
 
-module.exports = sampleRequests
+export default sampleRequests;

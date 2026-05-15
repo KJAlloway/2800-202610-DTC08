@@ -205,4 +205,4 @@ const sampleFoods = [
     },
 ]
 
-module.exports = sampleFoods
+export default sampleFoods
