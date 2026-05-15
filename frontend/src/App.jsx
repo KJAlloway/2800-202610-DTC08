@@ -1,9 +1,11 @@
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import LoginPage from './LoginPage/LoginPage'
 import MainPage from './MainPage/MainPage'
 import RequestFoodPage from './RequestFoodPage/RequestFoodPage'
 import FoodLocationPage from './FoodLocation/FoodLocationPage'
 import axios from "axios";
+import FoodInformationPage from './LocationInfoPage/locationInfoPage'
+import RequestedFoodsPage from './RequestedFoodsPage/RequestedFoodsPage'
 
 function App() {
     // Keeps track of which screen should currently be displayed.
@@ -24,6 +26,11 @@ function App() {
         setCurrentPage('request-food')
     }
 
+    // Opens the "Requested Food" form page
+    const goToRequestedFoodsPage = () => {
+        setCurrentPage('requested-foods')
+    }
+
     // Opens the food location page.
     const goToFoodLocationPage = () => {
         setCurrentPage('food-locations')
@@ -34,9 +41,10 @@ function App() {
         setCurrentPage('home')
     }
 
-    // Handles what should happen after a request is submitted.
-    const handleFoodRequestSubmit = (foodName) => {
-        console.log('Food request submitted from App:', foodName)
+    // Receives the final request object from the request form.
+    // Later, this is the object we can send to a backend/database route.
+    const handleFoodRequestSubmit = (requestData) => {
+        console.log('Food request submitted from App:', requestData)
         setCurrentPage('home')
     }
 
@@ -60,14 +68,34 @@ function App() {
         )
     }
 
+    // Shows the requested foods page.
+    if (currentPage === 'requested-foods') {
+        return (
+            <RequestedFoodsPage
+                onBack={goToHomePage}
+                onLogout={goToLoginPage}
+            />
+        )
+    }
+
     // Shows the food location page
     if (currentPage === 'food-locations') {
         return (
             <FoodLocationPage
                 onLogout={goToLoginPage}
-                onBack={goToHomePage} 
+                onBack={goToHomePage}
             />
         )
+    }
+
+    // Shows the food information page
+    if (currentPage === 'food-information') {
+        return (
+            <FoodInformationPage
+                onBack={() => setCurrentPage('food-locations')}
+                onLogout={goToLoginPage}
+            />
+        );
     }
 
     const apiCall = async () => {
@@ -84,8 +112,10 @@ function App() {
     // If no earlier condition matched, show the home/main page.
     return (
         <MainPage
+            // onOpenRequestPage={apiCall}
             onLogout={goToLoginPage}
-            onOpenRequestPage={apiCall}
+            onOpenRequestPage={goToRequestFoodPage}
+            onOpenRequestedFoodsPage={goToRequestedFoodsPage}
             onOpenFoodLocationPage={goToFoodLocationPage}
         />
     )
