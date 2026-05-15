@@ -59,11 +59,52 @@ function LeftColumn({ setReportType, currentType }) {
     );
 }
 
-function BottomActions() {
+function StatusWidget() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [hasSubmitted, setHasSubmitted] = useState(false);
+
+    if (hasSubmitted) {
+        return (
+            <div className="info-box-outer status-widget-container">
+                <div className="info-box-inner status-widget-submitted">
+                    Thank you! Your report has been recorded.
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="report-actions-row">
-            <Button text="I didn't find this item here" className="danger-btn" />
-            <Button text="I found this item here" className="success-btn" />
+        <div className="status-widget-container">
+            {!isOpen ? (
+                <Button 
+                    text="Report Sighting Status" 
+                    onClick={() => setIsOpen(true)} 
+                    className="full-width-action"
+                />
+            ) : (
+                <div className="info-box-outer">
+                    <div className="info-box-inner status-widget-popup">
+                        <p className="status-widget-title">Did you find this item here today?</p>
+                        
+                        <div className="report-actions-row">
+                            <Button 
+                                text="No, I didn't"
+                                className="danger-btn"
+                                onClick={() => setHasSubmitted(true)} 
+                            />
+                            <Button 
+                                text="Yes, I found it!"
+                                className="success-btn"
+                                onClick={() => setHasSubmitted(true)} 
+                            />
+                        </div>
+                        
+                        <button className="status-widget-cancel" onClick={() => setIsOpen(false)}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -118,7 +159,7 @@ function FoodInformationPage({ onBack, onLogout }) {
                 )}
 
                 <MiddleSection />
-                <BottomActions />
+                <StatusWidget />
                 <Footer />
             </div>
         </div>

@@ -3,6 +3,7 @@ import LoginPage from './LoginPage/LoginPage'
 import MainPage from './MainPage/MainPage'
 import RequestFoodPage from './RequestFoodPage/RequestFoodPage'
 import FoodLocationPage from './FoodLocation/FoodLocationPage'
+import FoodInformationPage from './LocationInfoPage/locationInfoPage'
 import RequestedFoodsPage from './RequestedFoodsPage/RequestedFoodsPage'
 
 function App() {
