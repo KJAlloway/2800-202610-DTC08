@@ -13,25 +13,6 @@ app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
 })
 
-// app.get("/", (req, res) => {
-//     res.sendFile(__dirname + '/test.html')
-// })
-//
-// app.get("/", (req, res) => {
-//     res.sendFile(__dirname + '/frontend/index.html')
-// })
-//
-// app.get("/src/main.jsx", (req, res) => {
-//     res.sendFile(__dirname + '/frontend/src/main.jsx')
-// })
-//
-// app.get("/src/App.jsx", (req, res) => {
-//     res.sendFile(__dirname + '/frontend/src/App.jsx')
-// })
-
-
-
-
 
 // Sample route to check if the backend is working
 app.get("/", (req, resp) => {
