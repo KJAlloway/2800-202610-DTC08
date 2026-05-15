@@ -3,6 +3,7 @@ import LoginPage from './LoginPage/LoginPage'
 import MainPage from './MainPage/MainPage'
 import RequestFoodPage from './RequestFoodPage/RequestFoodPage'
 import FoodLocationPage from './FoodLocation/FoodLocationPage'
+import RequestedFoodsPage from './RequestedFoodsPage/RequestedFoodsPage'
 
 function App() {
     // Keeps track of which screen should currently be displayed.
@@ -21,6 +22,11 @@ function App() {
     // Opens the "request a food" form page.
     const goToRequestFoodPage = () => {
         setCurrentPage('request-food')
+    }
+
+    // Opens the "Requested Food" form page
+    const goToRequestedFoodsPage = () => {
+        setCurrentPage('requested-foods')
     }
 
     // Opens the food location page.
@@ -60,6 +66,16 @@ function App() {
         )
     }
 
+    // Shows the requested foods page.
+    if (currentPage === 'requested-foods') {
+        return (
+            <RequestedFoodsPage 
+                onBack={goToHomePage} 
+                onLogout={goToLoginPage} 
+            />
+        )
+    }
+
     // Shows the food location page
     if (currentPage === 'food-locations') {
         return (
@@ -85,6 +101,7 @@ function App() {
         <MainPage
             onLogout={goToLoginPage}
             onOpenRequestPage={goToRequestFoodPage}
+            onOpenRequestedFoodsPage={goToRequestedFoodsPage}
             onOpenFoodLocationPage={goToFoodLocationPage}
         />
     )
