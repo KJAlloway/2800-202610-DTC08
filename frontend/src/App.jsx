@@ -77,7 +77,7 @@ function App() {
                 console.log(response)
             })
         } catch (err) {
-            console.log(111)
+            console.log(err)
         }
     }
 
