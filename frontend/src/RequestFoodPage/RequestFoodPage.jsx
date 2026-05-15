@@ -141,7 +141,7 @@ function RequestFoodPage({ onBack, onLogout, onSubmitRequest }) {
 
         try {
             // Ask the backend whether the cleaned request matches an existing request.
-            const response = await fetch('http://localhost:3000/api/check-duplicate-request', {
+            const response = await fetch('http://localhost:3000/api/aiAutocomplete/check-duplicate-request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cleanedRequest }),
@@ -184,7 +184,7 @@ function RequestFoodPage({ onBack, onLogout, onSubmitRequest }) {
 
         try {
             // Ask the backend AI suggestion route for possible cleaned-up food names.
-            const response = await fetch('http://localhost:3000/api/ai-suggestions', {
+            const response = await fetch('http://localhost:3000/api/aiAutocomplete/ai-suggestions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ searchText: cleanedFoodName }),

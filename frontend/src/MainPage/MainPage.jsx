@@ -98,7 +98,7 @@ function MainPage({
 
             try {
                 // Send the current search text to the backend AI suggestion route.
-                const response = await fetch('http://localhost:3000/api/ai-suggestions', {
+                const response = await fetch('http://localhost:3000/api/aiAutocomplete/ai-suggestions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
