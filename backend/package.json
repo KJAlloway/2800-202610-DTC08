@@ -1,25 +1,26 @@
 {
-  "name": "comp-2800-dtc08-cabbage_patch",
-  "version": "1.0.0",
-  "description": "A web application designed to reduce the difficulty of finding unique or specific cultural ingredients in Vancouver.\r User sourced data will be used to share information on where and when ingredients were found. In the event that someone\r was unable to find an ingredient, they will be able to make a request that is viewable by store owners.",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/KJAlloway/COMP-2800-DTC08-CABBAGE_PATCH.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/KJAlloway/COMP-2800-DTC08-CABBAGE_PATCH/issues"
-  },
-  "homepage": "https://github.com/KJAlloway/COMP-2800-DTC08-CABBAGE_PATCH#readme",
-  "dependencies": {
-    "express": "^5.2.1"
-  }
+    "name": "comp-2800-dtc08-cabbage_patch",
+    "version": "1.0.0",
+    "description": "A web application designed to reduce the difficulty of finding unique or specific cultural ingredients in Vancouver.\r User sourced data will be used to share information on where and when ingredients were found. In the event that someone\r was unable to find an ingredient, they will be able to make a request that is viewable by store owners.",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/KJAlloway/COMP-2800-DTC08-CABBAGE_PATCH.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/KJAlloway/COMP-2800-DTC08-CABBAGE_PATCH/issues"
+    },
+    "homepage": "https://github.com/KJAlloway/COMP-2800-DTC08-CABBAGE_PATCH#readme",
+    "dependencies": {
+        "cors": "^2.8.6",
+        "express": "^5.2.1"
+    }
 }
