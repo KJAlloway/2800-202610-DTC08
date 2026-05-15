@@ -1,11 +1,74 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Button from '../TemplateButtons/Button'
 import './RequestFoodPage.css'
+import FirstTimeHint from '../FirstTimeHint/FirstTimeHint';
+import { useFirstTimeHint } from '../FirstTimeHint/useFirstTimeHint';
+import { NavBar, Footer } from '../NavbarAndFooter/sharedComponents';
+import SearchBar from '../SearchBar/SearchBar';
 
+function AICleanupPanel({ suggestion, originalText, onAccept, onReject }) {
+    if (!suggestion) return null;
+    return (
+        <div className="request-cleanup-panel">
+            <p className="request-cleanup-title">AI cleanup suggestion</p>
+            <p className="request-cleanup-text">
+                Did you mean <strong>{suggestion.name}</strong>?
+            </p>
+            <p className="request-cleanup-original">
+                Original: {originalText}
+            </p>
+            <div className="request-cleanup-actions">
+                <button
+                    type="button"
+                    className="request-cleanup-button request-cleanup-button-primary"
+                    onClick={onAccept}
+                >
+                    Use suggestion
+                </button>
+                <button
+                    type="button"
+                    className="request-cleanup-button"
+                    onClick={onReject}
+                >
+                    Keep original
+                </button>
+            </div>
+        </div>
+    )
+}
 
+function DuplicateWarningPanel({ duplicate, onUseExisting, onSubmitAnyway }) {
+    if (!duplicate) return null;
+    return (
+        <div className="request-duplicate-panel">
+            <p className="request-duplicate-title">Similar request found</p>
+            <p className="request-duplicate-text">
+                This looks like an existing request for{' '}
+                <strong>{duplicate.cleanedRequest}</strong>.
+            </p>
+            <p className="request-duplicate-detail">
+                {duplicate.requestCount} people have already requested this.
+            </p>
+            <div className="request-duplicate-actions">
+                <button
+                    type="button"
+                    className="request-duplicate-button request-duplicate-button-primary"
+                    onClick={onUseExisting}
+                >
+                    Use existing
+                </button>
+                <button
+                    type="button"
+                    className="request-duplicate-button"
+                    onClick={onSubmitAnyway}
+                >
+                    Submit anyway
+                </button>
+            </div>
+        </div>
+    )
+}
 
-// AI
-// Checks whether an AI cleanup suggestion is safe enough to show to the user.
 function isValidCleanupSuggestion(suggestion) {
     return Boolean(
         suggestion &&
@@ -14,7 +77,6 @@ function isValidCleanupSuggestion(suggestion) {
     )
 }
 
-// Checks whether the backend duplicate response has the fields needed for the UI.
 function isValidDuplicateRequest(duplicate) {
     return Boolean(
         duplicate &&
@@ -24,77 +86,32 @@ function isValidDuplicateRequest(duplicate) {
     )
 }
 
-function RequestFoodPage({ onBack, onSubmitRequest }) {
-    // This key is used to remember whether the user wants to hide the popup.
-    const popupPreferenceKey = 'hideRequestFoodPopup'
+function RequestFoodPage({ onBack, onLogout, onSubmitRequest }) {
+    const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_request_tip_hidden')
 
     // Stores the text the user types into the request box.
     const [requestedFood, setRequestedFood] = useState('')
-
-    // Controls whether the popup is currently visible.
-    const [showRequestPopup, setShowRequestPopup] = useState(false)
-
-    // Tracks whether the user checked "Don't show this again".
-    const [disablePopupPermanently, setDisablePopupPermanently] = useState(false)
-
     // Stores an AI-suggested cleaner food name before the user confirms it.
     const [cleanupSuggestion, setCleanupSuggestion] = useState(null)
-
     // Stores the original request while the user decides whether to accept the AI suggestion.
     const [pendingOriginalRequest, setPendingOriginalRequest] = useState('')
-
-    // Tracks whether the app is currently checking the backend for a cleanup suggestion.
+     // Tracks whether the app is currently checking the backend for a cleanup suggestion.
     const [isCheckingCleanup, setIsCheckingCleanup] = useState(false)
-
     // Stores a simple message if the AI cleanup check fails.
     const [cleanupError, setCleanupError] = useState('')
-
     // Stores a possible duplicate request while the user decides what to do.
     const [duplicateRequest, setDuplicateRequest] = useState(null)
-
     // Stores the final request data until the duplicate check is resolved.
     const [pendingRequestData, setPendingRequestData] = useState(null)
 
-
-    // Runs once when the page loads.
-    // It checks whether the user has already chosen to hide this popup before.
-    useEffect(() => {
-        const savedPreference = localStorage.getItem(popupPreferenceKey)
-
-        // Only show the popup if the user has not disabled it.
-        if (savedPreference !== 'true') {
-            setShowRequestPopup(true)
-        }
-    }, [])
-
     // Updates the textarea whenever the user types.
-    const handleRequestedFoodChange = (event) => {
-        setRequestedFood(event.target.value)
-    }
-
-    // Runs when the user checks or unchecks the popup disable option.
-    const handleDisablePopupChange = (event) => {
-        setDisablePopupPermanently(event.target.checked)
-    }
-
-    // Closes the popup.
-    // If the user checked the disable option, that choice is saved in localStorage.
-    const handleCloseRequestPopup = () => {
-        if (disablePopupPermanently) {
-            localStorage.setItem(popupPreferenceKey, 'true')
-        }
-
-        setShowRequestPopup(false)
-    }
+    const handleRequestedFoodChange = (event) => setRequestedFood(event.target.value)
 
     // Sends the final request upward after all AI cleanup and duplicate checks are done.
     // This is the final step that actually leaves the request page.
     const completeRequestSubmission = (requestData) => {
         console.log('Food request submitted:', requestData)
-
-        if (onSubmitRequest) {
-            onSubmitRequest(requestData)
-        }
+        if (onSubmitRequest) onSubmitRequest(requestData)
 
         // Reset the form and AI cleanup state after submission.
         setRequestedFood('')
@@ -108,11 +125,11 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
     // Checks the backend before final submission to see whether this request already exists.
     // This keeps duplicate checking out of the frontend and prepares the app for database use.
     const submitFinalRequest = async ({
-                                          originalRequest,
-                                          cleanedRequest,
-                                          wasAiCleaned,
-                                          aiSuggestion = null,
-                                      }) => {
+        originalRequest,
+        cleanedRequest,
+        wasAiCleaned,
+        aiSuggestion = null,
+    }) => {
         const requestData = {
             originalRequest,
             cleanedRequest,
@@ -126,18 +143,11 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
             // Ask the backend whether the cleaned request matches an existing request.
             const response = await fetch('http://localhost:3000/api/check-duplicate-request', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    cleanedRequest,
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cleanedRequest }),
             })
 
-            if (!response.ok) {
-                throw new Error('Duplicate check failed.')
-            }
-
+            if (!response.ok) throw new Error('Duplicate check failed.')
             const data = await response.json()
 
             // If the backend finds a duplicate, pause submission and let the user decide.
@@ -159,7 +169,6 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
     // Before submitting, it asks the backend whether there is a cleaner food name suggestion.
     const handleSubmit = async (event) => {
         event.preventDefault()
-
         const cleanedFoodName = requestedFood.trim()
 
         // Guardrail: do not submit blank requests or call the AI route with empty text.
@@ -177,18 +186,11 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
             // Ask the backend AI suggestion route for possible cleaned-up food names.
             const response = await fetch('http://localhost:3000/api/ai-suggestions', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    searchText: cleanedFoodName,
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ searchText: cleanedFoodName }),
             })
 
-            if (!response.ok) {
-                throw new Error('Cleanup request failed.')
-            }
-
+            if (!response.ok) throw new Error('Cleanup request failed.')
             const data = await response.json()
 
             // Guardrail: only use the first suggestion if the backend returns a valid array.
@@ -226,7 +228,6 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
             // If AI cleanup fails, keep the app usable and let the original request submit.
             console.error('AI cleanup error:', error)
             setCleanupError('AI cleanup is unavailable, so your original request was submitted.')
-
             await submitFinalRequest({
                 originalRequest: cleanedFoodName,
                 cleanedRequest: cleanedFoodName,
@@ -264,10 +265,7 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
     // Runs when the user chooses the already-existing request instead of submitting a duplicate.
     // For now, we log the link to the existing request. Later, this could increase a request count.
     const handleUseExistingRequest = () => {
-        if (!pendingRequestData || !duplicateRequest) {
-            return
-        }
-
+        if (!pendingRequestData || !duplicateRequest) return
         completeRequestSubmission({
             ...pendingRequestData,
             cleanedRequest: duplicateRequest.cleanedRequest,
@@ -278,194 +276,57 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
 
     // Runs when the user decides their request should still be submitted separately.
     const handleSubmitDuplicateAnyway = () => {
-        if (!pendingRequestData) {
-            return
-        }
-
+        if (!pendingRequestData) return
         completeRequestSubmission({
             ...pendingRequestData,
             wasDuplicateOverride: true,
         })
     }
 
-
-    // Runs when the user clicks the back button.
-    const handleBackClick = () => {
-        if (onBack) {
-            onBack()
-            return
-        }
-
-        console.log('Go back to home page')
-    }
-
     return (
         <main className="request-food-page-wrapper">
-            {/* Small page label above the card, matching the login page style */}
             <p className="request-food-page-context-title">Request a food</p>
 
-            <section
-                className="request-food-card"
-                aria-labelledby="request-food-heading"
-            >
-                {/* Top row only holds the back button for this design */}
-                <div className="request-food-top-row">
-                    <button
-                        type="button"
-                        className="request-food-back-button"
-                        onClick={handleBackClick}
-                        aria-label="Go back to home page"
-                    >
-                        &larr;
-                    </button>
-                </div>
+            <section className="request-food-card" aria-labelledby="request-food-heading">
+                
+                <NavBar onBack={onBack} onLogout={onLogout} />
 
-                {/* Help popup that explains how to write a better food request. */}
-                {showRequestPopup && (
-                    <aside
-                        className="request-food-popup"
-                        aria-label="Request food tips"
-                    >
-                        <div className="request-food-popup__header">
-                            <h2 className="request-food-popup__title">
-                                Request tip
-                            </h2>
-
-                            <button
-                                type="button"
-                                className="request-food-popup__close"
-                                onClick={handleCloseRequestPopup}
-                                aria-label="Close popup"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <p className="request-food-popup__text">
-                            Please enter the specific name of the food you want
-                            to request.
-                        </p>
-
-                        <p className="request-food-popup__text">
-                            Clear, specific requests help us better track what
-                            people in your area need.
-                        </p>
-
-                        <p className="request-food-popup__text">
-                            Example: write &quot;rice noodles&quot; instead of
-                            just &quot;noodles&quot;.
-                        </p>
-
-                        <label className="request-food-popup__checkbox-row">
-                            <input
-                                type="checkbox"
-                                checked={disablePopupPermanently}
-                                onChange={handleDisablePopupChange}
-                            />
-                            <span>Don&apos;t show this again</span>
-                        </label>
-                    </aside>
+                {showHints && (
+                    <FirstTimeHint 
+                        title="Request tip"
+                        message="Please enter the specific name of the food. Clear, specific requests help us better track what people in your area need. For example: write 'rice noodles' instead of just 'noodles'."
+                        onDismiss={onDisableHints}
+                    />
                 )}
 
-                {/* Main content area */}
                 <div className="request-food-body">
-                    {/* Screen-reader heading for accessibility */}
-                    <h1 id="request-food-heading" className="sr-only">
-                        Request a food
-                    </h1>
+                    <h1 id="request-food-heading" className="sr-only">Request a food</h1>
 
                     <form className="request-food-form" onSubmit={handleSubmit}>
-                        {/* Food name entry box */}
-                        <div className="request-food-field-shell">
-                            <div className="request-food-field-tray">
-                                <label className="sr-only" htmlFor="requested-food-input">
-                                    Enter the name of the food you want to request
-                                </label>
+                        
+                        <SearchBar 
+                            value={requestedFood} 
+                            onChange={handleRequestedFoodChange} 
+                            placeholder="Enter name of food..."
+                        />
 
-                                <textarea
-                                    id="requested-food-input"
-                                    className="request-food-input"
-                                    name="requestedFood"
-                                    placeholder="Enter in the name of the food you want to request"
-                                    value={requestedFood}
-                                    onChange={handleRequestedFoodChange}
-                                    rows="3"
-                                />
-                            </div>
-                        </div>
+                        <AICleanupPanel 
+                            suggestion={cleanupSuggestion}
+                            originalText={pendingOriginalRequest}
+                            onAccept={handleAcceptCleanupSuggestion}
+                            onReject={handleKeepOriginalRequest}
+                        />
 
-                        {/* AI cleanup confirmation shown only when the backend finds a cleaner request name. */}
-                        {cleanupSuggestion && (
-                            <div className="request-cleanup-panel">
-                                <p className="request-cleanup-title">AI cleanup suggestion</p>
-
-                                <p className="request-cleanup-text">
-                                    Did you mean <strong>{cleanupSuggestion.name}</strong>?
-                                </p>
-
-                                <p className="request-cleanup-original">
-                                    Original: {pendingOriginalRequest}
-                                </p>
-
-                                <div className="request-cleanup-actions">
-                                    <button
-                                        type="button"
-                                        className="request-cleanup-button request-cleanup-button-primary"
-                                        onClick={handleAcceptCleanupSuggestion}
-                                    >
-                                        Use suggestion
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="request-cleanup-button"
-                                        onClick={handleKeepOriginalRequest}
-                                    >
-                                        Keep original
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Duplicate warning shown when the cleaned request already exists. */}
-                        {duplicateRequest && (
-                            <div className="request-duplicate-panel">
-                                <p className="request-duplicate-title">Similar request found</p>
-
-                                <p className="request-duplicate-text">
-                                    This looks like an existing request for{' '}
-                                    <strong>{duplicateRequest.cleanedRequest}</strong>.
-                                </p>
-
-                                <p className="request-duplicate-detail">
-                                    {duplicateRequest.requestCount} people have already requested this.
-                                </p>
-
-                                <div className="request-duplicate-actions">
-                                    <button
-                                        type="button"
-                                        className="request-duplicate-button request-duplicate-button-primary"
-                                        onClick={handleUseExistingRequest}
-                                    >
-                                        Use existing
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="request-duplicate-button"
-                                        onClick={handleSubmitDuplicateAnyway}
-                                    >
-                                        Submit anyway
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                        <DuplicateWarningPanel 
+                            duplicate={duplicateRequest}
+                            onUseExisting={handleUseExistingRequest}
+                            onSubmitAnyway={handleSubmitDuplicateAnyway}
+                        />
 
                         {cleanupError && (
                             <p className="request-cleanup-error">{cleanupError}</p>
                         )}
 
-                        {/* Submit button */}
                         <Button
                             text={isCheckingCleanup ? 'Checking request...' : 'Submit your request'}
                             className="request-food-submit-button"
@@ -473,6 +334,8 @@ function RequestFoodPage({ onBack, onSubmitRequest }) {
                         />
                     </form>
                 </div>
+
+                <Footer />
             </section>
         </main>
     )
