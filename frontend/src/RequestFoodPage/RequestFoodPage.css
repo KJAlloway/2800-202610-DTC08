@@ -207,6 +207,72 @@
     clip: rect(0, 0, 0, 0);
 }
 
+/* Panel shown when AI finds a cleaner version of the user's request */
+.request-cleanup-panel {
+    width: min(100%, 320px);
+    border: 1px solid #b8d3bd;
+    border-radius: 12px;
+    background-color: #f1f8f2;
+    padding: 12px 14px;
+    text-align: left;
+}
+
+/* Small heading for the AI cleanup panel */
+.request-cleanup-title {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #315f3a;
+}
+
+/* Main confirmation text */
+.request-cleanup-text {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: #333333;
+}
+
+/* Shows what the user originally typed */
+.request-cleanup-original {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #666666;
+}
+
+/* Keeps the confirmation buttons side by side */
+.request-cleanup-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Shared styling for cleanup confirmation buttons */
+.request-cleanup-button {
+    flex: 1;
+    border: 1px solid #9d9d9d;
+    border-radius: 8px;
+    background-color: #ffffff;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* Highlights the button that accepts the AI suggestion */
+.request-cleanup-button-primary {
+    border-color: #5f9f69;
+    background-color: #dff0e2;
+    color: #244f2c;
+}
+
+/* Small fallback message if the AI cleanup request fails */
+.request-cleanup-error {
+    width: min(100%, 320px);
+    margin: -12px 0 0;
+    font-size: 13px;
+    color: #8a4d15;
+    text-align: center;
+}
+
 /* Small-screen adjustments so spacing stays comfortable on phones */
 @media (max-width: 420px) {
     .request-food-card {
