@@ -1,111 +1,166 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useFirstTimeHint } from '../FirstTimeHint/useFirstTimeHint';
 import './MainPage.css'
 import Button from '../TemplateButtons/Button'
 import SearchBar from '../SearchBar/SearchBar'
+import FirstTimeHint from '../FirstTimeHint/FirstTimeHint'
+import { NavBar, Footer } from '../NavbarAndFooter/sharedComponents'
 import cabbageLogo from '../assets/cabbage-logo.svg'
 
+function SearchSection({ isLoading, error, value, onChange, suggestions, onSelect }) {
+    return (
+        <section className="search-section">
+            <SearchBar
+                text={isLoading ? 'Loading suggestions...' : error || 'Search for any food'}
+                value={value}
+                onChange={onChange}
+                suggestions={suggestions}
+                onSuggestionSelect={onSelect}
+            />
+        </section>
+    )
+}
+
+function ActionSection({ onOpenRequest, onOpenRequestedFoods }) {
+    return (
+        <section className="action-section">
+            <Button
+                text="Submit a request for unavailable food"
+                className="full-width-action"
+                onClick={onOpenRequest}
+            />
+            <Button
+                text="View local commonly requested foods"
+                className="full-width-action"
+                onClick={onOpenRequestedFoods}
+            />
+        </section>
+    )
+}
+
+// AI
+// Cleans suggestions from the backend before they reach the SearchBar UI.
+// This is a frontend guardrail in case the API ever returns malformed data.
+function sanitizeSuggestions(suggestions) {
+    if (!Array.isArray(suggestions)) {
+        return []
+    }
+
+    return suggestions
+        .filter((suggestion) =>
+            suggestion &&
+            typeof suggestion.id === 'string' &&
+            typeof suggestion.name === 'string' &&
+            suggestion.name.trim()
+        )
+        .slice(0, 5)
+}
+
 function MainPage({
-                      onLogout,
-                      onOpenRequestPage,
-                      onOpenRequestedFoodsPage,
-                  }) {
+    onLogout,
+    onOpenRequestPage,
+    onOpenRequestedFoodsPage
+}) {
     // Gets the current year automatically for the footer.
     const currentYear = new Date().getFullYear()
+    const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_main_hint_hidden');
 
-    // Runs when the user clicks the logout button.
-    const handleLogoutClick = () => {
-        if (onLogout) {
-            onLogout()
+    const [searchValue, setSearchValue] = useState('')
+    const [aiSuggestions, setAiSuggestions] = useState([])
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
+    const [suggestionError, setSuggestionError] = useState('')
+
+    const handleSearchChange = (event) => {
+        setSearchValue(event.target.value)
+    }
+
+    const handleSuggestionSelect = (suggestion) => {
+        setSearchValue(suggestion.name)
+    }
+
+    // Watches the search input and asks the backend for AI food suggestions.
+    // The request is delayed slightly so the app does not call the API after every single keypress.
+    useEffect(() => {
+        const cleanedSearchValue = searchValue.trim()
+
+        // If the search box is empty, clear the suggestion state and stop here.
+        if (!cleanedSearchValue) {
+            setAiSuggestions([])
+            setSuggestionError('')
+            setIsLoadingSuggestions(false)
             return
         }
 
-        console.log('Logout clicked')
-    }
+        // Wait 300ms before calling the backend so fast typing does not create too many requests.
+        const requestDelay = setTimeout(async () => {
+            setIsLoadingSuggestions(true)
+            setSuggestionError('')
 
-    // Opens the page where the user can request a food item.
-    const handleOpenRequestPage = () => {
-        if (onOpenRequestPage) {
-            onOpenRequestPage()
-            return
-        }
+            try {
+                // Send the current search text to the backend AI suggestion route.
+                const response = await fetch('http://localhost:3000/api/aiAutocomplete/ai-suggestions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        searchText: cleanedSearchValue,
+                    }),
+                })
 
-        console.log('Open request food page')
-    }
+                // If the backend returns an error status, move into the catch block.
+                if (!response.ok) {
+                    throw new Error('Suggestion request failed.')
+                }
 
-    // Placeholder for the "commonly requested foods" page.
-    const handleOpenRequestedFoodsPage = () => {
-        if (onOpenRequestedFoodsPage) {
-            onOpenRequestedFoodsPage()
-            return
-        }
+                const data = await response.json()
 
-        console.log('Open requested foods list page')
-    }
+                // Guardrail: only update the UI if suggestions came back as an array.
+                // This prevents unexpected backend responses from breaking the page.
+                setAiSuggestions(sanitizeSuggestions(data.suggestions))
+            } catch (error) {
+                // If the backend is down or the request fails, keep the app usable.
+                console.error('AI suggestion error:', error)
+                setAiSuggestions([])
+                setSuggestionError('Suggestions are unavailable right now.')
+            } finally {
+                // Loading ends whether the request succeeds or fails.
+                setIsLoadingSuggestions(false)
+            }
+        }, 300)
+
+        // Cleanup: if the user types again before 300ms passes, cancel the old request.
+        return () => clearTimeout(requestDelay)
+    }, [searchValue])
 
     return (
         <main className="main-page-wrapper">
             <p className="page-context-title">Main Page</p>
-
             <section className="main-card">
-                <header className="main-header">
-                    <div className="header-left">
-                        {/* Logo frame */}
-                        <div className="brand-outer-frame">
-                            <div className="brand-inner-tray">
-                                <img
-                                    src={cabbageLogo}
-                                    alt="Logo"
-                                    className="brand-logo"
-                                />
-                            </div>
-                        </div>
+                <NavBar onLogout={onLogout} />
 
-                        {/* App name frame */}
-                        <div className="brand-text-outer">
-                            <div className="brand-text-tray">
-                                <div className="brand-name-stacked">
-                                    <span>Cabbage</span>
-                                    <span>Patch</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="header-right">
-                        <Button
-                            text="Log out"
-                            className="logout-btn"
-                            onClick={handleLogoutClick}
-                        />
-                    </div>
-                </header>
-
-                {/* Search area */}
-                <section className="search-section">
-                    <SearchBar text="Search for any food" />
-                </section>
-
-                {/* Main action buttons */}
-                <section className="action-section">
-                    <Button
-                        text="Submit a request for unavailable food"
-                        className="full-width-action"
-                        onClick={handleOpenRequestPage}
+                {showHints && (
+                    <FirstTimeHint
+                        title="Welcome to Cabbage Patch!"
+                        message="Search for specific items available in your area or request new ones below."
+                        onDismiss={onDisableHints}
                     />
+                )}
 
-                    <Button
-                        text="View local commonly requested foods"
-                        className="full-width-action"
-                        onClick={handleOpenRequestedFoodsPage}
-                    />
-                </section>
+                <SearchSection
+                    isLoading={isLoadingSuggestions}
+                    error={suggestionError}
+                    value={searchValue}
+                    onChange={handleSearchChange}
+                    suggestions={aiSuggestions}
+                    onSelect={handleSuggestionSelect}
+                />
 
-                {/* Footer */}
-                <footer className="main-card-footer">
-                    <div className="footer-line"></div>
-                    <p>Copyright DTC-08</p>
-                    <p className="footer-year">{currentYear}</p>
-                </footer>
+                <ActionSection
+                    onOpenRequest={onOpenRequestPage}
+                    onOpenRequestedFoods={onOpenRequestedFoodsPage}
+                />
+                <Footer />
             </section>
         </main>
     )

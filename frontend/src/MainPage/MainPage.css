@@ -174,3 +174,8 @@
     color: #555555;
     text-align: left;
 }
+
+.brand-text-outer, 
+.logout-button-override {
+    margin-top: -50px; 
+}

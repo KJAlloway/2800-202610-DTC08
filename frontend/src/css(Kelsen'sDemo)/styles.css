@@ -1,0 +1,106 @@
+/* =========================
+   Page Layout
+   ========================= */
+
+body {
+    /* Keeps the first clean frontend readable without a CSS framework. */
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #1f2933;
+    background: #f5f2ea;
+}
+
+.page-shell {
+    /* Controls the readable width of the demo page. */
+    width: min(960px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 3rem 0;
+}
+
+/* =========================
+   Hero / Search
+   ========================= */
+
+.hero-section,
+.results-section {
+    /* Shared card styling keeps the page calm and easy to scan. */
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid #1f2933;
+    border-radius: 1rem;
+    background: #fffdf7;
+}
+
+.eyebrow {
+    /* Small project label above the main heading. */
+    margin: 0 0 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hero-section h1 {
+    /* Main landing message. */
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1;
+}
+
+.hero-copy,
+.muted-copy {
+    /* Secondary text should support the interface without competing with it. */
+    color: #52606d;
+}
+
+.search-form {
+    /* Grid makes the form easy to expand later without rewriting layout. */
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.search-form input,
+.search-form button {
+    /* Large controls are easier to demo and test quickly. */
+    padding: 0.8rem 1rem;
+    border: 2px solid #1f2933;
+    border-radius: 0.75rem;
+    font: inherit;
+}
+
+.search-form button {
+    /* Makes the primary action visually obvious. */
+    font-weight: 700;
+    cursor: pointer;
+    background: #d9ead3;
+}
+
+/* =========================
+   Vendor Cards
+   ========================= */
+
+.vendor-list {
+    /* Controls spacing between rendered vendor cards. */
+    display: grid;
+    gap: 1rem;
+}
+
+.vendor-card {
+    /* Keeps each result visually distinct from the surrounding page. */
+    padding: 1rem;
+    border: 1px solid #1f2933;
+    border-radius: 0.75rem;
+    background: white;
+}
+
+.vendor-card h3 {
+    margin: 0 0 0.4rem;
+}
+
+.vendor-meta {
+    /* Small provider/status details should be visible but not dominant. */
+    margin: 0.35rem 0;
+    color: #52606d;
+    font-size: 0.95rem;
+}
