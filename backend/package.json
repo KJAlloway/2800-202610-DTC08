@@ -21,6 +21,8 @@
     "homepage": "https://github.com/KJAlloway/COMP-2800-DTC08-CABBAGE_PATCH#readme",
     "dependencies": {
         "cors": "^2.8.6",
-        "express": "^5.2.1"
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1",
+        "mongodb": "^7.2.0"
     }
 }

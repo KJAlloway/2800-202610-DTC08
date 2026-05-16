@@ -2,7 +2,7 @@ async function loginUser(req, res) {
     const {username, password} = req.body;
     
     // search database for user info
-    if (username == "admin" && password == "admin") {
+    if (username === "admin" && password === "admin") {
         res.send(true);
     }
     else {
@@ -15,7 +15,7 @@ async function registerUser(req, res) {
     const {username, password} = req.body;
     
     // Search for conflicting username
-    if (username == "admin") {
+    if (username === "admin") {
         res.status(401).send("username exists already");
     } else {
         res.send(true);
@@ -29,7 +29,7 @@ async function logoutUser(req, res) {
 }
 
 async function getUserInfo(req, res) {
-    username = req.body.username;
+    let username = req.body.username;
     res.send({username})
 }
 

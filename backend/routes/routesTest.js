@@ -6,6 +6,7 @@ const testRouter = express.Router();
 
 // Gets a list of all the items
 testRouter.get("/", async (req, res) => {
+    // res.send("Working back end!").status(200)
     let collection = await db.collection("testItems");
     let results = await collection.find({}).toArray();
     res.send(results).status(200);

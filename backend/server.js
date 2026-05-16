@@ -1,7 +1,3 @@
-//--------------------------------------//
-//  Finn's code
-// --------------------------------------//
-
 import express from "express"
 import cors from "cors"
 import testRouter from "./routes/routesTest.js";
