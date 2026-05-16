@@ -10,6 +10,7 @@ import RequestedFoodsPage from './RequestedFoodsPage/RequestedFoodsPage'
 function App() {
     // Keeps track of which screen should currently be displayed.
     const [currentPage, setCurrentPage] = useState('login')
+    const [submittedSearch, setSubmittedSearch] = useState('');
 
     // Sends the user from login to the home/main page.
     const goToHomePage = () => {
@@ -46,6 +47,14 @@ function App() {
     const handleFoodRequestSubmit = (requestData) => {
         console.log('Food request submitted from App:', requestData)
         setCurrentPage('home')
+    }
+
+    // Sets searchText into state and switches to food location page
+    const handleFoodSearch = (searchText) => {
+        setSubmittedSearch(searchText)
+    
+        console.log(searchText)
+        setCurrentPage('food-locations')
     }
 
     // Shows the login screen first.
@@ -117,6 +126,7 @@ function App() {
             onOpenRequestPage={goToRequestFoodPage}
             onOpenRequestedFoodsPage={goToRequestedFoodsPage}
             onOpenFoodLocationPage={goToFoodLocationPage}
+            onFoodSearch={handleFoodSearch}
         />
     )
 }

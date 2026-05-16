@@ -60,14 +60,15 @@ function sanitizeSuggestions(suggestions) {
 function MainPage({
     onLogout,
     onOpenRequestPage,
-    onOpenRequestedFoodsPage
+    onOpenRequestedFoodsPage,
+    onFoodSearch
 }) {
     // Gets the current year automatically for the footer.
     const currentYear = new Date().getFullYear()
     const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_main_hint_hidden');
 
     const [searchValue, setSearchValue] = useState('')
-    const [submittedSearch, setSubmittedSearch] = useState('');
+
     const [aiSuggestions, setAiSuggestions] = useState([])
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
     const [suggestionError, setSuggestionError] = useState('')
@@ -76,10 +77,9 @@ function MainPage({
         setSearchValue(event.target.value)
     }
 
-    // Saves the search value from searchbar into state
+    // Sends the searchText upwards to app so it can be passed to the FoodLocationsPage
     const handleSearchSubmit = (searchText) => {
-        setSubmittedSearch(searchText)
-        console.log(searchText)
+        onFoodSearch(searchText)
     }
 
     const handleSuggestionSelect = (suggestion) => {
