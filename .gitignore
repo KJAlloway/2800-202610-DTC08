@@ -3,6 +3,7 @@ node_modules/
 
 # Local environment secrets
 backend/.env
+.env
 .env.local
 
 # IDE/editor files
