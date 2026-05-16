@@ -10,6 +10,7 @@ const SearchBar = ({
                        text,
                        value,
                        onChange,
+                       onSearch,
                        suggestions = [],
                        onSuggestionSelect,
                    }) => {
@@ -35,6 +36,12 @@ const SearchBar = ({
                         placeholder={text || 'Search...'}
                         value={value}
                         onChange={onChange}
+                        // Sends the current input value upward to MainPage
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                                onSearch?.(value)
+                            }
+                        }}
                     />
                 </div>
             </div>

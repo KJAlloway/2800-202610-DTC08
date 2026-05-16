@@ -7,13 +7,14 @@ import FirstTimeHint from '../FirstTimeHint/FirstTimeHint'
 import { NavBar, Footer } from '../NavbarAndFooter/sharedComponents'
 import cabbageLogo from '../assets/cabbage-logo.svg'
 
-function SearchSection({ isLoading, error, value, onChange, suggestions, onSelect }) {
+function SearchSection({ isLoading, error, value, onChange, onSearch, suggestions, onSelect }) {
     return (
         <section className="search-section">
             <SearchBar
                 text={isLoading ? 'Loading suggestions...' : error || 'Search for any food'}
                 value={value}
                 onChange={onChange}
+                onSearch={onSearch}
                 suggestions={suggestions}
                 onSuggestionSelect={onSelect}
             />
@@ -66,12 +67,19 @@ function MainPage({
     const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_main_hint_hidden');
 
     const [searchValue, setSearchValue] = useState('')
+    const [submittedSearch, setSubmittedSearch] = useState('');
     const [aiSuggestions, setAiSuggestions] = useState([])
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
     const [suggestionError, setSuggestionError] = useState('')
 
     const handleSearchChange = (event) => {
         setSearchValue(event.target.value)
+    }
+
+    // Saves the search value from searchbar into state
+    const handleSearchSubmit = (searchText) => {
+        setSubmittedSearch(searchText)
+        console.log(searchText)
     }
 
     const handleSuggestionSelect = (suggestion) => {
@@ -152,6 +160,7 @@ function MainPage({
                     error={suggestionError}
                     value={searchValue}
                     onChange={handleSearchChange}
+                    onSearch={handleSearchSubmit}
                     suggestions={aiSuggestions}
                     onSelect={handleSuggestionSelect}
                 />

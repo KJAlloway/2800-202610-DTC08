@@ -27,7 +27,7 @@ function LocationListSection({ locations, onSelect }) {
                         key={index}
                         text={location}
                         className="location-list-button"
-                        onClick={() => onSelect(loc)}
+                        onClick={() => onSelect(location)}
                     />
                 ))}
             </ScrollableList>
