@@ -93,6 +93,7 @@ function App() {
             <FoodLocationPage
                 onLogout={goToLoginPage}
                 onBack={goToHomePage}
+                searchQuery={submittedSearch}
             />
         )
     }

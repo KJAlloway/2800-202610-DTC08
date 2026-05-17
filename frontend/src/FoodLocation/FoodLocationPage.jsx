@@ -1,10 +1,51 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import './FoodLocationPage.css';
 import Button from '../TemplateButtons/Button';
 import ScrollableList from '../TemplateScrollableLists/ScrollableList';
 import FirstTimeHint from '../FirstTimeHint/FirstTimeHint';
 import { useFirstTimeHint } from '../FirstTimeHint/useFirstTimeHint';
 import { NavBar, Footer } from '../NavbarAndFooter/sharedComponents';
+
+
+const foods = [
+    {
+        name: "cherry tomato",
+        locations: [
+            {
+                name: "Walmart",
+                address: "3054 Hill St.",
+                id: 204,
+                reportedDates: [
+                    {
+                        found: true,
+                        date: "22/05/2026"
+                    },
+                    {
+                        found: false,
+                        date: "02/03/2026"
+
+                    }
+                ]
+            },
+            {
+                name: "SaveOnFoods",
+                address: "5467 Mountain St.",
+                id: 405,
+                reportedDates: [
+                    {
+                        found: true,
+                        date: "22/01/2026"
+                    },
+                    {
+                        found: false,
+                        date: "02/05/2026"
+
+                    }
+                ]
+            }
+        ]
+    }
+]
 
 function FilterSection() {
     return (
@@ -24,8 +65,8 @@ function LocationListSection({ locations, onSelect }) {
             <ScrollableList maxHeight="350px">
                 {locations.map((location, index) => (
                     <Button
-                        key={index}
-                        text={location}
+                        key={location.id}
+                        text={`${location.name} - ${location.address}`}
                         className="location-list-button"
                         onClick={() => onSelect(location)}
                     />
@@ -35,14 +76,38 @@ function LocationListSection({ locations, onSelect }) {
     );
 }
 
-const FoodLocationPage = ({ onLogout, onBack, onSelectLocation }) => {
+const FoodLocationPage = ({ onLogout, onBack, onSelectLocation, searchQuery }) => {
     const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_filter_hint_hidden');
+    const [searchResults, setSearchResults] = useState([])
 
-    const locations = [
-        "Location #1", "Location #2", "Location #3", "Location #4", 
-        "Location #5", "Location #6", "Location #7", "Location #8", 
-        "Location #9", "Location #10", "Location #11", "Location #12"
-    ];
+    const fetchSearchResults = async () => {
+        const cleanedQuery = searchQuery?.trim().toLowerCase() || '';
+
+        if(!cleanedQuery) {
+            setSearchResults([]);
+            return
+        }
+
+        const matchingFood = foods.find((food) => {
+            return food.name.toLowerCase().includes(cleanedQuery)
+        })
+        
+        if (!matchingFood) {
+            setSearchResults([])
+        } else {
+            setSearchResults(matchingFood.locations)
+        }
+        
+    }
+
+    // useEffect takes in code to run, and on what state changes this should happen
+    // Both errors/warnings can be ignore this is just React being overly cautious
+    useEffect(() => {
+        console.log("Locations for: " + searchQuery)
+        fetchSearchResults()
+    }, [searchQuery])
+
+
 
     return (
         <main className="main-page-wrapper">
@@ -61,7 +126,7 @@ const FoodLocationPage = ({ onLogout, onBack, onSelectLocation }) => {
                 <FilterSection />
 
                 <LocationListSection 
-                    locations={locations} 
+                    locations={searchResults} 
                     onSelect={onSelectLocation} 
                 />
 
