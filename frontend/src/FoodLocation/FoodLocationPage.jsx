@@ -10,11 +10,12 @@ import { NavBar, Footer } from '../NavbarAndFooter/sharedComponents';
 const foods = [
     {
         name: "cherry tomato",
+        foodId: 9873,
         locations: [
             {
                 name: "Walmart",
                 address: "3054 Hill St.",
-                id: 204,
+                locationId: 204,
                 reportedDates: [
                     {
                         found: true,
@@ -30,7 +31,7 @@ const foods = [
             {
                 name: "SaveOnFoods",
                 address: "5467 Mountain St.",
-                id: 405,
+                locationId: 405,
                 reportedDates: [
                     {
                         found: true,
@@ -65,7 +66,7 @@ function LocationListSection({ locations, onSelect }) {
             <ScrollableList maxHeight="350px">
                 {locations.map((location, index) => (
                     <Button
-                        key={location.id}
+                        key={location.locationId}
                         text={`${location.name} - ${location.address}`}
                         className="location-list-button"
                         onClick={() => onSelect(location)}
