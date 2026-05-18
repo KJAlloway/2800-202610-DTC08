@@ -9,16 +9,28 @@ import { NavBar, Footer } from '../NavbarAndFooter/sharedComponents';
 import ScrollableList from '../TemplateScrollableLists/ScrollableList';
 import '../Interraction hints/hints.css'
 
-function MiddleSection() {
+function MiddleSection( {location} ) {
     const [reportType, setReportType] = useState('verified');
-    const verifiedDates = ["May 10, 2026", "May 08, 2026", "May 05, 2026", "April 30, 2026"];
-    const anonymousDates = ["May 11, 2026", "May 09, 2026", "May 04, 2026"];
+
+    // Filterring and mapping won't crash with location loading delay because of  ?? []
+
+    // Filters all verifiedDates and returns array of dates
+    const verifiedDates = (location?.reportedDates ?? [])
+    .filter((report) => report.found && report.userId !== null)
+    .map((report) => report.date)
+    .reverse();
+
+    // Filters all anonymousDates and returns array of dates
+    const anonymousDates = (location?.reportedDates ?? [])
+    .filter((report) => report.found && report.userId === null)
+    .map((report) => report.date)
+    .reverse();
 
     const currentDates = reportType === 'verified' ? verifiedDates : anonymousDates;
 
     return (
         <div className='middleSection'>
-            <LeftColumn setReportType={setReportType} currentType={reportType} />
+            <LeftColumn setReportType={setReportType} currentType={reportType} location={location}/>
             <RightColumn dates={currentDates} reportType={reportType} />
         </div>
     );
@@ -28,12 +40,12 @@ function navigateToGoogleMaps() {
     return 0;
 }
 
-function LeftColumn({ setReportType, currentType }) {
+function LeftColumn({ setReportType, currentType, location }) {
     return (
         <div className="leftColumn">
             <div className="info-box-outer">
                 <div className="info-box-inner">
-                    Address Placeholder
+                    {location.address}
                 </div>
             </div>
 
@@ -141,8 +153,9 @@ function RightColumn({ dates, reportType }) {
     );
 }
 
-function FoodInformationPage({ onBack, onLogout }) {
+function FoodInformationPage({ onBack, onLogout, selectedLocation }) {
     const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_info_hint_hidden');
+
     
     return (
         <div className="main-page-wrapper">
@@ -158,7 +171,9 @@ function FoodInformationPage({ onBack, onLogout }) {
                     />
                 )}
 
-                <MiddleSection />
+                <MiddleSection 
+                    location={selectedLocation}
+                />
                 <StatusWidget />
                 <Footer />
             </div>

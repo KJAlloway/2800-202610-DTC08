@@ -19,11 +19,13 @@ const foods = [
                 reportedDates: [
                     {
                         found: true,
-                        date: "22/05/2026"
+                        date: "22/05/2026",
+                        userId: 123443
                     },
                     {
-                        found: false,
-                        date: "02/03/2026"
+                        found: true,
+                        date: "02/03/2026",
+                        userId: null
 
                     }
                 ]
@@ -35,11 +37,19 @@ const foods = [
                 reportedDates: [
                     {
                         found: true,
-                        date: "22/01/2026"
+                        date: "22/01/2026",
+                        userId: 253443
                     },
                     {
-                        found: false,
-                        date: "02/05/2026"
+                        found: true,
+                        date: "02/05/2026",
+                        userId: 43525
+
+                    },
+                    {
+                        found: true,
+                        date: "17/05/2026",
+                        userId: null
 
                     }
                 ]
@@ -70,6 +80,7 @@ function LocationListSection({ locations, onSelect }) {
                         text={`${location.name} - ${location.address}`}
                         className="location-list-button"
                         onClick={() => onSelect(location)}
+                        
                     />
                 ))}
             </ScrollableList>
@@ -77,7 +88,7 @@ function LocationListSection({ locations, onSelect }) {
     );
 }
 
-const FoodLocationPage = ({ onLogout, onBack, onSelectLocation, searchQuery }) => {
+const FoodLocationPage = ({ onLogout, onBack, onLocationSelect, searchQuery }) => {
     const [showHints, onDisableHints] = useFirstTimeHint('cabbagepatch_filter_hint_hidden');
     const [searchResults, setSearchResults] = useState([])
 
@@ -128,7 +139,7 @@ const FoodLocationPage = ({ onLogout, onBack, onSelectLocation, searchQuery }) =
 
                 <LocationListSection 
                     locations={searchResults} 
-                    onSelect={onSelectLocation} 
+                    onSelect={onLocationSelect} 
                 />
 
                 <Footer />

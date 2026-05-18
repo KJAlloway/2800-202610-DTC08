@@ -11,6 +11,7 @@ function App() {
     // Keeps track of which screen should currently be displayed.
     const [currentPage, setCurrentPage] = useState('login')
     const [submittedSearch, setSubmittedSearch] = useState('');
+    const [selectedLocation, setSelectedLocation] = useState(null)
 
     // Sends the user from login to the home/main page.
     const goToHomePage = () => {
@@ -57,6 +58,13 @@ function App() {
         setCurrentPage('food-locations')
     }
 
+
+    const handleLocationSelect = (location) => {
+        console.log(location)
+        setSelectedLocation(location)
+        setCurrentPage('food-information')
+    }
+
     // Shows the login screen first.
     if (currentPage === 'login') {
         return (
@@ -94,6 +102,7 @@ function App() {
                 onLogout={goToLoginPage}
                 onBack={goToHomePage}
                 searchQuery={submittedSearch}
+                onLocationSelect={handleLocationSelect}
             />
         )
     }
@@ -104,6 +113,7 @@ function App() {
             <FoodInformationPage
                 onBack={() => setCurrentPage('food-locations')}
                 onLogout={goToLoginPage}
+                selectedLocation={selectedLocation}
             />
         );
     }
