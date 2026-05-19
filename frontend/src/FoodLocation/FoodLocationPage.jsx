@@ -93,22 +93,16 @@ const FoodLocationPage = ({ onLogout, onBack, onLocationSelect, searchQuery }) =
     const [searchResults, setSearchResults] = useState([])
 
     const fetchSearchResults = async () => {
-        const cleanedQuery = searchQuery?.trim().toLowerCase() || '';
-
-        if(!cleanedQuery) {
-            setSearchResults([]);
+        const cleanedQuery = searchQuery?.trim() || '';
+        if (!cleanedQuery) {
+            setSearchResults([])
             return
         }
-
-        const matchingFood = foods.find((food) => {
-            return food.name.toLowerCase().includes(cleanedQuery)
-        })
-        
-        if (!matchingFood) {
-            setSearchResults([])
-        } else {
-            setSearchResults(matchingFood.locations)
-        }
+        const response = await fetch(
+            `http://localhost:3000/foodLocations?foodName=${cleanedQuery}`
+        )
+        const data = await response.json()
+        setSearchResults(data)
         
     }
 

@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import testRouter from "./routes/routesTest.js";
 import aiAutocompleteRouter from "./routes/aiAutocompleteRoutes.js"
+import searchForFoodLocationsRouter from "./routes/searchForFoodLocationsRoutes.js"
 
 const app = express();
 const PORT = 3000;
@@ -12,8 +13,10 @@ app.use(express.json());
 
 app.use(cors())
 
+app.use(searchForFoodLocationsRouter)
 app.use("/api/aiAutocomplete", aiAutocompleteRouter)
 app.use(testRouter)
+
 
 
 // Created using AI for the autocomplete feature
