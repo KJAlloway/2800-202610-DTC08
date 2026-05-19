@@ -39,11 +39,20 @@ export async function addFoodReport(req, res) {
         food = foods.find((aFood) => aFood.foodId === foodIdQuery);
         if (food) {
             let location = food.locations.find((aLocation) => aLocation.locationId === locationIdQuery);
-            location.reportedDates.push({
-                found: foundQuery,
-                date: new Date(),
-                userId: userIdQuery || null
-            })
+            if (location) {
+                location.reportedDates.push({
+                    found: foundQuery,
+                    date: new Date(),
+                    userId: userIdQuery || null
+                })
+
+            } else {
+                food.locations.push({
+                    // Create a new location based on api info
+                })
+            }
+        } else {
+            // Add a new food and a location
         }
     }
 }
