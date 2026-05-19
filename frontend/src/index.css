@@ -1,34 +1,19 @@
-/* Clanker assisted */
-
-
-
-:root {
-    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-    line-height: 1.4;
-    font-weight: 400;
-    color: #2e2e2e;
-    background-color: #fdfaf5;
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
 * {
     box-sizing: border-box;
 }
 
-html,
-body,
-#root {
-    min-height: 100vh;
-}
-
-body {
+html, body, #root {
+    min-height: 100%;
     margin: 0;
 }
 
-button,
-input {
+body {
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+button, input, textarea, select {
     font: inherit;
 }
+
+
+
