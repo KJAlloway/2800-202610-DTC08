@@ -52,7 +52,10 @@ export async function addFoodReport(req, res) {
                 })
             }
         } else {
-            // Add a new food and a location
+            // Add a new food and a location then the report
         }
+        return res.send("Succeded in updating database");
+    } catch (error) {
+        return res.status(400).send("Failed to update database");
     }
 }
