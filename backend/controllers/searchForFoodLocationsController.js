@@ -28,3 +28,22 @@ export async function searchForFoodLocations(req, res) {
     }
 
 }
+
+export async function addFoodReport(req, res) {
+    try {
+        let foodIdQuery = req.query.foodId;
+        let locationIdQuery = req.query.locationId;
+        let userIdQuery = req.query.userId;
+        let foundQuery = req.query.found;
+
+        food = foods.find((aFood) => aFood.foodId === foodIdQuery);
+        if (food) {
+            let location = food.locations.find((aLocation) => aLocation.locationId === locationIdQuery);
+            location.reportedDates.push({
+                found: foundQuery,
+                date: new Date(),
+                userId: userIdQuery || null
+            })
+        }
+    }
+}
