@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {clamp, toTitleCase} from "../HelperFunctions.jsx"
 import "./ResultsDrawer.css";
+import OpenInGoogleMapsButton from "./OpenInGoogleMapsButton.jsx";
 
 const COLLAPSED_DRAWER_HEIGHT = 70;
 const DEFAULT_DRAWER_HEIGHT = 360;
@@ -125,9 +126,15 @@ function ResultsDrawer({
                 {hasVendors ? (
                     vendors.map((vendor) => (
                         <article className="results-drawer__vendor-card" key={vendor.id}>
-                            <h3 className="results-drawer__vendor-name">{vendor.name}</h3>
-                            <p className="results-drawer__vendor-detail">{vendor.address}</p>
-                            <p className="results-drawer__vendor-detail">{toTitleCase(vendor.description)}</p>
+                            <div className="results-drawer__vendor-info-container">
+                                <h3 className="results-drawer__vendor-name">{vendor.name}</h3>
+                                <p className="results-drawer__vendor-detail">{vendor.address}</p>
+                                <p className="results-drawer__vendor-detail">{toTitleCase(vendor.description)}</p>
+                            </div>
+                            <div className="results-drawer__vendor-maps-link-button-container">
+                                <OpenInGoogleMapsButton vendorName={vendor.name}
+                                                        vendorAddress={vendor.address}/>
+                            </div>
                         </article>
                     ))
                 ) : (
