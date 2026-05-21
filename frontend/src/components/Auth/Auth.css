@@ -120,7 +120,7 @@
     font-size: 1.5rem;
     color: rgba(20, 20, 20, 0.75);
     pointer-events: none;
-    opacity: 60%;
+    opacity: 80%;
     transition: opacity 1000ms ease;
     z-index: 2000;
     white-space: nowrap;

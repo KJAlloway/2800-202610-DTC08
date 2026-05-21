@@ -34,13 +34,14 @@ function MapCenterReporter({ onCenterChange }) {
 
         onCenterChange([center.lat, center.lng]);
     }
+
     return null;
 }
 
-function Map({ initialCenter, onCenterChange }) {
+function Map({ center, onCenterChange }) {
     return (
         <MapContainer
-            center={initialCenter}
+            center={center}
             zoom={13}
             zoomControl={false}
             attributionControl={false}
@@ -51,7 +52,7 @@ function Map({ initialCenter, onCenterChange }) {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <MapViewUpdater center={initialCenter} />
+            <MapViewUpdater center={center} />
             <MapCenterReporter onCenterChange={onCenterChange} />
         </MapContainer>
     );

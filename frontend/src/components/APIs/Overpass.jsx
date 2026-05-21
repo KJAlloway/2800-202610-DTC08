@@ -1,4 +1,4 @@
-import {calculateDistanceMeters} from "../HelperFunctions";
+import {calculateDistanceMeters} from "../HelperFunctions.js";
 
 const VENDOR_LOOKUP_DELAY_MS = 1000;
 

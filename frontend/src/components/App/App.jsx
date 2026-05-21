@@ -6,20 +6,14 @@ import SearchBar from "../SearchBar/SearchBar.jsx";
 import ResultsDrawer from "../ResultsDrawer/ResultsDrawer.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";
 import RecenterIcon from "../../../assets/recenter-icon.svg";
-import {AuthProvider} from "../Auth/Auth.jsx";
+import { AuthProvider } from "../Auth/Auth.jsx";
 import { AuthOverlay } from "../Auth/AuthOverlay.jsx";
-
-
-import EasterEggCredits from "../EasterEggCredits/EasterEggCredits.jsx";
+import EasterEggCredits, { useEasterEgg } from "../EasterEggCredits/EasterEggCredits.jsx";
 
 import { DEFAULT_AREA_NAME, getAreaName } from "../APIs/Nominatim.jsx";
 import { getNearbyVendors } from "../APIs/Overpass.jsx";
-
 import { useLocationContext } from "../context/LocationContext.jsx";
 
-const VANCOUVER_MAP_CENTER = [49.2828, -123.1207];
-import secretSound from "../../../assets/sounds/universfield-video-game-bonus-323603.mp3";
-import backgroundLoop from "../../../assets/sounds/freesound_community-8-bit-heaven-26287.mp3"
 
 const VANCOUVER_COORDINATES = [49.2828, -123.1207];
 const DEFAULT_MAP_CENTER = VANCOUVER_COORDINATES;
@@ -37,7 +31,7 @@ const DEFAULT_VENDOR_LOOKUP_OPTIONS = {
 function App() {
     const { isLocationEnabled, userCoordinates } = useLocationContext();
     const [mapCenter, setMapCenter] = useState(() => {
-        return userCoordinates ? userCoordinates : VANCOUVER_MAP_CENTER;
+        return userCoordinates ? userCoordinates : DEFAULT_MAP_CENTER;
     });
     const [areaName, setAreaName] = useState(DEFAULT_AREA_NAME);
     const [searchText, setSearchText] = useState("");
@@ -45,14 +39,13 @@ function App() {
     const [vendorLookupOptions, setVendorLookupOptions] = useState(DEFAULT_VENDOR_LOOKUP_OPTIONS);
     const [vendors, setVendors] = useState([]);
     const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
-    const [showEasterEgg, setShowEasterEgg] = useState(false);
-    const [hasUnlockedHarvestMaster, setHasUnlockedHarvestMaster] = useState(false);
+    const { showEasterEgg, hasUnlockedHarvestMaster, triggerIfMatch } = useEasterEgg();
 
     const handleRecenter = () => {
         if (isLocationEnabled && userCoordinates) {
             setMapCenter([...userCoordinates]);
         } else {
-            setMapCenter([...VANCOUVER_MAP_CENTER]);
+            setMapCenter([...DEFAULT_MAP_CENTER]);
         }
     };
 
@@ -69,7 +62,6 @@ function App() {
         }
 
         const currentKnownAreaName = getAreaName(mapCenter, setAreaName);
-
         const currentKnownVendors = getNearbyVendors(
             mapCenter,
             vendorLookupOptions,
@@ -87,38 +79,7 @@ function App() {
          * - ask backend for matching vendors
          * - prepare autocomplete/suggestion state if we choose to track typing
          */
-
-        // Easter egg trigger
-        if (searchText.trim().toLowerCase() === "cabbage patch") {
-
-            localStorage.setItem("harvestMasterUnlocked", "true");
-            setHasUnlockedHarvestMaster(true);
-            const easterEggAudio = new Audio(secretSound);
-            const backgroundMusic = new Audio(backgroundLoop);
-            backgroundMusic.loop = true;
-            backgroundMusic.volume = 0.3;
-
-            easterEggAudio.play();
-
-            setTimeout(() => {
-                backgroundMusic.play();
-            }, 2500);
-
-
-            console.log("Play animation")
-            setShowEasterEgg(true);
-
-            // Easter egg end timer
-            setTimeout(() => {
-                console.log("Animation end")
-                setShowEasterEgg(false);
-
-                backgroundMusic.pause();
-                backgroundMusic.currentTime = 0;
-
-            }, 13500)
-        }
-
+        triggerIfMatch(searchText);
         console.log("Search text changed:", searchText);
     }, [searchText]);
 
@@ -133,25 +94,13 @@ function App() {
         console.log("Filters changed:", activeFilters);
     }, [activeFilters]);
 
-    // Checks if secret achievement was unlocked before
-    useEffect(() => {
-
-        const achievementUnlocked =
-            localStorage.getItem("harvestMasterUnlocked");
-
-        if (achievementUnlocked === "true") {
-            setHasUnlockedHarvestMaster(true);
-        }
-
-    }, []);
-
     return (
         <AuthProvider>
-        <main className="App">
-            <Map
-                initialCenter={mapCenter}
-                onCenterChange={setMapCenter}
-            />
+            <main className="App">
+                <Map
+                    center={mapCenter}
+                    onCenterChange={setMapCenter}
+                />
 
                 <section className="map-overlay" aria-label="Map search controls">
                     <SearchBar
@@ -159,27 +108,27 @@ function App() {
                         onMenuButtonClick={() => setSidebarIsOpen(true)}
                     />
 
-                <button
-                    className="map-overlay__recenter-button"
-                    type="button"
-                    onClick={handleRecenter}
-                    aria-label="Recenter map"
-                    title="Recenter Map"
-                >
-                    <img
-                        src={RecenterIcon}
-                        alt="Recenter icon"
-                        className="recenter-icon"
-                    />
-                </button>
+                    <button
+                        className="map-overlay__recenter-button"
+                        type="button"
+                        onClick={handleRecenter}
+                        aria-label="Recenter map"
+                        title="Recenter Map"
+                    >
+                        <img
+                            src={RecenterIcon}
+                            alt="Recenter icon"
+                            className="recenter-icon"
+                        />
+                    </button>
+                </section>
 
-            </section>
+                <Sidebar
+                    isOpen={sidebarIsOpen}
+                    onClose={() => setSidebarIsOpen(false)}
+                    hasUnlockedHarvestMaster={hasUnlockedHarvestMaster}
+                />
 
-            <Sidebar
-                isOpen={sidebarIsOpen}
-                onClose={() => setSidebarIsOpen(false)}
-                hasUnlockedHarvestMaster={hasUnlockedHarvestMaster}
-            />
                 <AuthOverlay />
 
                 <ResultsDrawer
@@ -189,7 +138,8 @@ function App() {
                     activeFilters={activeFilters}
                     onFiltersChange={setActiveFilters}
                 />
-            {showEasterEgg && <EasterEggCredits />}
+
+                {showEasterEgg && <EasterEggCredits />}
             </main>
         </AuthProvider>
     );

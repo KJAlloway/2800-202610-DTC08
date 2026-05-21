@@ -1,5 +1,5 @@
-import {useEffect, useRef, useState} from "react";
-import {clamp, toTitleCase} from "../HelperFunctions.jsx"
+import { useEffect, useRef, useState } from "react";
+import { clamp, toTitleCase } from "../HelperFunctions.js";
 import "./ResultsDrawer.css";
 import OpenInGoogleMapsButton from "./OpenInGoogleMapsButton.jsx";
 
@@ -11,16 +11,14 @@ function ResultsDrawer({
                            searchedText = "",
                            areaName = "Current Map Area",
                            vendors = [],
+                           activeFilters,
+                           onFiltersChange,
                            className = "",
                        }) {
     const [drawerHeight, setDrawerHeight] = useState(COLLAPSED_DRAWER_HEIGHT);
     const dragStartRef = useRef(null);
 
     const hasSearchedText = searchedText.trim().length > 0;
-    const [activeFilters, setActiveFilters] = useState({
-        openNow: false,
-        confirmedPurchase: false
-    });
     const hasVendors = vendors.length > 0;
 
     const drawerFilters = hasSearchedText
@@ -40,10 +38,10 @@ function ResultsDrawer({
     }
 
     function toggleFilter(filterId) {
-        setActiveFilters((currentFilters) => ({
-            ...currentFilters,
-            [filterId]: !currentFilters[filterId]
-        }));
+        onFiltersChange({
+            ...activeFilters,
+            [filterId]: !activeFilters[filterId]
+        });
     }
 
     useEffect(() => {
@@ -84,7 +82,7 @@ function ResultsDrawer({
     return (
         <aside
             className={`results-drawer ${className}`}
-            style={{height: `${drawerHeight}px`}}
+            style={{ height: `${drawerHeight}px` }}
             aria-label="Search results"
         >
             <button
@@ -93,7 +91,7 @@ function ResultsDrawer({
                 aria-label="Resize results drawer"
                 onPointerDown={handleDragStart}
             >
-                <span className="results-drawer__handle-bar"/>
+                <span className="results-drawer__handle-bar" />
             </button>
 
             <header className="results-drawer__title-row">
@@ -132,8 +130,10 @@ function ResultsDrawer({
                                 <p className="results-drawer__vendor-detail">{toTitleCase(vendor.description)}</p>
                             </div>
                             <div className="results-drawer__vendor-maps-link-button-container">
-                                <OpenInGoogleMapsButton vendorName={vendor.name}
-                                                        vendorAddress={vendor.address}/>
+                                <OpenInGoogleMapsButton
+                                    vendorName={vendor.name}
+                                    vendorAddress={vendor.address}
+                                />
                             </div>
                         </article>
                     ))

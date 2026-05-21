@@ -1,7 +1,36 @@
 import "./Sidebar.css";
-import LocationToggle from '../LocationToggle/LocationToggle';
 import { useAuth } from "../Auth/Auth.jsx";
+import { useLocationContext } from "../context/LocationContext.jsx";
 import { useState, useRef } from "react";
+
+function LocationToggle() {
+    const { isLocationEnabled, toggleLocationTracking } = useLocationContext();
+
+    function handleToggle() {
+        toggleLocationTracking(!isLocationEnabled);
+    }
+
+    return (
+        <div className="location-toggle-container">
+            <div className="location-toggle-info">
+                <span className="location-toggle-label">Locational Data</span>
+                <span className="location-toggle-status">
+                    {isLocationEnabled ? "Tracking enabled" : "Tracking disabled"}
+                </span>
+            </div>
+
+            <button
+                className={`location-toggle-btn${isLocationEnabled ? " active" : ""}`}
+                onClick={handleToggle}
+                aria-pressed={isLocationEnabled}
+                aria-label="Toggle location tracking"
+                title={isLocationEnabled ? "Disable Tracking" : "Enable Tracking"}
+            >
+                <div className="location-toggle-circle" />
+            </button>
+        </div>
+    );
+}
 
 function Sidebar({ isOpen, onClose, hasUnlockedHarvestMaster }) {
     const { currentUser, setAuthOverlayIsOpen, logout } = useAuth();
@@ -104,39 +133,17 @@ function Sidebar({ isOpen, onClose, hasUnlockedHarvestMaster }) {
                 </div>
 
                 <footer className="sidebar-menu__attributions">
+                    {hasUnlockedHarvestMaster && (
+                        <div className="achievement-badge">
+                            🥬 Secret Harvest Master Unlocked
+                        </div>
+                    )}
                     <span>
                         <a href="https://leafletjs.com/reference.html" target="_blank" rel="noreferrer">Leaflet</a>
                         {" | "}
                         <a href="https://nominatim.org/release-docs/latest/api/Overview/" target="_blank" rel="noreferrer">Nominatim</a>
                     </span>
                     <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
-                    <span>
-                        {hasUnlockedHarvestMaster && (
-                            <div className="achievement-badge">
-                                🥬 Secret Harvest Master Unlocked
-                            </div>
-                        )}
-                        <a
-                            href="https://leafletjs.com/reference.html"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Leaflet
-                        </a>
-                        {" | "}
-                        <a
-                            href="https://nominatim.org/release-docs/latest/api/Overview/"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Nominatim
-                        </a>
-                    </span>
-                    <a
-                        href="https://www.openstreetmap.org/copyright"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
                         OpenStreetMap contributors
                     </a>
                     <a href="https://www.flaticon.com/free-icons/cabbage" title="cabbage icons" target="_blank" rel="noreferrer">
