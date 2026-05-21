@@ -1,9 +1,21 @@
-import {useEffect} from "react";
-import {MapContainer, TileLayer, useMapEvents} from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, useMapEvents, useMap } from "react-leaflet";
 import "./Map.css";
 import "leaflet/dist/leaflet.css";
 
-function MapCenterReporter({onCenterChange}) {
+function MapViewUpdater({ center }) {
+    const map = useMap();
+
+    useEffect(() => {
+        if (center) {
+            map.flyTo(center, map.getZoom(), { animate: true, duration: 1.2 });
+        }
+    }, [center, map]);
+
+    return null;
+}
+
+function MapCenterReporter({ onCenterChange }) {
     const map = useMapEvents({
         moveend() {
             reportMapCenter();
@@ -20,12 +32,12 @@ function MapCenterReporter({onCenterChange}) {
     function reportMapCenter() {
         const center = map.getCenter();
 
-        onCenterChange([center.lat,center.lng]);
+        onCenterChange([center.lat, center.lng]);
     }
     return null;
 }
 
-function Map({initialCenter, onCenterChange}) {
+function Map({ initialCenter, onCenterChange }) {
     return (
         <MapContainer
             center={initialCenter}
@@ -39,7 +51,8 @@ function Map({initialCenter, onCenterChange}) {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <MapCenterReporter onCenterChange={onCenterChange}/>
+            <MapViewUpdater center={initialCenter} />
+            <MapCenterReporter onCenterChange={onCenterChange} />
         </MapContainer>
     );
 }

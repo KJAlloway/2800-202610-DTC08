@@ -1,4 +1,5 @@
 import "./Sidebar.css";
+import LocationToggle from '../LocationToggle/LocationToggle';
 import { useAuth } from "../Auth/Auth.jsx";
 import { useState, useRef } from "react";
 
@@ -62,6 +63,7 @@ function Sidebar({ isOpen, onClose, hasUnlockedHarvestMaster }) {
                 </header>
 
                 <div className="sidebar-menu__content">
+                    <LocationToggle />
                     <div className="sidebar-menu__auth">
                         {currentUser ? (
                             <>
