@@ -1,4 +1,5 @@
 import "./Sidebar.css";
+import LocationToggle from '../LocationToggle/LocationToggle';
 
 function Sidebar({ isOpen, onClose }) {
     const sidebarClassName = isOpen
@@ -24,7 +25,7 @@ function Sidebar({ isOpen, onClose }) {
                 onClick={handlePanelClick}
             >
                 <header className="sidebar-menu__header">
-<img src="../assets/cabbage.png" alt="cabbage" className="sidebar-logo" />
+                    <img src="../assets/cabbage.png" alt="cabbage" className="sidebar-logo" />
                     <h2 className="sidebar-menu__title">Cabbage Patch</h2>
 
                     <button
@@ -38,27 +39,27 @@ function Sidebar({ isOpen, onClose }) {
                 </header>
 
                 <div className="sidebar-menu__content">
-                    <p>Sidebar settings will go here.</p>
+                    <LocationToggle />
                 </div>
 
                 <footer className="sidebar-menu__attributions">
-<span>
-    <a
-        href="https://leafletjs.com/reference.html"
-        target="_blank"
-        rel="noreferrer"
-    >
-        Leaflet
-    </a>
-    {" | "}
-    <a
-        href="https://nominatim.org/release-docs/latest/api/Overview/"
-        target="_blank"
-        rel="noreferrer"
-    >
-        Nominatim
-    </a>
-</span>
+                    <span>
+                        <a
+                            href="https://leafletjs.com/reference.html"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Leaflet
+                        </a>
+                        {" | "}
+                        <a
+                            href="https://nominatim.org/release-docs/latest/api/Overview/"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Nominatim
+                        </a>
+                    </span>
                     <a
                         href="https://www.openstreetmap.org/copyright"
                         target="_blank"
