@@ -24,7 +24,7 @@ export default function OpenInGoogleMapsButton(vendor) {
                     onMouseUp={() => setIsActive(false)} // resets the button's style when it is not pressed down
                     onMouseLeave={() => setIsActive(false)} // resets the button's style when it is not pressed down
                     >
-                Open in Google Maps
+                Google Maps
                 <img src="../assets/popOutIcon.png" alt="popout_icon" className="results-drawer__popout-icon" />
             </button>
         </div>
