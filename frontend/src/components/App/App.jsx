@@ -5,6 +5,7 @@ import Map from "../Map/Map.jsx";
 import SearchBar from "../SearchBar/SearchBar.jsx";
 import ResultsDrawer from "../ResultsDrawer/ResultsDrawer.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";
+import EasterEggCredits from "../EasterEggCredits/EasterEggCredits.jsx";
 
 import {DEFAULT_AREA_NAME, getAreaName} from "../APIs/Nominatim.jsx";
 import {getNearbyVendors} from "../APIs/Overpass.jsx";
@@ -30,6 +31,7 @@ function App() {
     const [vendorLookupOptions, setVendorLookupOptions] = useState(DEFAULT_VENDOR_LOOKUP_OPTIONS);
     const [vendors, setVendors] = useState([]);
     const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
+    const [showEasterEgg, setShowEasterEgg] = useState(false);
 
     useEffect(() => {
         const currentKnownAreaName = getAreaName(mapCenter, setAreaName);
@@ -51,6 +53,15 @@ function App() {
          * - ask backend for matching vendors
          * - prepare autocomplete/suggestion state if we choose to track typing
          */
+        if (searchText.trim().toLowerCase() === "cabbage patch") {
+            console.log("Play animation")
+            setShowEasterEgg(true);
+
+            setTimeout(() => {
+                console.log("Animation end")
+                setShowEasterEgg(false);
+            }, 10000)
+        }
 
         console.log("Search text changed:", searchText);
     }, [searchText]);
@@ -93,6 +104,7 @@ function App() {
                 activeFilters={activeFilters}
                 onFiltersChange={setActiveFilters}
             />
+            {showEasterEgg && <EasterEggCredits />}
         </main>
     );
 }

@@ -1,0 +1,49 @@
+.easter-egg-overlay {
+    position: fixed;
+    inset: 0;
+
+    overflow: hidden;
+
+
+    background-color: rgba(0, 0, 0, 0.7);
+
+    z-index: 9999;
+
+    pointer-events: none;
+}
+
+.credits-name {
+    position: absolute;
+
+    white-space: nowrap;
+
+    color: white;
+    font-size: 4rem;
+    font-weight: bold;
+
+    opacity: 0;
+
+    animation: scroll-across 4s linear forwards;
+
+}
+
+@keyframes scroll-across {
+
+    0% {
+        opacity: 0;
+        transform: translateX(100vw);
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+}
