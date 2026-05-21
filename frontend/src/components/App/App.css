@@ -1,0 +1,68 @@
+.App {
+    position: relative;
+    min-height: 100vh;
+}
+
+.map-overlay {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between; 
+    align-items: flex-start;
+    z-index: 1000; 
+    pointer-events: none; 
+}
+
+.recenter-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    transition: transform 0.2s ease;
+}
+
+.search-bar,
+.map-overlay__recenter-button {
+    pointer-events: auto;
+}
+
+.map-overlay__recenter-button {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: #314c2f;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0.5rem 1.5rem rgba(31, 36, 28, 0.18);
+    transition: transform 0.1s ease, background-color 0.2s ease;
+    
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.map-overlay__recenter-button:hover .recenter-icon {
+    transform: scale(1.1);
+}
+
+.map-overlay__recenter-button:active {
+    transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .map-overlay__recenter-button {
+        position: fixed;
+        bottom: 2rem;    
+        right: 1.25rem;
+        margin-left: 0;
+        top: auto;
+        left: auto;
+        z-index: 1050;
+    }
+}

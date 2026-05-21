@@ -1,13 +1,25 @@
-const express  = require("express");
-const app = express();
-const PORT = 3000;
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { connectToDatabase } from "./config/database.js";
+import { authRouter } from "./routes/authRoutes.js";
 
-app.use(express.static('public'));
+await connectToDatabase();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/db/auth", authRouter);
+
+app.get("/db/health", (req, res) => {
+    res.json({ status: "ok" });
+});
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`)
-})
-
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-})
+    console.log(`Server running on http://localhost:${PORT}`);
+});

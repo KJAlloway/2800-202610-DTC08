@@ -1,0 +1,105 @@
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    max-width: 26rem;
+    margin: 0;
+    padding: 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 0.5rem 1.5rem rgba(31, 36, 28, 0.18);
+}
+
+.search-bar__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.search-bar__input {
+    min-width: 0;
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0.75rem 0.9rem;
+    border-radius: 999px;
+    background: transparent;
+    color: #1f241c;
+    appearance: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+    /*text-overflow: ellipsis;*/
+}
+
+/*
+    Browsers add their own clear X to <input type="search">.
+
+    We hide it because this component already provides its own clear button.
+    That keeps the visual style consistent and lets React control what happens
+    when the search is cleared.
+*/
+.search-bar__input::-webkit-search-decoration,
+.search-bar__input::-webkit-search-cancel-button,
+.search-bar__input::-webkit-search-results-button,
+.search-bar__input::-webkit-search-results-decoration {
+    display: none;
+    -webkit-appearance: none;
+}
+
+/*
+    Older Microsoft browsers used these pseudo-elements for built-in input
+    controls. They are harmless in modern browsers, but prevent duplicate
+    clear/reveal buttons if the app is opened in an older environment.
+*/
+.search-bar__input::-ms-clear,
+.search-bar__input::-ms-reveal {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.search-bar__menu-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: #314c2f;
+    cursor: pointer;
+}
+
+.search-bar__menu-line {
+    width: 1rem;
+    height: 0.12rem;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.search-bar__clear-button {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    border: none;
+    border-radius: 999px;
+    background: #e4e8dc;
+    color: #314c2f;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.search-bar__clear-button:active {
+    transform: translateY(1px);
+}

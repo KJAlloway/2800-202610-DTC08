@@ -16,5 +16,7 @@ Team Members:
 TBA
 
 ## Running the backend
-Run each command in "required installations.txt"
-Run: `nodemon server.js` (auto refreshing server), or `node server.js` (not auto refreshing server)
+Navigate to the 'backend' folder and run: `nodemon server.js` (auto refreshing server), or `node server.js` (not auto refreshing server)
+
+## Running the frontend
+Navigate to the 'frontend' folder and run: `npm run dev` and open the link provided in the console.

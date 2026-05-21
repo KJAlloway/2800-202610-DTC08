@@ -1,0 +1,131 @@
+.auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-overlay__panel {
+    background: #142711;
+    color: white;
+    width: min(400px, 90vw);
+    border-radius: 4px;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.auth-overlay__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid white;
+    padding-bottom: 0.5rem;
+}
+
+.auth-overlay__header h2 {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.auth-overlay__close-button {
+    border: none;
+    background: none;
+    color: inherit;
+    font-size: 1.75rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.auth-overlay__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+}
+
+.auth-overlay__form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.auth-overlay__form input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    color: white;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+}
+
+.auth-overlay__form input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.auth-overlay__error {
+    margin: 0;
+    font-size: 0.7rem;
+    color: #f4a261;
+}
+
+.auth-overlay__submit-button {
+    margin-top: 0.25rem;
+    background: white;
+    color: #142711;
+    border: none;
+    border-radius: 3px;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.auth-overlay__submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auth-overlay__header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.auth-overlay__back-button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.65rem;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+}
+
+.auth-overlay__back-button:hover {
+    color: white;
+}
+
+.auth-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    color: rgba(20, 20, 20, 0.75);
+    pointer-events: none;
+    opacity: 80%;
+    transition: opacity 1000ms ease;
+    z-index: 2000;
+    white-space: nowrap;
+}
+
+.auth-toast--fading {
+    opacity: 0;
+}
