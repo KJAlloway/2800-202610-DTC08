@@ -10,3 +10,5 @@ node_modules/
 # Never commit real secrets to GitHub.
 backend/.env
 backend/.env.example
+.idea
+frontend/.vite
