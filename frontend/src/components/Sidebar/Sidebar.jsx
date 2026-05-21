@@ -1,4 +1,5 @@
 import "./Sidebar.css";
+import LocationToggle from '../LocationToggle/LocationToggle';
 
 function Sidebar({ isOpen, onClose, hasUnlockedHarvestMaster }) {
     const sidebarClassName = isOpen
@@ -38,7 +39,7 @@ function Sidebar({ isOpen, onClose, hasUnlockedHarvestMaster }) {
                 </header>
 
                 <div className="sidebar-menu__content">
-                    <p>Sidebar settings will go here.</p>
+                    <LocationToggle />
                 </div>
 
                 <footer className="sidebar-menu__attributions">

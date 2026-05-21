@@ -1,20 +1,22 @@
 import "./App.css";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 import Map from "../Map/Map.jsx";
 import SearchBar from "../SearchBar/SearchBar.jsx";
 import ResultsDrawer from "../ResultsDrawer/ResultsDrawer.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";
-import EasterEggCredits from "../EasterEggCredits/EasterEggCredits.jsx";
 
 import {DEFAULT_AREA_NAME, getAreaName} from "../APIs/Nominatim.jsx";
 import {getNearbyVendors} from "../APIs/Overpass.jsx";
 
+import EasterEggCredits from "../EasterEggCredits/EasterEggCredits.jsx";
+import RecenterIcon from "../../../assets/recenter-icon.svg";
+
 import secretSound from "../../../assets/sounds/universfield-video-game-bonus-323603.mp3";
 import backgroundLoop from "../../../assets/sounds/freesound_community-8-bit-heaven-26287.mp3"
+import { useLocationContext } from "../context/LocationContext.jsx";
 
-const VANCOUVER_COORDINATES = [49.2828, -123.1207];
-const DEFAULT_MAP_CENTER = VANCOUVER_COORDINATES;
+const VANCOUVER_MAP_CENTER = [49.2828, -123.1207];
 
 const DEFAULT_FILTERS = {
     openNow: false,
@@ -27,7 +29,10 @@ const DEFAULT_VENDOR_LOOKUP_OPTIONS = {
 };
 
 function App() {
-    const [mapCenter, setMapCenter] = useState(DEFAULT_MAP_CENTER);
+    const { isLocationEnabled, userCoordinates } = useLocationContext();
+    const [mapCenter, setMapCenter] = useState(() => {
+        return userCoordinates ? userCoordinates : VANCOUVER_MAP_CENTER;
+    });
     const [areaName, setAreaName] = useState(DEFAULT_AREA_NAME);
     const [searchText, setSearchText] = useState("");
     const [activeFilters, setActiveFilters] = useState(DEFAULT_FILTERS);
@@ -37,7 +42,26 @@ function App() {
     const [showEasterEgg, setShowEasterEgg] = useState(false);
     const [hasUnlockedHarvestMaster, setHasUnlockedHarvestMaster] = useState(false);
 
+    const handleRecenter = () => {
+        if (isLocationEnabled && userCoordinates) {
+            setMapCenter([...userCoordinates]);
+        } else {
+            setMapCenter([...VANCOUVER_MAP_CENTER]);
+        }
+    };
+
     useEffect(() => {
+        if (isLocationEnabled && userCoordinates) {
+            setMapCenter(userCoordinates);
+        }
+    }, [userCoordinates, isLocationEnabled]);
+
+    useEffect(() => {
+        if (!isLocationEnabled) {
+            console.log("Locational data is turned off.");
+            return;
+        }
+
         const currentKnownAreaName = getAreaName(mapCenter, setAreaName);
 
         const currentKnownVendors = getNearbyVendors(
@@ -48,7 +72,7 @@ function App() {
 
         setAreaName(currentKnownAreaName);
         setVendors(currentKnownVendors);
-    }, [mapCenter, vendorLookupOptions]);
+    }, [mapCenter, vendorLookupOptions, isLocationEnabled]);
 
     useEffect(() => {
         /*
@@ -118,7 +142,7 @@ function App() {
     return (
         <main className="App">
             <Map
-                initialCenter={DEFAULT_MAP_CENTER}
+                initialCenter={mapCenter}
                 onCenterChange={setMapCenter}
             />
 
@@ -127,6 +151,20 @@ function App() {
                     onSearch={setSearchText}
                     onMenuButtonClick={() => setSidebarIsOpen(true)}
                 />
+
+                <button
+                    className="map-overlay__recenter-button"
+                    type="button"
+                    onClick={handleRecenter}
+                    aria-label="Recenter map"
+                    title="Recenter Map"
+                >
+                    <img
+                        src={RecenterIcon}
+                        alt="Recenter icon"
+                        className="recenter-icon"
+                    />
+                </button>
 
             </section>
 
