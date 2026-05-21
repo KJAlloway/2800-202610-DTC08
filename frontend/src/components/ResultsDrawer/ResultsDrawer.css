@@ -62,19 +62,19 @@
     border: none;
     border-radius: 999px;
     padding: 0.45rem 0.8rem;
-    background: #e4e8dc;
     color: #314c2f;
     font-weight: 700;
     cursor: pointer;
     font-size: 16px;
-    box-shadow: 0 3px #5d885a; /* Darker bottom shadow for depth */
     transition: all 0.1s;
     position: relative;
+    box-shadow: 0 3px #7eae7b; /* Darker bottom shadow for depth */
+    background: #f3f8eb;
 }
 
 .results-drawer__filter-chip--active {
-    background: #f3f8eb;
-    box-shadow: 0 1px #7eae7b; /* Smaller shadow makes it look closer to the "ground" */
+    box-shadow: 0 1px #5d885a; /* Smaller shadow makes it look closer to the "ground" */
+    background: #e4e8dc;
     transform: translateY(3px);
 }
 
@@ -90,6 +90,7 @@
     border-radius: 1rem;
     padding: 1rem;
     background: #ffffff;
+    display: flex;
 }
 
 .results-drawer__vendor-name {
@@ -109,3 +110,12 @@
     color: #66705f;
 }
 
+.results-drawer__vendor-info-container {
+    flex: auto;
+    flex: min-content;
+}
+
+.results-drawer__vendor-maps-link-button-container {
+    width: max-content;
+    justify-self: right;
+}
