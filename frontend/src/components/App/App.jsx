@@ -5,6 +5,10 @@ import Map from "../Map/Map.jsx";
 import SearchBar from "../SearchBar/SearchBar.jsx";
 import ResultsDrawer from "../ResultsDrawer/ResultsDrawer.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";
+import {AuthProvider} from "../Auth/Auth.jsx";
+import { AuthOverlay } from "../Auth/AuthOverlay.jsx";
+
+
 
 import {DEFAULT_AREA_NAME, getAreaName} from "../APIs/Nominatim.jsx";
 import {getNearbyVendors} from "../APIs/Overpass.jsx";
@@ -67,33 +71,36 @@ function App() {
     }, [activeFilters]);
 
     return (
-        <main className="App">
-            <Map
-                initialCenter={DEFAULT_MAP_CENTER}
-                onCenterChange={setMapCenter}
-            />
-
-            <section className="map-overlay" aria-label="Map search controls">
-                <SearchBar
-                    onSearch={setSearchText}
-                    onMenuButtonClick={() => setSidebarIsOpen(true)}
+        <AuthProvider>
+            <main className="App">
+                <Map
+                    initialCenter={DEFAULT_MAP_CENTER}
+                    onCenterChange={setMapCenter}
                 />
 
-            </section>
+                <section className="map-overlay" aria-label="Map search controls">
+                    <SearchBar
+                        onSearch={setSearchText}
+                        onMenuButtonClick={() => setSidebarIsOpen(true)}
+                    />
 
-            <Sidebar
-                isOpen={sidebarIsOpen}
-                onClose={() => setSidebarIsOpen(false)}
-            />
+                </section>
 
-            <ResultsDrawer
-                searchedText={searchText}
-                areaName={areaName}
-                vendors={vendors}
-                activeFilters={activeFilters}
-                onFiltersChange={setActiveFilters}
-            />
-        </main>
+                <Sidebar
+                    isOpen={sidebarIsOpen}
+                    onClose={() => setSidebarIsOpen(false)}
+                />
+                <AuthOverlay />
+
+                <ResultsDrawer
+                    searchedText={searchText}
+                    areaName={areaName}
+                    vendors={vendors}
+                    activeFilters={activeFilters}
+                    onFiltersChange={setActiveFilters}
+                />
+            </main>
+        </AuthProvider>
     );
 }
 

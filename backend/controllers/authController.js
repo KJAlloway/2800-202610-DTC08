@@ -1,40 +1,34 @@
 import User from "../models/User.js";
 import RefreshToken from "../models/RefreshToken.js";
-import { hashPassword, verifyPassword } from "../utils/password.js";
+import {hashPassword, verifyPassword} from "../utils/password.js";
 import {
     createAccessToken,
     createRefreshToken,
     verifyRefreshToken
 } from "../utils/tokens.js";
 
-// Cookie lifetimes, kept here so the access and refresh routes
-// stay consistent and the numbers are explained in one place.
-const ACCESS_COOKIE_MAX_AGE = 15 * 60 * 1000;          // 15 minutes
-const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+const ACCESS_TOKEN_MAX_AGE_MS = 15 * 60 * 1000;
+const REFRESH_TOKEN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
-// Shared cookie security settings.
-//
-// httpOnly  - JavaScript on the page cannot read the cookie (XSS defense).
-// sameSite  - the browser only sends the cookie on same-site requests (CSRF defense).
-//
-// Note: a `secure: true` flag (HTTPS-only) will be added when the app is
-// deployed. It is left off here because local development runs on plain http.
-const BASE_COOKIE_OPTIONS = {
+const ACCESS_COOKIE_OPTIONS = {
     httpOnly: true,
-    sameSite: "strict"
+    sameSite: "strict",
+    maxAge: ACCESS_TOKEN_MAX_AGE_MS
 };
 
-// POST /api/auth/register
-//
-// Creates a new account. Validates input, rejects duplicate emails,
-// hashes the password, and stores the user.
+const REFRESH_COOKIE_OPTIONS = {
+    httpOnly: true,
+    sameSite: "strict",
+    maxAge: REFRESH_TOKEN_MAX_AGE_MS
+};
+
 export async function register(request, response) {
     try {
-        const { email, password } = request.body;
+        const {email, password, name} = request.body;
 
-        if (!email || !password) {
+        if (!email || !password || !name) {
             return response.status(400).json({
-                message: "Email and password are required."
+                message: "Email, name, and password are required."
             });
         }
 
@@ -46,7 +40,7 @@ export async function register(request, response) {
 
         const normalizedEmail = email.trim().toLowerCase();
 
-        const existingUser = await User.findOne({ normalizedEmail });
+        const existingUser = await User.findOne({normalizedEmail});
 
         if (existingUser) {
             return response.status(409).json({
@@ -57,6 +51,7 @@ export async function register(request, response) {
         const passwordHash = await hashPassword(password);
 
         const newUser = await User.create({
+            name: name.trim(),
             email: email.trim(),
             normalizedEmail,
             passwordHash
@@ -67,6 +62,7 @@ export async function register(request, response) {
             user: {
                 id: newUser._id,
                 email: newUser.email,
+                name: newUser.name,
                 role: newUser.role
             }
         });
@@ -78,13 +74,9 @@ export async function register(request, response) {
     }
 }
 
-// POST /api/auth/login
-//
-// Verifies credentials, issues an access token and a refresh token,
-// stores the refresh token in the database, and sends both as cookies.
 export async function login(request, response) {
     try {
-        const { email, password } = request.body;
+        const {email, password} = request.body;
 
         if (!email || !password) {
             return response.status(400).json({
@@ -94,15 +86,11 @@ export async function login(request, response) {
 
         const normalizedEmail = email.trim().toLowerCase();
 
-        const user = await User.findOne({ normalizedEmail });
+        const user = await User.findOne({normalizedEmail});
 
-        // A missing user and a wrong password return the SAME response.
-        //
-        // Different messages would let an attacker discover which emails
-        // have accounts, so both failures are deliberately identical.
         if (!user) {
-            return response.status(401).json({
-                message: "Invalid email or password."
+            return response.status(404).json({
+                message: "No account found with that email."
             });
         }
 
@@ -110,41 +98,34 @@ export async function login(request, response) {
 
         if (!passwordIsCorrect) {
             return response.status(401).json({
-                message: "Invalid email or password."
+                message: "Incorrect password."
             });
         }
 
         const accessToken = createAccessToken(user);
         const refreshToken = createRefreshToken(user);
 
-        // The refresh token is stored so it can be checked (and revoked)
-        // later. The access token is intentionally never stored.
-        const expiresAt = new Date(Date.now() + REFRESH_COOKIE_MAX_AGE);
+        const refreshExpiresAt = new Date(Date.now() + REFRESH_TOKEN_MAX_AGE_MS);
 
         await RefreshToken.create({
             userId: user._id,
             token: refreshToken,
-            expiresAt
+            expiresAt: refreshExpiresAt
         });
 
-        response.cookie("accessToken", accessToken, {
-            ...BASE_COOKIE_OPTIONS,
-            maxAge: ACCESS_COOKIE_MAX_AGE
-        });
-
-        response.cookie("refreshToken", refreshToken, {
-            ...BASE_COOKIE_OPTIONS,
-            maxAge: REFRESH_COOKIE_MAX_AGE
-        });
+        response.cookie("accessToken", accessToken, ACCESS_COOKIE_OPTIONS);
+        response.cookie("refreshToken", refreshToken, REFRESH_COOKIE_OPTIONS);
 
         response.json({
             message: "Logged in.",
             user: {
                 id: user._id,
                 email: user.email,
+                name: user.name,
                 role: user.role
             }
         });
+
     } catch (error) {
         console.error("Login error:", error);
         response.status(500).json({
@@ -153,11 +134,39 @@ export async function login(request, response) {
     }
 }
 
-// POST /api/auth/refresh
-//
-// Issues a fresh access token when the old one has expired. Requires a
-// refresh token that is both cryptographically valid AND still present
-// in the database.
+export async function logout(request, response) {
+    try {
+        const tokenFromCookie = request.cookies.refreshToken;
+
+        if (tokenFromCookie) {
+            await RefreshToken.deleteOne({token: tokenFromCookie});
+        }
+
+        response.clearCookie("accessToken");
+        response.clearCookie("refreshToken");
+
+        response.json({message: "Logged out."});
+    } catch (error) {
+        console.error("Logout error:", error);
+        response.status(500).json({message: "Something went wrong logging out."});
+    }
+}
+
+export async function me(request, response) {
+    try {
+        const user = await User.findById(request.user.userId).select("-passwordHash -normalizedEmail");
+
+        if (!user) {
+            return response.status(404).json({message: "User not found."});
+        }
+
+        response.json({user});
+    } catch (error) {
+        console.error("Me error:", error);
+        response.status(500).json({message: "Something went wrong."});
+    }
+}
+
 export async function refresh(request, response) {
     try {
         const tokenFromCookie = request.cookies.refreshToken;
@@ -168,8 +177,6 @@ export async function refresh(request, response) {
             });
         }
 
-        // jwt.verify throws on a bad or expired token, so this call gets
-        // its own try/catch. An expired token is a normal 401, not a 500.
         let payload;
         try {
             payload = verifyRefreshToken(tokenFromCookie);
@@ -179,10 +186,7 @@ export async function refresh(request, response) {
             });
         }
 
-        // The database check is the revocation mechanism. A token can be
-        // cryptographically valid but absent here (e.g. after logout),
-        // in which case refresh is denied.
-        const storedToken = await RefreshToken.findOne({ token: tokenFromCookie });
+        const storedToken = await RefreshToken.findOne({token: tokenFromCookie});
 
         if (!storedToken) {
             return response.status(401).json({
@@ -190,8 +194,6 @@ export async function refresh(request, response) {
             });
         }
 
-        // Look the user up fresh so the new access token reflects their
-        // current role, and so deleted users cannot refresh.
         const user = await User.findById(payload.userId);
 
         if (!user) {
@@ -200,14 +202,22 @@ export async function refresh(request, response) {
             });
         }
 
-        const newAccessToken = createAccessToken(user);
+        await RefreshToken.deleteOne({token: tokenFromCookie});
 
-        response.cookie("accessToken", newAccessToken, {
-            ...BASE_COOKIE_OPTIONS,
-            maxAge: ACCESS_COOKIE_MAX_AGE
+        const newAccessToken = createAccessToken(user);
+        const newRefreshToken = createRefreshToken(user);
+
+        const refreshExpiresAt = new Date(Date.now() + REFRESH_TOKEN_MAX_AGE_MS);
+        await RefreshToken.create({
+            userId: user._id,
+            token: newRefreshToken,
+            expiresAt: refreshExpiresAt
         });
 
-        response.json({ message: "Token refreshed." });
+        response.cookie("accessToken", newAccessToken, ACCESS_COOKIE_OPTIONS);
+        response.cookie("refreshToken", newRefreshToken, REFRESH_COOKIE_OPTIONS);
+
+        response.json({message: "Token refreshed."});
     } catch (error) {
         console.error("Refresh error:", error);
         response.status(500).json({

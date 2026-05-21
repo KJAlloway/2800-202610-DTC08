@@ -14,9 +14,9 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/auth", authRouter);
+app.use("/db/auth", authRouter);
 
-app.get("/api/health", (req, res) => {
+app.get("/db/health", (req, res) => {
     res.json({ status: "ok" });
 });
 

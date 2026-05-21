@@ -83,3 +83,37 @@
 .sidebar-menu__attributions a {
     color: inherit;
 }
+
+.sidebar-menu__auth {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebar-menu__greeting {
+    margin: 0;
+}
+
+.sidebar-menu__auth-button {
+    align-self: flex-start;
+    background: white;
+    color: #142711;
+    border: none;
+    border-radius: 3px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sidebar-menu__logout-message {
+    margin: 0;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+    transition: opacity 800ms ease;
+}
+
+.sidebar-menu__logout-message--fading {
+    opacity: 0;
+}
