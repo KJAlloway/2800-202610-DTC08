@@ -11,9 +11,7 @@ export default function OpenInGoogleMapsButton(vendor) {
 
     function handleBtnClick(vendor) {
         setIsActive(true)
-
-        // window.open(buildGoogleMapsUrl(vendor), '_blank', 'noopener,noreferrer')
-        console.log(buildGoogleMapsUrl(vendor))
+        window.open(buildGoogleMapsUrl(vendor), '_blank', 'noopener,noreferrer')
     }
 
     return (
