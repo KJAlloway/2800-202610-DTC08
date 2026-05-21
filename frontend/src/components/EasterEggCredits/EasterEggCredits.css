@@ -12,6 +12,8 @@
     z-index: 9999;
 
     pointer-events: none;
+
+    animation: overlay-fade 1s ease;
 }
 
 .credits-name {
@@ -35,6 +37,56 @@
         scroll-across 4s linear forwards,
         rainbow-colours 1s linear infinite;
 
+}
+
+.intro-message {
+    position: absolute;
+
+    top: 40%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    font-size: 3rem;
+    font-weight: bold;
+    font-family: "Orbitron", sans-serif;
+
+    color: lime;
+
+    opacity: 0;
+
+    text-shadow:
+        0 0 10px currentColor,
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+
+        animation: intro-flash 3s ease forwards;
+}
+
+@keyframes intro-flash {
+
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    40% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
 }
 
 @keyframes scroll-across {
@@ -82,5 +134,16 @@
 
     100% {
         color: magenta;
+    }
+}
+
+@keyframes overlay-fade {
+
+    from {
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    to {
+        background-color: rgba(0, 0, 0, 0.8);
     }
 }

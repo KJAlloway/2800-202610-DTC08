@@ -19,13 +19,16 @@ const NAME_POSTIONS =[
 function EasterEggCredits() {
     return (
         <div className="easter-egg-overlay">
+            <div className="intro-message">
+                SECRET HARVEST MODE ACTIVATED
+            </div>
             {GROUP_MEMBERS.map((member, index) => (
                 <h1
                     key={member}
                     className="credits-name"
                     style={{
                         top: NAME_POSTIONS[index],
-                        animationDelay: `${index * 1.5}s`
+                        animationDelay: `${3 + index * 1.5}s`
                     }}
                     
                 >

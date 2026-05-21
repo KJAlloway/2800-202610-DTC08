@@ -1,6 +1,6 @@
 import "./Sidebar.css";
 
-function Sidebar({ isOpen, onClose }) {
+function Sidebar({ isOpen, onClose, hasUnlockedHarvestMaster }) {
     const sidebarClassName = isOpen
         ? "sidebar-menu sidebar-menu-is-open"
         : "sidebar-menu";
@@ -24,7 +24,7 @@ function Sidebar({ isOpen, onClose }) {
                 onClick={handlePanelClick}
             >
                 <header className="sidebar-menu__header">
-<img src="../assets/cabbage.png" alt="cabbage" className="sidebar-logo" />
+                    <img src="../assets/cabbage.png" alt="cabbage" className="sidebar-logo" />
                     <h2 className="sidebar-menu__title">Cabbage Patch</h2>
 
                     <button
@@ -42,23 +42,28 @@ function Sidebar({ isOpen, onClose }) {
                 </div>
 
                 <footer className="sidebar-menu__attributions">
-<span>
-    <a
-        href="https://leafletjs.com/reference.html"
-        target="_blank"
-        rel="noreferrer"
-    >
-        Leaflet
-    </a>
-    {" | "}
-    <a
-        href="https://nominatim.org/release-docs/latest/api/Overview/"
-        target="_blank"
-        rel="noreferrer"
-    >
-        Nominatim
-    </a>
-</span>
+                    <span>
+                        {hasUnlockedHarvestMaster && (
+                            <div className="achievement-badge">
+                                🥬 Secret Harvest Master Unlocked
+                            </div>
+                        )}
+                        <a
+                            href="https://leafletjs.com/reference.html"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Leaflet
+                        </a>
+                        {" | "}
+                        <a
+                            href="https://nominatim.org/release-docs/latest/api/Overview/"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Nominatim
+                        </a>
+                    </span>
                     <a
                         href="https://www.openstreetmap.org/copyright"
                         target="_blank"
