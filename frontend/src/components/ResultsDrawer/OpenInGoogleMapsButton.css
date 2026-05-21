@@ -18,3 +18,8 @@
     background: #e4e8dc;
     transform: translateY(3px);
 }
+
+.results-drawer__popout-icon {
+    max-height: 14px;
+    padding-left: 4px;
+}

@@ -17,16 +17,19 @@ export default function OpenInGoogleMapsButton(vendor) {
     }
 
     return (
-        <button className={`results-drawer__open-in-google-maps-button${
-                    isActive ? " results-drawer__open-in-google-maps-button--active" : ""
-                }`}
-                type="button"
-                onMouseDown={() => handleBtnClick(vendor)}
-                onMouseUp={() => setIsActive(false)} // resets the button's style when it is not pressed down
-                onMouseLeave={() => setIsActive(false)} // resets the button's style when it is not pressed down
-                >
-            Open in Google Maps
-        </button>
+        <div>
+            <button className={`results-drawer__open-in-google-maps-button${
+                        isActive ? " results-drawer__open-in-google-maps-button--active" : ""
+                    }`}
+                    type="button"
+                    onMouseDown={() => handleBtnClick(vendor)}
+                    onMouseUp={() => setIsActive(false)} // resets the button's style when it is not pressed down
+                    onMouseLeave={() => setIsActive(false)} // resets the button's style when it is not pressed down
+                    >
+                Open in Google Maps
+                <img src="../assets/popOutIcon.png" alt="popout_icon" className="results-drawer__popout-icon" />
+            </button>
+        </div>
     )
 }
 
