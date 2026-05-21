@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
 .easter-egg-overlay {
     position: fixed;
     inset: 0;
@@ -20,10 +22,18 @@
     color: white;
     font-size: 4rem;
     font-weight: bold;
+    font-family: "Orbitron", sans-serif;
 
     opacity: 0;
 
-    animation: scroll-across 4s linear forwards;
+    text-shadow:
+        0 0 10px currentColor,
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+
+    animation:
+        scroll-across 4s linear forwards,
+        rainbow-colours 1s linear infinite;
 
 }
 
@@ -45,5 +55,32 @@
     100% {
         opacity: 0;
         transform: translateX(-100%);
+    }
+}
+
+@keyframes rainbow-colours {
+
+    0% {
+        color: red;
+    }
+
+    20% {
+        color: orange;
+    }
+
+    40% {
+        color: yellow;
+    }
+
+    60% {
+        color: lime;
+    }
+
+    80% {
+        color: cyan;
+    }
+
+    100% {
+        color: magenta;
     }
 }

@@ -60,7 +60,7 @@ function App() {
             setTimeout(() => {
                 console.log("Animation end")
                 setShowEasterEgg(false);
-            }, 10000)
+            }, 10500)
         }
 
         console.log("Search text changed:", searchText);
