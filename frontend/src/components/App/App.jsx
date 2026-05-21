@@ -9,9 +9,13 @@ import {AuthProvider} from "../Auth/Auth.jsx";
 import { AuthOverlay } from "../Auth/AuthOverlay.jsx";
 
 
+import EasterEggCredits from "../EasterEggCredits/EasterEggCredits.jsx";
 
 import {DEFAULT_AREA_NAME, getAreaName} from "../APIs/Nominatim.jsx";
 import {getNearbyVendors} from "../APIs/Overpass.jsx";
+
+import secretSound from "../../../assets/sounds/universfield-video-game-bonus-323603.mp3";
+import backgroundLoop from "../../../assets/sounds/freesound_community-8-bit-heaven-26287.mp3"
 
 const VANCOUVER_COORDINATES = [49.2828, -123.1207];
 const DEFAULT_MAP_CENTER = VANCOUVER_COORDINATES;
@@ -34,6 +38,8 @@ function App() {
     const [vendorLookupOptions, setVendorLookupOptions] = useState(DEFAULT_VENDOR_LOOKUP_OPTIONS);
     const [vendors, setVendors] = useState([]);
     const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
+    const [showEasterEgg, setShowEasterEgg] = useState(false);
+    const [hasUnlockedHarvestMaster, setHasUnlockedHarvestMaster] = useState(false);
 
     useEffect(() => {
         const currentKnownAreaName = getAreaName(mapCenter, setAreaName);
@@ -56,6 +62,37 @@ function App() {
          * - prepare autocomplete/suggestion state if we choose to track typing
          */
 
+        // Easter egg trigger
+        if (searchText.trim().toLowerCase() === "cabbage patch") {
+
+            localStorage.setItem("harvestMasterUnlocked", "true");
+            setHasUnlockedHarvestMaster(true);
+            const easterEggAudio = new Audio(secretSound);
+            const backgroundMusic = new Audio(backgroundLoop);
+            backgroundMusic.loop = true;
+            backgroundMusic.volume = 0.3;
+
+            easterEggAudio.play();
+
+            setTimeout(() => {
+                backgroundMusic.play();
+            }, 2500);
+
+
+            console.log("Play animation")
+            setShowEasterEgg(true);
+
+            // Easter egg end timer
+            setTimeout(() => {
+                console.log("Animation end")
+                setShowEasterEgg(false);
+
+                backgroundMusic.pause();
+                backgroundMusic.currentTime = 0;
+
+            }, 13500)
+        }
+
         console.log("Search text changed:", searchText);
     }, [searchText]);
 
@@ -69,6 +106,18 @@ function App() {
 
         console.log("Filters changed:", activeFilters);
     }, [activeFilters]);
+
+    // Checks if secret achievement was unlocked before
+    useEffect(() => {
+
+        const achievementUnlocked =
+            localStorage.getItem("harvestMasterUnlocked");
+
+        if (achievementUnlocked === "true") {
+            setHasUnlockedHarvestMaster(true);
+        }
+
+    }, []);
 
     return (
         <AuthProvider>
@@ -86,10 +135,11 @@ function App() {
 
                 </section>
 
-                <Sidebar
-                    isOpen={sidebarIsOpen}
-                    onClose={() => setSidebarIsOpen(false)}
-                />
+            <Sidebar
+                isOpen={sidebarIsOpen}
+                onClose={() => setSidebarIsOpen(false)}
+                hasUnlockedHarvestMaster={hasUnlockedHarvestMaster}
+            />
                 <AuthOverlay />
 
                 <ResultsDrawer
@@ -99,6 +149,7 @@ function App() {
                     activeFilters={activeFilters}
                     onFiltersChange={setActiveFilters}
                 />
+            {showEasterEgg && <EasterEggCredits />}
             </main>
         </AuthProvider>
     );

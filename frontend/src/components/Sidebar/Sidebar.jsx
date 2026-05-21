@@ -2,7 +2,7 @@ import "./Sidebar.css";
 import { useAuth } from "../Auth/Auth.jsx";
 import { useState, useRef } from "react";
 
-function Sidebar({ isOpen, onClose }) {
+function Sidebar({ isOpen, onClose, hasUnlockedHarvestMaster }) {
     const { currentUser, setAuthOverlayIsOpen, logout } = useAuth();
 
     const [logoutMessage, setLogoutMessage] = useState("");
@@ -108,6 +108,33 @@ function Sidebar({ isOpen, onClose }) {
                         <a href="https://nominatim.org/release-docs/latest/api/Overview/" target="_blank" rel="noreferrer">Nominatim</a>
                     </span>
                     <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">
+                    <span>
+                        {hasUnlockedHarvestMaster && (
+                            <div className="achievement-badge">
+                                🥬 Secret Harvest Master Unlocked
+                            </div>
+                        )}
+                        <a
+                            href="https://leafletjs.com/reference.html"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Leaflet
+                        </a>
+                        {" | "}
+                        <a
+                            href="https://nominatim.org/release-docs/latest/api/Overview/"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Nominatim
+                        </a>
+                    </span>
+                    <a
+                        href="https://www.openstreetmap.org/copyright"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
                         OpenStreetMap contributors
                     </a>
                     <a href="https://www.flaticon.com/free-icons/cabbage" title="cabbage icons" target="_blank" rel="noreferrer">
