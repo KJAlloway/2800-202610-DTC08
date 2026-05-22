@@ -1,4 +1,4 @@
-import { calculateDistanceMeters } from "../utils/HelperFunctions.js";
+import {calculateDistanceMeters} from "../utils/HelperFunctions.js";
 
 const VENDOR_LOOKUP_DELAY_MS = 1000;
 
@@ -95,6 +95,8 @@ function createVendorFromOsmElement(element, latitude, longitude) {
         return null;
     }
 
+    console.log(tags)
+
     return {
         id: `${element.type}-${element.id}`,
         name: tags.name,
@@ -103,7 +105,25 @@ function createVendorFromOsmElement(element, latitude, longitude) {
         latitude: vendorLatitude,
         longitude: vendorLongitude,
         distanceMeters: calculateDistanceMeters(latitude, longitude, vendorLatitude, vendorLongitude),
+
+        hours: formatVendorHours(tags),
+        unit: tags["addr:unit"],
+        phone: tags["phone"],
+        website: tags["website"],
+        wheelchair: tags["wheelchair"],
+        cuisine: tags["cuisine"],
     };
+}
+
+function formatVendorHours(tags) {
+    let hours = tags["opening_hours"]
+    // // to filter out weird semicolon multi date tags
+    // if (hours.indexOf(";") !== -1) {
+    //     console.log(hours.slice(0, hours.indexOf(";")))
+    //     return hours.slice(0, hours.indexOf(";"))
+    // }
+    // console.log(hours)
+    return hours
 }
 
 function formatVendorDescription(tags) {

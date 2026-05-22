@@ -85,12 +85,15 @@
     padding: 0 1.25rem 1.25rem;
 }
 
+/* -- Vendor Cards -- */
+
 .results-drawer__vendor-card {
     border: 1px solid #dce2d5;
     border-radius: 1rem;
     padding: 1rem;
     background: #ffffff;
     display: flex;
+    flex-direction: column;
 }
 
 .results-drawer__vendor-name {
@@ -110,42 +113,23 @@
     color: #66705f;
 }
 
-.results-drawer__vendor-info-container {
+.results-drawer__vendor-info-container-expanded {
+    display: flex;
+    flex-direction: row;
     flex: auto;
     flex: min-content;
+    padding-top: .4rem;
 }
 
-.results-drawer__vendor-maps-link-button-container {
-    width: max-content;
-    justify-self: right;
+.results-drawer__vendor-detail-hours {
+    padding-top: .4rem;
+    margin: 0.2rem 0 0;
+    color: #596153;
+    font-size: 0.9rem;
 }
 
-/* --- Google Maps Button --- */
-
-.results-drawer__open-in-google-maps-button {
-    flex: 0 0 auto;
-    border: none;
-    border-radius: 999px;
-    padding: 0.35rem 0.6rem;
-    color: #314c2f;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 0.875rem;
-    transition: all 0.1s;
-    position: relative;
-    box-shadow: 0 0.2rem #7eae7b;
-    background: #f3f8eb;
-}
-
-.results-drawer__open-in-google-maps-button--active {
-    box-shadow: 0 0.0625rem #5d885a;
-    background: #e4e8dc;
-    transform: translateY(0.2rem);
-}
-
-.results-drawer__popout-icon {
-    max-height: 0.7rem;
-    padding-left: 0.25rem;
+.results-drawer__vendor-detail-google-maps-button {
+    padding-top: .2rem;
 }
 
 /* --- Desktop: side panel --- */

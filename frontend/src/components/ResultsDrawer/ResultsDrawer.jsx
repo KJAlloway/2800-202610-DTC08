@@ -8,31 +8,102 @@ import { useMediaQuery, DESKTOP_BREAKPOINT } from "../../hooks/useMediaQuery.js"
 const DEFAULT_DRAWER_HEIGHT = 360;
 const MAX_DRAWER_HEIGHT_RATIO = 0.85;
 
-function OpenInGoogleMapsButton({ vendorName, vendorAddress }) {
-    const [isActive, setIsActive] = useState(false);
 
-    function buildGoogleMapsUrl() {
-        const placeInfo = encodeURIComponent(vendorName + " " + vendorAddress);
-        return `https://www.google.com/maps/search/?api=1&query=${placeInfo}`;
+
+function VendorCard(vendor) {
+
+    function addHoursIfExist(hours) {
+        if (hours !== undefined) {
+            return <p className="results-drawer__vendor-detail-hours"><b>Hours: </b>{hours}</p>
+        }
     }
 
-    function handleButtonDown() {
-        setIsActive(true);
-        window.open(buildGoogleMapsUrl(), "_blank", "noopener,noreferrer");
+    function OpenInGoogleMapsButton({ vendorName, vendorAddress }) {
+
+        function buildGoogleMapsUrl() {
+            const placeInfo = encodeURIComponent(vendorName + " " + vendorAddress);
+            return `https://www.google.com/maps/search/?api=1&query=${placeInfo}`;
+        }
+
+        return (
+            <p className='results-drawer__vendor-detail'>
+                <b><i><a className='results-drawer__vendor-detail' href={buildGoogleMapsUrl()} target="_blank" rel="noopener noreferrer">
+                    Open In Google Maps
+                </a></i></b>
+            </p>
+        );
+    }
+
+    function ExtraVendorInformation(vendor) {
+
+        function addTagAndInfoIfExists(tagName, tag, type) {
+            if (tag !== undefined) {
+                if (type === "string") {
+                    return <p className='results-drawer__vendor-detail'><b>{tagName}: </b>{toTitleCase(tag)}</p>
+                } else if (type === "phone") {
+                    return <p className='results-drawer__vendor-detail'>
+                        <b>{tagName}: </b><a className='results-drawer__vendor-detail' href={"tel:" + tag}>{(tag)}</a>
+                    </p>
+                } else if (type === "website") {
+                    return <p className='results-drawer__vendor-detail'>
+                        <b>{tagName}: </b><a className='results-drawer__vendor-detail' href={tag}
+                                             target="_blank" rel="noopener noreferrer">{(tag)}</a>
+                    </p>
+                } else {
+                    return <p className='results-drawer__vendor-detail'><b>{tagName}: </b>{tag}</p>
+                }
+            }
+        }
+
+        return (
+            <div>
+                <div>
+                    {addTagAndInfoIfExists('Phone', vendor.vendor.phone, "phone")}
+                    {addTagAndInfoIfExists('Website', vendor.vendor.website, "website")}
+                    {addTagAndInfoIfExists('Wheelchair Accessible', vendor.vendor.wheelchair, "string")}
+                </div>
+                <div className="results-drawer__vendor-detail-google-maps-button">
+                    <OpenInGoogleMapsButton
+                        vendorName={vendor.name}
+                        vendorAddress={vendor.address}
+                    />
+                </div>
+            </div>
+        )
+    }
+
+    function addUnitIfExists(vendor) {
+        if (vendor.unit !== undefined) {
+            return ', Unit ' + vendor.unit
+        } else {
+            return ''
+        }
+    }
+
+    function addCuisineIfExists(vendor) {
+        if (vendor.cuisine !== undefined) {
+            return toTitleCase(vendor.cuisine + ' ')
+        } else {
+            return ''
+        }
     }
 
     return (
-        <button
-            className={`results-drawer__open-in-google-maps-button${isActive ? " results-drawer__open-in-google-maps-button--active" : ""}`}
-            type="button"
-            onMouseDown={handleButtonDown}
-            onMouseUp={() => setIsActive(false)}
-            onMouseLeave={() => setIsActive(false)}
-        >
-            Google Maps
-            <img src="frontend/assets/popOutIcon.png" alt="" className="results-drawer__popout-icon" />
-        </button>
-    );
+        <article className="results-drawer__vendor-card" key={vendor.id}>
+            <div>
+                <h3 className="results-drawer__vendor-name">{vendor.name}</h3>
+                <p className="results-drawer__vendor-detail">{vendor.address + addUnitIfExists(vendor)}</p>
+                <p className="results-drawer__vendor-detail">{toTitleCase(addCuisineIfExists(vendor) + vendor.description)}</p>
+
+                {addHoursIfExist(vendor.hours)}
+            </div>
+            <div className="results-drawer__vendor-info-container-expanded">
+                <ExtraVendorInformation
+                    vendor={vendor}
+                />
+            </div>
+        </article>
+    )
 }
 
 function ResultsDrawer() {
@@ -142,19 +213,7 @@ function ResultsDrawer() {
             <section className="results-drawer__vendor-list" aria-label="Vendors">
                 {hasVendors ? (
                     vendors.map((vendor) => (
-                        <article className="results-drawer__vendor-card" key={vendor.id}>
-                            <div className="results-drawer__vendor-info-container">
-                                <h3 className="results-drawer__vendor-name">{vendor.name}</h3>
-                                <p className="results-drawer__vendor-detail">{vendor.address}</p>
-                                <p className="results-drawer__vendor-detail">{toTitleCase(vendor.description)}</p>
-                            </div>
-                            <div className="results-drawer__vendor-maps-link-button-container">
-                                <OpenInGoogleMapsButton
-                                    vendorName={vendor.name}
-                                    vendorAddress={vendor.address}
-                                />
-                            </div>
-                        </article>
+                        VendorCard(vendor)
                     ))
                 ) : (
                     <p className="results-drawer__empty-text">
