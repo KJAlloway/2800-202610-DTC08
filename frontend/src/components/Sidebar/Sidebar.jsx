@@ -36,8 +36,8 @@ function LocationToggle() {
 }
 
 function Sidebar() {
-    const {currentUser, setAuthOverlayIsOpen, logout} = useAuth();
-    const {sidebarIsOpen, setSidebarIsOpen, hasUnlockedHarvestMaster} = useAppContext();
+    const {currentUser, setAuthOverlayIsOpen, logout, isRestoringSession} = useAuth();
+    const {sidebarIsOpen, setSidebarIsOpen, hasUnlockedHarvestMaster, openReceiptModal, openRequestModal} = useAppContext();
 
     const [logoutMessage, setLogoutMessage] = useState("");
     const [logoutFading, setLogoutFading] = useState(false);
@@ -90,11 +90,29 @@ function Sidebar() {
                 <div className="sidebar-menu__content">
                     <LocationToggle/>
                     <div className="sidebar-menu__auth">
-                        {currentUser ? (
+                        {isRestoringSession ? (
+                            <p className="sidebar-menu__greeting">Loading…</p>
+                        ) : currentUser ? (
                             <>
                                 <p className="sidebar-menu__greeting">
                                     Hello {currentUser.name}, what will we find in the Cabbage Patch today?
                                 </p>
+                                <div className="sidebar-menu__actions">
+                                    <button
+                                        className="sidebar-menu__action-button"
+                                        type="button"
+                                        onClick={() => { openReceiptModal(); setSidebarIsOpen(false); }}
+                                    >
+                                        🌿 Log a Sighting
+                                    </button>
+                                    <button
+                                        className="sidebar-menu__action-button"
+                                        type="button"
+                                        onClick={() => { openRequestModal(); setSidebarIsOpen(false); }}
+                                    >
+                                        🔍 Request an Ingredient
+                                    </button>
+                                </div>
                                 <button
                                     className="sidebar-menu__auth-button"
                                     type="button"
@@ -132,7 +150,7 @@ function Sidebar() {
                 <footer className="sidebar-menu__attributions">
                     {hasUnlockedHarvestMaster && (
                         <div className="achievement-badge">
-                            🥬 Secret Harvest Master Unlocked
+                            🌿 DTC-08
                         </div>
                     )}
                     <span>

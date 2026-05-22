@@ -197,3 +197,23 @@
         padding-top: 6rem;
     }
 }
+/* ── Tier badges ─────────────────────────────────────────────────────────── */
+.results-drawer__tier-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-bottom: 6px;
+}
+
+.results-drawer__tier-badge--confirmed {
+    background-color: #d4edda;
+    color: #1a6630;
+}
+
+.results-drawer__tier-badge--likely {
+    background-color: #fff3cd;
+    color: #7a5800;
+}

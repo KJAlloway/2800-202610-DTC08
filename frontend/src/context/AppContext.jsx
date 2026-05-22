@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useLocationContext } from "./LocationContext.jsx";
 import { DEFAULT_AREA_NAME, getAreaName } from "../APIs/Nominatim.jsx";
 import { getNearbyVendors, resetVendorCache, hasMovedPastSearchThreshold } from "../APIs/Overpass.jsx";
+import { unifiedSearch } from "../APIs/Database.jsx";
 
 const VANCOUVER_COORDINATES = [49.2828, -123.1207];
 const DEFAULT_MAP_CENTER = VANCOUVER_COORDINATES;
@@ -11,14 +12,11 @@ const HARVEST_MASTER_STORAGE_KEY = "harvestMasterUnlocked";
 
 const DEFAULT_FILTERS = {
     openNow: false,
-    confirmedPurchase: false
+    confirmedPurchase: false,
 };
 
 export const COLLAPSED_DRAWER_HEIGHT = 70;
 
-// Larger radii mean fewer, more meaningful queries. The displacement threshold in
-// Overpass.jsx scales with radius, so zooming out naturally requires more movement
-// before a re-query fires.
 function getRadiusForZoom(zoom) {
     if (zoom >= 16) return 750;
     if (zoom >= 14) return 1500;
@@ -47,16 +45,70 @@ export function AppProvider({ children }) {
     const [selectedVendor, setSelectedVendor] = useState(null);
     const [drawerHeight, setDrawerHeight] = useState(COLLAPSED_DRAWER_HEIGHT);
     const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
-
-    // When true, vendor search automatically follows the map center (subject to the
-    // displacement threshold in Overpass.jsx). Selecting a vendor locks this to false
-    // so results don't jump while the user is looking at a pin. The "Search this area"
-    // button re-enables it.
     const [isSearchingLive, setIsSearchingLive] = useState(true);
-
     const [hasUnlockedHarvestMaster, setHasUnlockedHarvestMaster] = useState(
         () => localStorage.getItem(HARVEST_MASTER_STORAGE_KEY) === "true"
     );
+
+    // ── Search state ─────────────────────────────────────────────────────────
+    // searchResult is the full response from /db/search. Everything else is
+    // derived from it — no extra state needed.
+    const [searchResult, setSearchResult] = useState(null);
+    const searchTimerRef = useRef(null);
+
+    // ── Modal state ───────────────────────────────────────────────────────────
+    const [receiptModalIsOpen,   setReceiptModalIsOpen]   = useState(false);
+    const [receiptModalDefaults, setReceiptModalDefaults] = useState({});
+    const [requestModalIsOpen,   setRequestModalIsOpen]   = useState(false);
+    const [requestModalDefaults, setRequestModalDefaults] = useState({});
+
+    function openReceiptModal(defaults = {}) {
+        setReceiptModalDefaults(defaults);
+        setReceiptModalIsOpen(true);
+    }
+
+    function openRequestModal(defaults = {}) {
+        setRequestModalDefaults(defaults);
+        setRequestModalIsOpen(true);
+    }
+
+    // ── Derived search values ─────────────────────────────────────────────────
+
+    // Tier 1: vendors with at least one confirmed "found" receipt.
+    const confirmedVendorIds = useMemo(() => {
+        if (!searchResult?.vendorSightings?.length) return new Set();
+        return new Set(
+            searchResult.vendorSightings
+                .filter(s => s.foundCount > 0)
+                .map(s => s.vendorOsmId)
+        );
+    }, [searchResult]);
+
+    // Tier 2: vendors whose OSM cuisine or shop tags overlap the search tags.
+    // vendor.cuisine is a raw OSM string like "chinese;asian" — split on ";".
+    // vendor.description is the shop type with spaces ("health food") while
+    // osmShopTags uses underscores ("health_food") — normalise before comparing.
+    const tagMatchVendorIds = useMemo(() => {
+        const cuisineTags = searchResult?.osmCuisineTags ?? [];
+        const shopTags    = searchResult?.osmShopTags    ?? [];
+        if (!cuisineTags.length && !shopTags.length) return new Set();
+
+        return new Set(
+            vendors
+                .filter(v => {
+                    const vendorCuisines = (v.cuisine ?? "")
+                        .toLowerCase().split(";").map(s => s.trim()).filter(Boolean);
+                    const vendorShop = (v.description ?? "")
+                        .toLowerCase().replaceAll(" ", "_");
+
+                    return cuisineTags.some(t => vendorCuisines.includes(t))
+                        || shopTags.some(t => vendorShop.includes(t));
+                })
+                .map(v => v.id)
+        );
+    }, [vendors, searchResult]);
+
+    // ── Effects ───────────────────────────────────────────────────────────────
 
     useEffect(() => {
         if (isLocationEnabled && userCoordinates) {
@@ -71,13 +123,10 @@ export function AppProvider({ children }) {
         );
     }, [mapZoom]);
 
-    // Area name lookup: only needs the center, not vendor options.
     useEffect(() => {
         getAreaName(mapCenter, setAreaName);
     }, [mapCenter]);
 
-    // Vendor search: gated by isSearchingLive. Setting isSearchingLive = true (via
-    // searchCurrentArea) also triggers this effect, firing an immediate search.
     useEffect(() => {
         if (!isSearchingLive) return;
         const fetchQueued = getNearbyVendors(mapCenter, vendorLookupOptions, (incoming) => {
@@ -90,16 +139,33 @@ export function AppProvider({ children }) {
         }
     }, [mapCenter, vendorLookupOptions, isSearchingLive]);
 
+    // Unified search — debounced 350 ms. One call gets ingredient, OSM tags,
+    // and vendor sightings. Clear everything immediately when text is empty.
     useEffect(() => {
-        console.log("Filters changed:", activeFilters);
-    }, [activeFilters]);
+        clearTimeout(searchTimerRef.current);
 
-    // Show the "Search this area" button only when live search is off AND the map
-    // center has moved far enough that a live search would have fired. This mirrors
-    // the exact same displacement check in Overpass.jsx, so the button appears at
-    // precisely the moment a live query would otherwise trigger.
-    const showSearchAreaButton = !isSearchingLive &&
-        hasMovedPastSearchThreshold(mapCenter, vendorLookupOptions.radiusMeters);
+        const trimmed = searchText.trim();
+        if (trimmed.length === 0) {
+            setSearchResult(null);
+            return;
+        }
+
+        searchTimerRef.current = setTimeout(async () => {
+            try {
+                const result = await unifiedSearch(trimmed);
+                setSearchResult(result);
+            } catch {
+                setSearchResult(null);
+            }
+        }, 350);
+
+        return () => clearTimeout(searchTimerRef.current);
+    }, [searchText]);
+
+    // ── Actions ───────────────────────────────────────────────────────────────
+
+    const showSearchAreaButton =
+        !isSearchingLive && hasMovedPastSearchThreshold(mapCenter, vendorLookupOptions.radiusMeters);
 
     function unselectVendor() {
         setSelectedVendor(null);
@@ -111,8 +177,6 @@ export function AppProvider({ children }) {
         setIsSearchingLive(false);
     }
 
-    // Forces a fresh search at the current center regardless of displacement, then
-    // re-enables live tracking so subsequent panning auto-updates as normal.
     function searchCurrentArea() {
         resetVendorCache();
         setSelectedVendor(null);
@@ -134,34 +198,33 @@ export function AppProvider({ children }) {
 
     return (
         <AppContext.Provider value={{
-            mapCenter,
-            setMapCenter,
-            mapZoom,
-            setMapZoom,
+            mapCenter, setMapCenter,
+            mapZoom, setMapZoom,
             flyTarget,
             areaName,
-            searchText,
-            setSearchText,
-            activeFilters,
-            setActiveFilters,
-            vendorLookupOptions,
-            setVendorLookupOptions,
+            searchText, setSearchText,
+            activeFilters, setActiveFilters,
+            vendorLookupOptions, setVendorLookupOptions,
             vendors,
             isLoadingVendors,
-            selectedVendor,
-            setSelectedVendor,
-            selectVendor,
-            unselectVendor,
-            drawerHeight,
-            setDrawerHeight,
-            sidebarIsOpen,
-            setSidebarIsOpen,
+            selectedVendor, setSelectedVendor,
+            selectVendor, unselectVendor,
+            drawerHeight, setDrawerHeight,
+            sidebarIsOpen, setSidebarIsOpen,
             isSearchingLive,
             showSearchAreaButton,
             searchCurrentArea,
-            hasUnlockedHarvestMaster,
-            unlockHarvestMaster,
-            recenterMap
+            hasUnlockedHarvestMaster, unlockHarvestMaster,
+            recenterMap,
+            // Search
+            searchResult,
+            confirmedVendorIds,
+            tagMatchVendorIds,
+            // Modals
+            receiptModalIsOpen, setReceiptModalIsOpen, receiptModalDefaults,
+            requestModalIsOpen, setRequestModalIsOpen, requestModalDefaults,
+            openReceiptModal,
+            openRequestModal,
         }}>
             {children}
         </AppContext.Provider>

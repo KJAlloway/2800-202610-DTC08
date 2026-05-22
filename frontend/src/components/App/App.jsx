@@ -7,12 +7,18 @@ import ResultsDrawer from "../ResultsDrawer/ResultsDrawer.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";
 import RecenterIcon from "../../../assets/recenter-icon.svg";
 import { AuthOverlay } from "../Auth/AuthOverlay.jsx";
+import { LogSightingModal } from "../LogSighting/LogSightingModal.jsx";
+import { RequestIngredientModal } from "../RequestIngredient/RequestIngredientModal.jsx";
 import EasterEggCredits, { useEasterEgg } from "../EasterEggCredits/EasterEggCredits.jsx";
 import { useMediaQuery, DESKTOP_BREAKPOINT, DESKTOP_DRAWER_WIDTH } from "../../hooks/useMediaQuery.js";
 import { useAppContext } from "../../context/AppContext.jsx";
 
 function App() {
-    const { searchText, recenterMap, drawerHeight, showSearchAreaButton, searchCurrentArea, isLoadingVendors } = useAppContext();
+    const {
+        searchText, recenterMap, drawerHeight,
+        showSearchAreaButton, searchCurrentArea, isLoadingVendors,
+        receiptModalIsOpen, requestModalIsOpen,
+    } = useAppContext();
     const { showEasterEgg, triggerIfMatch } = useEasterEgg();
     const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT);
 
@@ -60,15 +66,17 @@ function App() {
                 title="Recenter Map"
                 style={{ bottom: `${recenterBottom + 12}px` }}
             >
-                <img
-                    src={RecenterIcon}
-                    alt="Recenter icon"
-                    className="recenter-icon"
-                />
+                <img src={RecenterIcon} alt="Recenter icon" className="recenter-icon" />
             </button>
 
             <Sidebar />
             <AuthOverlay />
+
+            {/* Modals are only mounted when open — no internal open-state
+                checking needed, and no risk of render-phase state updates. */}
+            {receiptModalIsOpen  && <LogSightingModal />}
+            {requestModalIsOpen  && <RequestIngredientModal />}
+
             <ResultsDrawer />
 
             {isLoadingVendors && (

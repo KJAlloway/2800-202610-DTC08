@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { clamp, toTitleCase } from "../../utils/HelperFunctions.js";
 import "./ResultsDrawer.css";
-import { useAppContext } from "../../context/AppContext.jsx";
-import { COLLAPSED_DRAWER_HEIGHT } from "../../context/AppContext.jsx";
+import { useAppContext, COLLAPSED_DRAWER_HEIGHT } from "../../context/AppContext.jsx";
 import { useMediaQuery, DESKTOP_BREAKPOINT } from "../../hooks/useMediaQuery.js";
 
 const DEFAULT_DRAWER_HEIGHT = 360;
 const MAX_DRAWER_HEIGHT_RATIO = 0.85;
 
-// Changed from VendorCard(vendor) to destructured props so we can receive
-// isSelected and onClick from the list render without touching the team's
-// internal logic.
-function VendorCard({ vendor, isSelected, onClick }) {
+// Tier 1 = confirmed purchase sighting in DB
+// Tier 2 = vendor OSM tags match the search's cuisine/shop tags
+// Tier 3 = everything else (still shown — search never hides vendors)
+const TIER_LABEL = {
+    1: "✓ Confirmed here",
+    2: "Likely stocks this",
+};
 
+function VendorCard({ vendor, isSelected, onClick, tier }) {
     function addHoursIfExist(hours) {
         if (hours !== undefined) {
             return <p className="results-drawer__vendor-detail-hours"><b>Hours: </b>{hours}</p>;
@@ -56,9 +59,9 @@ function VendorCard({ vendor, isSelected, onClick }) {
         return (
             <div>
                 <div>
-                    {addTagAndInfoIfExists('Phone', vendor.vendor.phone, "phone")}
-                    {addTagAndInfoIfExists('Website', vendor.vendor.website, "website")}
-                    {addTagAndInfoIfExists('Wheelchair Accessible', vendor.vendor.wheelchair, "string")}
+                    {addTagAndInfoIfExists("Phone", vendor.vendor.phone, "phone")}
+                    {addTagAndInfoIfExists("Website", vendor.vendor.website, "website")}
+                    {addTagAndInfoIfExists("Wheelchair Accessible", vendor.vendor.wheelchair, "string")}
                 </div>
                 <div className="results-drawer__vendor-detail-google-maps-button">
                     <OpenInGoogleMapsButton
@@ -71,19 +74,23 @@ function VendorCard({ vendor, isSelected, onClick }) {
     }
 
     function addUnitIfExists(vendor) {
-        return vendor.unit !== undefined ? ', Unit ' + vendor.unit : '';
+        return vendor.unit !== undefined ? ", Unit " + vendor.unit : "";
     }
 
     function addCuisineIfExists(vendor) {
-        return vendor.cuisine !== undefined ? toTitleCase(vendor.cuisine + ' ') : '';
+        return vendor.cuisine !== undefined ? toTitleCase(vendor.cuisine + " ") : "";
     }
 
     return (
         <article
             className={`results-drawer__vendor-card${isSelected ? " results-drawer__vendor-card--selected" : ""}`}
-            key={vendor.id}
             onClick={onClick}
         >
+            {tier && TIER_LABEL[tier] && (
+                <span className={`results-drawer__tier-badge results-drawer__tier-badge--${tier === 1 ? "confirmed" : "likely"}`}>
+                    {TIER_LABEL[tier]}
+                </span>
+            )}
             <div>
                 <h3 className="results-drawer__vendor-name">{vendor.name}</h3>
                 <p className="results-drawer__vendor-detail">{vendor.address + addUnitIfExists(vendor)}</p>
@@ -101,7 +108,7 @@ function ResultsDrawer() {
     const {
         searchText, areaName, vendors, activeFilters, setActiveFilters,
         drawerHeight, setDrawerHeight, selectedVendor, selectVendor,
-        isLoadingVendors
+        isLoadingVendors, searchResult, confirmedVendorIds, tagMatchVendorIds,
     } = useAppContext();
     const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT);
     const dragStartRef = useRef(null);
@@ -109,20 +116,45 @@ function ResultsDrawer() {
     const [isDragging, setIsDragging] = useState(false);
 
     const hasSearchedText = searchText.trim().length > 0;
-    const hasVendors = vendors.length > 0;
 
-    const displayVendors = selectedVendor
-        ? [selectedVendor, ...vendors.filter(v => v.id !== selectedVendor.id)]
+    // Assign each vendor to a tier for sorting and badging.
+    // Only meaningful when there is an active search.
+    function getVendorTier(vendor) {
+        if (!hasSearchedText) return 3;
+        if (confirmedVendorIds.has(vendor.id)) return 1;
+        if (tagMatchVendorIds.has(vendor.id))  return 2;
+        return 3;
+    }
+
+    // Always show all vendors — never hide anything by default.
+    // When searching, sort: tier 1 → tier 2 → tier 3.
+    const sortedVendors = hasSearchedText
+        ? [...vendors].sort((a, b) => getVendorTier(a) - getVendorTier(b))
         : vendors;
 
+    // "Confirmed purchase" is the only narrowing filter: hides tier 2 & 3
+    // so only vendors with actual sighting data for this ingredient show.
+    const filteredVendors =
+        activeFilters.confirmedPurchase && hasSearchedText && searchResult?.ingredient
+            ? sortedVendors.filter(v => confirmedVendorIds.has(v.id))
+            : sortedVendors;
+
+    const hasVendors = filteredVendors.length > 0;
+
+    // Keep selected vendor pinned at the top of its section.
+    const displayVendors = selectedVendor
+        ? [selectedVendor, ...filteredVendors.filter(v => v.id !== selectedVendor.id)]
+        : filteredVendors;
+
+    // Only show the "Confirmed purchase" chip when a specific ingredient was matched.
     const drawerFilters = hasSearchedText
         ? [
-            { id: "openNow", label: "Open now" },
-            { id: "confirmedPurchase", label: "Confirmed purchase" }
-        ]
+            { id: "openNow",           label: "Open now" },
+            ...(searchResult?.ingredient ? [{ id: "confirmedPurchase", label: "Confirmed purchase" }] : []),
+          ]
         : [
-            { id: "openNow", label: "Open now" }
-        ];
+            { id: "openNow", label: "Open now" },
+          ];
 
     useEffect(() => {
         if (!selectedVendor) return;
@@ -139,10 +171,7 @@ function ResultsDrawer() {
     }
 
     function toggleFilter(filterId) {
-        setActiveFilters({
-            ...activeFilters,
-            [filterId]: !activeFilters[filterId]
-        });
+        setActiveFilters({ ...activeFilters, [filterId]: !activeFilters[filterId] });
     }
 
     useEffect(() => {
@@ -154,11 +183,9 @@ function ResultsDrawer() {
 
         function handlePointerMove(event) {
             if (dragStartRef.current === null) return;
-
             const maxDrawerHeight = window.innerHeight * MAX_DRAWER_HEIGHT_RATIO;
             const dragDistance = dragStartRef.current.pointerY - event.clientY;
             const nextDrawerHeight = dragStartRef.current.drawerHeight + dragDistance;
-
             setDrawerHeight(clamp(nextDrawerHeight, COLLAPSED_DRAWER_HEIGHT, maxDrawerHeight));
         }
 
@@ -169,7 +196,6 @@ function ResultsDrawer() {
 
         window.addEventListener("pointermove", handlePointerMove);
         window.addEventListener("pointerup", handlePointerUp);
-
         return () => {
             window.removeEventListener("pointermove", handlePointerMove);
             window.removeEventListener("pointerup", handlePointerUp);
@@ -194,20 +220,16 @@ function ResultsDrawer() {
             )}
 
             <header className="results-drawer__title-row">
-                <div>
-                    <h2 className="results-drawer__title">
-                        {hasSearchedText ? searchText : areaName}
-                    </h2>
-                </div>
+                <h2 className="results-drawer__title">
+                    {hasSearchedText ? searchText : areaName}
+                </h2>
             </header>
 
             {hasVendors && (
                 <section className="results-drawer__filter-row" aria-label="Vendor filters">
                     {drawerFilters.map((filter) => (
                         <button
-                            className={`results-drawer__filter-chip${
-                                activeFilters[filter.id] ? " results-drawer__filter-chip--active" : ""
-                            }`}
+                            className={`results-drawer__filter-chip${activeFilters[filter.id] ? " results-drawer__filter-chip--active" : ""}`}
                             type="button"
                             key={filter.id}
                             aria-pressed={activeFilters[filter.id]}
@@ -248,6 +270,7 @@ function ResultsDrawer() {
                             vendor={vendor}
                             isSelected={selectedVendor?.id === vendor.id}
                             onClick={() => selectVendor(vendor)}
+                            tier={hasSearchedText ? getVendorTier(vendor) : undefined}
                         />
                     ))
                 ) : (
