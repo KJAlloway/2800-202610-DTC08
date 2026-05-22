@@ -7,17 +7,27 @@ import {
     verifyRefreshToken
 } from "../utils/tokens.js";
 
-const ACCESS_TOKEN_MAX_AGE_MS = 15 * 60 * 1000;
+const ACCESS_TOKEN_MAX_AGE_MS  = 15 * 60 * 1000;
 const REFRESH_TOKEN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
-const ACCESS_COOKIE_OPTIONS = {
+// Cross-origin deployments (e.g. Render backend + separate frontend host)
+// require sameSite: "none" + secure: true, otherwise the browser will
+// silently drop the cookies on every request.
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+const COOKIE_BASE = {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: IS_PRODUCTION ? "none" : "strict",
+    secure:   IS_PRODUCTION,
+};
+
+const ACCESS_COOKIE_OPTIONS = {
+    ...COOKIE_BASE,
     maxAge: ACCESS_TOKEN_MAX_AGE_MS
 };
 
 const REFRESH_COOKIE_OPTIONS = {
-    httpOnly: true,
+    ...COOKIE_BASE,
     sameSite: "strict",
     maxAge: REFRESH_TOKEN_MAX_AGE_MS
 };
@@ -142,8 +152,8 @@ export async function logout(request, response) {
             await RefreshToken.deleteOne({token: tokenFromCookie});
         }
 
-        response.clearCookie("accessToken");
-        response.clearCookie("refreshToken");
+        response.clearCookie("accessToken",  COOKIE_BASE);
+        response.clearCookie("refreshToken", COOKIE_BASE);
 
         response.json({message: "Logged out."});
     } catch (error) {
@@ -189,6 +199,9 @@ export async function refresh(request, response) {
         const storedToken = await RefreshToken.findOne({token: tokenFromCookie});
 
         if (!storedToken) {
+            // Clear the stale cookies so the browser doesn't keep retrying.
+            response.clearCookie("accessToken");
+            response.clearCookie("refreshToken");
             return response.status(401).json({
                 message: "Refresh token is no longer valid."
             });

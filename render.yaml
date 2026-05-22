@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: cabbage-patch-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Set these manually in the Render dashboard — do not commit real values
+      - key: MONGODB_URI
+        sync: false
+
+      - key: JWT_ACCESS_SECRET
+        sync: false
+
+      - key: JWT_REFRESH_SECRET
+        sync: false
+
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+      # The full URL of your hosted frontend, e.g. https://cabbage-patch.netlify.app
+      # Used by CORS to allow cookie-credentialed requests from the frontend.
+      - key: FRONTEND_URL
+        sync: false

@@ -1,5 +1,5 @@
-import { createContext, useContext, useRef, useState } from "react";
-import { loginUser, registerUser, logoutUser } from "../APIs/Database.jsx";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { loginUser, registerUser, logoutUser, refreshToken, getMe } from "../APIs/Database.jsx";
 
 const AuthContext = createContext(null);
 
@@ -8,7 +8,39 @@ export function AuthProvider({ children }) {
     const [authOverlayIsOpen, setAuthOverlayIsOpen] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastFading, setToastFading] = useState(false);
+    // True while the initial session-restore check is in flight. Prevents the
+    // UI from flashing "not logged in" before we've had a chance to check.
+    const [isRestoringSession, setIsRestoringSession] = useState(true);
     const toastTimerRef = useRef(null);
+
+    // On mount: try to restore the session from the cookies the browser already
+    // holds. If the access token is still valid, /me returns the user immediately.
+    // If it's expired (401), attempt a silent refresh then retry /me. If both
+    // fail the user is simply not logged in and we proceed normally.
+    useEffect(() => {
+        async function restoreSession() {
+            try {
+                const user = await getMe();
+                setCurrentUser(user);
+            } catch (error) {
+                if (error.status === 401) {
+                    // Access token expired — try refreshing silently.
+                    try {
+                        await refreshToken();
+                        const user = await getMe();
+                        setCurrentUser(user);
+                    } catch {
+                        // Refresh token also gone or invalid — stay logged out.
+                    }
+                }
+                // Any other error (network down, 500, etc.) — stay logged out.
+            } finally {
+                setIsRestoringSession(false);
+            }
+        }
+
+        restoreSession();
+    }, []);
 
     function showToast(message, delay = 0) {
         clearTimeout(toastTimerRef.current);
@@ -51,7 +83,8 @@ export function AuthProvider({ children }) {
             logout,
             toastMessage,
             toastFading,
-            setToastMessage
+            setToastMessage,
+            isRestoringSession,
         }}>
             {children}
         </AuthContext.Provider>

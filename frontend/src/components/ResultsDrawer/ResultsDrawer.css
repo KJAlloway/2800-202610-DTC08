@@ -10,6 +10,11 @@
     border-radius: 1.5rem 1.5rem 0 0;
     background: white;
     box-shadow: 0 -0.75rem 2rem rgba(31, 36, 28, 0.2);
+    transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.results-drawer--dragging {
+    transition: none;
 }
 
 .results-drawer__resize-handle {
@@ -94,6 +99,8 @@
     background: #ffffff;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    cursor: pointer;
 }
 
 .results-drawer__vendor-name {
@@ -106,6 +113,8 @@
     margin: 0.2rem 0 0;
     color: #596153;
     font-size: 0.9rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .results-drawer__empty-text {
@@ -136,6 +145,47 @@
     padding-top: .2rem;
 }
 
+.results-drawer__vendor-card--selected {
+    border-color: #5a8f56;
+    background: #f3f8eb;
+}
+
+/* -- Loading shimmer -- */
+
+@keyframes shimmer {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.results-drawer__loading-card {
+    border: 1px solid #dce2d5;
+    border-radius: 1rem;
+    padding: 1rem;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.results-drawer__loading-line {
+    height: 0.7rem;
+    border-radius: 999px;
+    background: #dce2d5;
+    width: 80%;
+}
+
+.results-drawer__loading-line--title {
+    width: 55%;
+    height: 0.85rem;
+    background: #c8d4c0;
+}
+
+.results-drawer__loading-line--short {
+    width: 40%;
+}
+
 /* --- Desktop: side panel --- */
 
 @media (min-width: 800px) {
@@ -148,6 +198,26 @@
         box-shadow: 0.75rem 0 2rem rgba(31, 36, 28, 0.15);
     }
     .results-drawer__title-row {
-        padding-top: 6rem; /* bump this until it clears the search bar */
+        padding-top: 6rem;
     }
+}
+/* ── Tier badges ─────────────────────────────────────────────────────────── */
+.results-drawer__tier-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-bottom: 6px;
+}
+
+.results-drawer__tier-badge--confirmed {
+    background-color: #d4edda;
+    color: #1a6630;
+}
+
+.results-drawer__tier-badge--likely {
+    background-color: #fff3cd;
+    color: #7a5800;
 }

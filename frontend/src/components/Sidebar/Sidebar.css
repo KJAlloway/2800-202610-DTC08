@@ -137,31 +137,30 @@
 }
 
 .achievement-badge {
-    margin: 0.5rem 0;
-    padding: 0.75rem 1rem;
-    border: 2px solid lime;
-    border-radius: 0.75rem;
-    background: rgba(0, 255, 0, 0.1);
-    color: lime;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-align: center;
-    box-shadow:
-            0 0 10px lime,
-            0 0 20px rgba(0, 255, 0, 0.5);
-    animation: achievement-glow 2s infinite alternate;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    align-self: flex-start;
+    margin: 0.25rem 0;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(0, 255, 0, 0.6);
+    border-radius: 999px;
+    background: rgba(0, 255, 0, 0.08);
+    color: rgba(0, 230, 0, 0.9);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    animation: achievement-glow 2.5s ease-in-out infinite alternate;
 }
 
 @keyframes achievement-glow {
     from {
-        box-shadow:
-                0 0 5px lime,
-                0 0 10px rgba(0, 255, 0, 0.4);
+        box-shadow: 0 0 3px rgba(0, 255, 0, 0.3);
+        border-color: rgba(0, 255, 0, 0.4);
     }
     to {
-        box-shadow:
-                0 0 15px lime,
-                0 0 30px rgba(0, 255, 0, 0.8);
+        box-shadow: 0 0 7px rgba(0, 255, 0, 0.6);
+        border-color: rgba(0, 255, 0, 0.8);
     }
 }
 
@@ -240,4 +239,27 @@
 .location-toggle-btn:disabled {
     opacity: 0.6;
     cursor: wait;
+}
+.sidebar-menu__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-menu__action-button {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.72rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+}
+
+.sidebar-menu__action-button:hover {
+    background: rgba(255, 255, 255, 0.18);
 }

@@ -7,12 +7,18 @@ import ResultsDrawer from "../ResultsDrawer/ResultsDrawer.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";
 import RecenterIcon from "../../../assets/recenter-icon.svg";
 import { AuthOverlay } from "../Auth/AuthOverlay.jsx";
+import { LogSightingModal } from "../LogSighting/LogSightingModal.jsx";
+import { RequestIngredientModal } from "../RequestIngredient/RequestIngredientModal.jsx";
 import EasterEggCredits, { useEasterEgg } from "../EasterEggCredits/EasterEggCredits.jsx";
-import { useMediaQuery, DESKTOP_BREAKPOINT } from "../../hooks/useMediaQuery.js";
+import { useMediaQuery, DESKTOP_BREAKPOINT, DESKTOP_DRAWER_WIDTH } from "../../hooks/useMediaQuery.js";
 import { useAppContext } from "../../context/AppContext.jsx";
 
 function App() {
-    const { searchText, recenterMap, drawerHeight } = useAppContext();
+    const {
+        searchText, recenterMap, drawerHeight,
+        showSearchAreaButton, searchCurrentArea, isLoadingVendors,
+        receiptModalIsOpen, requestModalIsOpen,
+    } = useAppContext();
     const { showEasterEgg, triggerIfMatch } = useEasterEgg();
     const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT);
 
@@ -25,12 +31,31 @@ function App() {
         console.log("Search text changed:", searchText);
     }, [searchText]);
 
+    const spinnerLeft = isDesktop
+        ? `calc((100vw + ${DESKTOP_DRAWER_WIDTH}px) / 2)`
+        : "50vw";
+    const spinnerTop = isDesktop
+        ? "50vh"
+        : `calc((100vh - ${drawerHeight}px) / 2)`;
+
     return (
         <main className="App">
             <Map />
 
             <section className="map-overlay" aria-label="Map search controls">
                 <SearchBar />
+
+                {showSearchAreaButton && (
+                    <div className="map-overlay__search-area-row">
+                        <button
+                            className="map-overlay__search-area-button"
+                            type="button"
+                            onClick={searchCurrentArea}
+                        >
+                            Search this area
+                        </button>
+                    </div>
+                )}
             </section>
 
             <button
@@ -41,16 +66,27 @@ function App() {
                 title="Recenter Map"
                 style={{ bottom: `${recenterBottom + 12}px` }}
             >
-                <img
-                    src={RecenterIcon}
-                    alt="Recenter icon"
-                    className="recenter-icon"
-                />
+                <img src={RecenterIcon} alt="Recenter icon" className="recenter-icon" />
             </button>
 
             <Sidebar />
             <AuthOverlay />
+
+            {/* Modals are only mounted when open — no internal open-state
+                checking needed, and no risk of render-phase state updates. */}
+            {receiptModalIsOpen  && <LogSightingModal />}
+            {requestModalIsOpen  && <RequestIngredientModal />}
+
             <ResultsDrawer />
+
+            {isLoadingVendors && (
+                <div
+                    className="map-loading-spinner"
+                    role="status"
+                    aria-label="Loading vendors"
+                    style={{ left: spinnerLeft, top: spinnerTop }}
+                />
+            )}
 
             {showEasterEgg && <EasterEggCredits />}
         </main>

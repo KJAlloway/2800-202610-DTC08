@@ -1,0 +1,105 @@
+.ingredient-search {
+    position: relative;
+}
+
+.ingredient-search__input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    color: white;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    box-sizing: border-box;
+}
+
+.ingredient-search__input--selected {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.ingredient-search__input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.ingredient-search__input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.ingredient-search__spinner {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: ingredient-search-spin 0.6s linear infinite;
+}
+
+@keyframes ingredient-search-spin {
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
+.ingredient-search__dropdown {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    right: 0;
+    background: #1e3a19;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0;
+    z-index: 200;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.ingredient-search__option {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    gap: 0.5rem;
+}
+
+.ingredient-search__option:hover,
+.ingredient-search__option--active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.ingredient-search__option-name {
+    font-size: 0.75rem;
+    color: white;
+}
+
+.ingredient-search__option-tags {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.45);
+    white-space: nowrap;
+}
+
+.ingredient-search__option--create {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+}
+
+.ingredient-search__option--create:hover,
+.ingredient-search__option--create.ingredient-search__option--active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.ingredient-search__create-error {
+    margin: 2px 0 0;
+    font-size: 0.65rem;
+    color: #f4a261;
+}

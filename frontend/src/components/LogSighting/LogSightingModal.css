@@ -1,0 +1,203 @@
+/* Shared styles for LogSighting and RequestIngredient.
+   Matches the visual language of Auth.css exactly. */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-panel {
+    background: #142711;
+    color: white;
+    width: min(420px, 90vw);
+    border-radius: 4px;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 0.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.modal-close-button {
+    border: none;
+    background: none;
+    color: inherit;
+    font-size: 1.75rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-close-button:hover {
+    opacity: 0.7;
+}
+
+/* ── Form elements ────────────────────────────────────────────────────────── */
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+}
+
+.modal-form label {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: -0.2rem;
+}
+
+.modal-input,
+.modal-select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    color: white;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    box-sizing: border-box;
+    appearance: none;
+}
+
+.modal-select {
+    /* Custom arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    padding-right: 1.8rem;
+    cursor: pointer;
+}
+
+.modal-select option {
+    background: #142711;
+    color: white;
+}
+
+.modal-input:focus,
+.modal-select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.modal-hint {
+    margin: 0;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Found/Not found toggle ───────────────────────────────────────────────── */
+
+.modal-found-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0.2rem 0 0;
+}
+
+.modal-found-fieldset legend {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 0.4rem;
+}
+
+.modal-found-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.modal-found-btn {
+    flex: 1;
+    padding: 0.45rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.7);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.modal-found-btn--yes.modal-found-btn--active {
+    background: #2d6a2d;
+    border-color: #4caf50;
+    color: white;
+}
+
+.modal-found-btn--no.modal-found-btn--active {
+    background: #6a2d2d;
+    border-color: #e57373;
+    color: white;
+}
+
+.modal-found-btn:not(.modal-found-btn--active):hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+}
+
+/* ── Submit button ────────────────────────────────────────────────────────── */
+
+.modal-submit-button {
+    margin-top: 0.25rem;
+    background: white;
+    color: #142711;
+    border: none;
+    border-radius: 3px;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.modal-submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ── Auth prompt ──────────────────────────────────────────────────────────── */
+
+.modal-auth-prompt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+}
+
+.modal-auth-prompt p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* ── Feedback states ──────────────────────────────────────────────────────── */
+
+.modal-error {
+    margin: 0;
+    font-size: 0.7rem;
+    color: #f4a261;
+}
+
+.modal-success {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #81c784;
+    text-align: center;
+    padding: 0.5rem 0;
+}
