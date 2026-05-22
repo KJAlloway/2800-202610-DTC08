@@ -18,23 +18,23 @@ function VendorCard(vendor) {
         }
     }
 
-    function OpenInGoogleMapsButton({ vendorName, vendorAddress }) {
-
-        function buildGoogleMapsUrl() {
-            const placeInfo = encodeURIComponent(vendorName + " " + vendorAddress);
-            return `https://www.google.com/maps/search/?api=1&query=${placeInfo}`;
-        }
-
-        return (
-            <p className='results-drawer__vendor-detail'>
-                <b><i><a className='results-drawer__vendor-detail' href={buildGoogleMapsUrl()} target="_blank" rel="noopener noreferrer">
-                    Open In Google Maps
-                </a></i></b>
-            </p>
-        );
-    }
-
     function ExtraVendorInformation(vendor) {
+
+        function OpenInGoogleMapsButton({ vendorName, vendorAddress }) {
+
+            function buildGoogleMapsUrl() {
+                const placeInfo = encodeURIComponent(vendorName + " " + vendorAddress);
+                return `https://www.google.com/maps/search/?api=1&query=${placeInfo}`;
+            }
+
+            return (
+                <p className='results-drawer__vendor-detail'>
+                    <b><i><a className='results-drawer__vendor-detail' href={buildGoogleMapsUrl()} target="_blank" rel="noopener noreferrer">
+                        Open In Google Maps
+                    </a></i></b>
+                </p>
+            );
+        }
 
         function addTagAndInfoIfExists(tagName, tag, type) {
             if (tag !== undefined) {
@@ -88,8 +88,24 @@ function VendorCard(vendor) {
         }
     }
 
+    function resetAllVendorDetails() {
+        // hides all extra vendor details
+        let visibleDetailContainers = document.querySelectorAll('.results-drawer__vendor-info-container-expanded')
+        for (let container of visibleDetailContainers) {
+            container.classList.add('hidden')
+        }
+    }
+
     return (
-        <article className="results-drawer__vendor-card" key={vendor.id}>
+        <article className="results-drawer__vendor-card" key={vendor.id} id={'vendorCard' + vendor.id} onClick={() => {
+            // hides all extra vendor details so we only show one at a time
+            resetAllVendorDetails()
+
+            // gets this vendor card's expanded info container and toggles it on click of this card
+            let card = document.getElementById('vendorCard' + vendor.id)
+            let extraInfoContainer = card.querySelector('.results-drawer__vendor-info-container-expanded')
+            extraInfoContainer.classList.toggle("hidden")
+        }}>
             <div>
                 <h3 className="results-drawer__vendor-name">{vendor.name}</h3>
                 <p className="results-drawer__vendor-detail">{vendor.address + addUnitIfExists(vendor)}</p>
@@ -97,7 +113,7 @@ function VendorCard(vendor) {
 
                 {addHoursIfExist(vendor.hours)}
             </div>
-            <div className="results-drawer__vendor-info-container-expanded">
+            <div className="results-drawer__vendor-info-container-expanded hidden">
                 <ExtraVendorInformation
                     vendor={vendor}
                 />

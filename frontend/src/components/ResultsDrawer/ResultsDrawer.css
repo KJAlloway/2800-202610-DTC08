@@ -121,6 +121,10 @@
     padding-top: .4rem;
 }
 
+.hidden {
+    display: none;
+}
+
 .results-drawer__vendor-detail-hours {
     padding-top: .4rem;
     margin: 0.2rem 0 0;
