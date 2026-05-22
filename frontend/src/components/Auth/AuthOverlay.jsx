@@ -1,5 +1,5 @@
-import {useState} from "react";
-import {useAuth} from "./Auth.jsx";
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext.jsx";
 import "./Auth.css";
 
 export function AuthOverlay() {
@@ -186,5 +186,6 @@ export function AuthOverlay() {
                     {toastMessage}
                 </p>
             )}
-        </>);
+        </>
+    );
 }

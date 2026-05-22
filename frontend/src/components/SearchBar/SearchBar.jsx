@@ -1,21 +1,13 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import "./SearchBar.css";
+import { useAppContext } from "../../context/AppContext.jsx";
 
-const DEFAULT_SEARCH_VALUE = "";
-
-function SearchBar({
-                       initialValue = DEFAULT_SEARCH_VALUE,
-                       placeholder = "Search for an ingredient, cuisine, or store",
-                       onSearch,
-                       onMenuButtonClick,
-                       className = "",
-                   }) {
-    const [searchText, setSearchText] = useState(initialValue);
+function SearchBar() {
+    const { searchText, setSearchText, setSidebarIsOpen } = useAppContext();
     const inputRef = useRef(null);
 
     function handleInputChange(event) {
         setSearchText(event.target.value);
-        onSearch(event.target.value);
     }
 
     function handleSubmit(event) {
@@ -27,22 +19,16 @@ function SearchBar({
             return;
         }
 
-        onSearch(trimmedSearchText);
+        setSearchText(trimmedSearchText);
     }
 
     function handleClear() {
         setSearchText("");
-        onSearch("");
-
         inputRef.current.focus();
     }
 
-    function handleMenuButtonClick() {
-        onMenuButtonClick();
-    }
-
     return (
-        <form className={`search-bar ${className}`} onSubmit={handleSubmit}>
+        <form className="search-bar" onSubmit={handleSubmit}>
             <label className="search-bar__label" htmlFor="main-search">
                 Search Cabbage Patch
             </label>
@@ -52,11 +38,11 @@ function SearchBar({
                 type="button"
                 aria-label="Open menu"
                 onMouseDown={event => event.preventDefault()}
-                onClick={handleMenuButtonClick}
+                onClick={() => setSidebarIsOpen(true)}
             >
-                <span className="search-bar__menu-line"/>
-                <span className="search-bar__menu-line"/>
-                <span className="search-bar__menu-line"/>
+                <span className="search-bar__menu-line" />
+                <span className="search-bar__menu-line" />
+                <span className="search-bar__menu-line" />
             </button>
 
             <input
@@ -65,7 +51,7 @@ function SearchBar({
                 className="search-bar__input"
                 type="search"
                 value={searchText}
-                placeholder={placeholder}
+                placeholder="Search for an ingredient, cuisine, or store"
                 onChange={handleInputChange}
             />
 

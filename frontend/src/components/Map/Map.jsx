@@ -2,15 +2,16 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, useMapEvents, useMap } from "react-leaflet";
 import "./Map.css";
 import "leaflet/dist/leaflet.css";
+import { useAppContext } from "../../context/AppContext.jsx";
 
-function MapViewUpdater({ center }) {
+function MapViewUpdater({ flyTarget }) {
     const map = useMap();
 
     useEffect(() => {
-        if (center) {
-            map.flyTo(center, map.getZoom(), { animate: true, duration: 1.2 });
+        if (flyTarget) {
+            map.flyTo(flyTarget, map.getZoom(), { animate: true, duration: 1.2 });
         }
-    }, [center, map]);
+    }, [flyTarget, map]);
 
     return null;
 }
@@ -18,42 +19,28 @@ function MapViewUpdater({ center }) {
 function MapCenterReporter({ onCenterChange }) {
     const map = useMapEvents({
         moveend() {
-            reportMapCenter();
-        },
-        zoomend() {
-            reportMapCenter();
+            const center = map.getCenter();
+            onCenterChange([center.lat, center.lng]);
         },
     });
-
-    useEffect(() => {
-        reportMapCenter();
-    }, []);
-
-    function reportMapCenter() {
-        const center = map.getCenter();
-
-        onCenterChange([center.lat, center.lng]);
-    }
 
     return null;
 }
 
-function Map({ center, onCenterChange }) {
+function Map() {
+    const { mapCenter, setMapCenter, flyTarget } = useAppContext();
+
     return (
         <MapContainer
-            center={center}
+            center={mapCenter}
             zoom={13}
             zoomControl={false}
             attributionControl={false}
             className="map"
         >
-            <TileLayer
-                // attribution="&copy; OpenStreetMap contributors"
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-
-            <MapViewUpdater center={center} />
-            <MapCenterReporter onCenterChange={onCenterChange} />
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <MapViewUpdater flyTarget={flyTarget} />
+            <MapCenterReporter onCenterChange={setMapCenter} />
         </MapContainer>
     );
 }

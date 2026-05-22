@@ -1,24 +1,44 @@
 import { useEffect, useRef, useState } from "react";
-import { clamp, toTitleCase } from "../HelperFunctions.js";
+import { clamp, toTitleCase } from "../../utils/HelperFunctions.js";
 import "./ResultsDrawer.css";
-import OpenInGoogleMapsButton from "./OpenInGoogleMapsButton.jsx";
+import { useAppContext } from "../../context/AppContext.jsx";
+import { COLLAPSED_DRAWER_HEIGHT } from "../../context/AppContext.jsx";
 
-const COLLAPSED_DRAWER_HEIGHT = 70;
 const DEFAULT_DRAWER_HEIGHT = 360;
 const MAX_DRAWER_HEIGHT_RATIO = 0.85;
 
-function ResultsDrawer({
-                           searchedText = "",
-                           areaName = "Current Map Area",
-                           vendors = [],
-                           activeFilters,
-                           onFiltersChange,
-                           className = "",
-                       }) {
-    const [drawerHeight, setDrawerHeight] = useState(COLLAPSED_DRAWER_HEIGHT);
+function OpenInGoogleMapsButton({ vendorName, vendorAddress }) {
+    const [isActive, setIsActive] = useState(false);
+
+    function buildGoogleMapsUrl() {
+        const placeInfo = encodeURIComponent(vendorName + " " + vendorAddress);
+        return `https://www.google.com/maps/search/?api=1&query=${placeInfo}`;
+    }
+
+    function handleButtonDown() {
+        setIsActive(true);
+        window.open(buildGoogleMapsUrl(), "_blank", "noopener,noreferrer");
+    }
+
+    return (
+        <button
+            className={`results-drawer__open-in-google-maps-button${isActive ? " results-drawer__open-in-google-maps-button--active" : ""}`}
+            type="button"
+            onMouseDown={handleButtonDown}
+            onMouseUp={() => setIsActive(false)}
+            onMouseLeave={() => setIsActive(false)}
+        >
+            Google Maps
+            <img src="frontend/assets/popOutIcon.png" alt="" className="results-drawer__popout-icon" />
+        </button>
+    );
+}
+
+function ResultsDrawer() {
+    const { searchText, areaName, vendors, activeFilters, setActiveFilters, drawerHeight, setDrawerHeight } = useAppContext();
     const dragStartRef = useRef(null);
 
-    const hasSearchedText = searchedText.trim().length > 0;
+    const hasSearchedText = searchText.trim().length > 0;
     const hasVendors = vendors.length > 0;
 
     const drawerFilters = hasSearchedText
@@ -38,26 +58,19 @@ function ResultsDrawer({
     }
 
     function toggleFilter(filterId) {
-        onFiltersChange({
+        setActiveFilters({
             ...activeFilters,
             [filterId]: !activeFilters[filterId]
         });
     }
 
     useEffect(() => {
-        if (hasSearchedText) {
-            setDrawerHeight(DEFAULT_DRAWER_HEIGHT);
-            return;
-        }
-
-        setDrawerHeight(COLLAPSED_DRAWER_HEIGHT);
+        setDrawerHeight(hasSearchedText ? DEFAULT_DRAWER_HEIGHT : COLLAPSED_DRAWER_HEIGHT);
     }, [hasSearchedText]);
 
     useEffect(() => {
         function handlePointerMove(event) {
-            if (dragStartRef.current === null) {
-                return;
-            }
+            if (dragStartRef.current === null) return;
 
             const maxDrawerHeight = window.innerHeight * MAX_DRAWER_HEIGHT_RATIO;
             const dragDistance = dragStartRef.current.pointerY - event.clientY;
@@ -81,7 +94,7 @@ function ResultsDrawer({
 
     return (
         <aside
-            className={`results-drawer ${className}`}
+            className="results-drawer"
             style={{ height: `${drawerHeight}px` }}
             aria-label="Search results"
         >
@@ -97,7 +110,7 @@ function ResultsDrawer({
             <header className="results-drawer__title-row">
                 <div>
                     <h2 className="results-drawer__title">
-                        {hasSearchedText ? searchedText : areaName}
+                        {hasSearchedText ? searchText : areaName}
                     </h2>
                 </div>
             </header>

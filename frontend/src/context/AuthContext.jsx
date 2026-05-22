@@ -1,11 +1,7 @@
-import { createContext, useContext, useState, useRef } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 import { loginUser, registerUser, logoutUser } from "../APIs/Database.jsx";
 
 const AuthContext = createContext(null);
-
-export function useAuth() {
-    return useContext(AuthContext);
-}
 
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
@@ -29,13 +25,15 @@ export function AuthProvider({ children }) {
         const user = await loginUser(email, password);
         setCurrentUser(user);
         setAuthOverlayIsOpen(false);
-        showToast("Logged in.", 50);    }
+        showToast("Logged in.", 50);
+    }
 
     async function register(name, email, password) {
         const user = await registerUser(name, email, password);
         setCurrentUser(user);
         setAuthOverlayIsOpen(false);
-        showToast("Logged in.", 50);    }
+        showToast("Logged in.", 50);
+    }
 
     async function logout() {
         await logoutUser();
@@ -58,4 +56,8 @@ export function AuthProvider({ children }) {
             {children}
         </AuthContext.Provider>
     );
+}
+
+export function useAuth() {
+    return useContext(AuthContext);
 }

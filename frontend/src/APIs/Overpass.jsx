@@ -1,4 +1,4 @@
-import {calculateDistanceMeters} from "../HelperFunctions.js";
+import { calculateDistanceMeters } from "../utils/HelperFunctions.js";
 
 const VENDOR_LOOKUP_DELAY_MS = 1000;
 
@@ -42,7 +42,6 @@ export function getNearbyVendors(coordinateArray, vendorLookupOptions, onVendors
 }
 
 async function requestNearbyVendorsFromOverpass(coordinateArray, vendorLookupOptions) {
-
     const latitude = coordinateArray[0];
     const longitude = coordinateArray[1];
 
@@ -67,7 +66,7 @@ async function requestNearbyVendorsFromOverpass(coordinateArray, vendorLookupOpt
     try {
         const response = await fetch(OVERPASS_API_URL, {
             method: "POST",
-            body: new URLSearchParams({data: query}),
+            body: new URLSearchParams({ data: query }),
         });
 
         if (!response.ok) {

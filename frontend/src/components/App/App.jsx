@@ -1,147 +1,56 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import Map from "../Map/Map.jsx";
 import SearchBar from "../SearchBar/SearchBar.jsx";
 import ResultsDrawer from "../ResultsDrawer/ResultsDrawer.jsx";
 import Sidebar from "../Sidebar/Sidebar.jsx";
 import RecenterIcon from "../../../assets/recenter-icon.svg";
-import { AuthProvider } from "../Auth/Auth.jsx";
 import { AuthOverlay } from "../Auth/AuthOverlay.jsx";
 import EasterEggCredits, { useEasterEgg } from "../EasterEggCredits/EasterEggCredits.jsx";
 
-import { DEFAULT_AREA_NAME, getAreaName } from "../APIs/Nominatim.jsx";
-import { getNearbyVendors } from "../APIs/Overpass.jsx";
-import { useLocationContext } from "../context/LocationContext.jsx";
-
-
-const VANCOUVER_COORDINATES = [49.2828, -123.1207];
-const DEFAULT_MAP_CENTER = VANCOUVER_COORDINATES;
-
-const DEFAULT_FILTERS = {
-    openNow: false,
-    confirmedPurchase: false
-};
-
-const DEFAULT_VENDOR_LOOKUP_OPTIONS = {
-    radiusMeters: 1000,
-    maxResults: 20
-};
+import { useAppContext } from "../../context/AppContext.jsx";
 
 function App() {
-    const { isLocationEnabled, userCoordinates } = useLocationContext();
-    const [mapCenter, setMapCenter] = useState(() => {
-        return userCoordinates ? userCoordinates : DEFAULT_MAP_CENTER;
-    });
-    const [areaName, setAreaName] = useState(DEFAULT_AREA_NAME);
-    const [searchText, setSearchText] = useState("");
-    const [activeFilters, setActiveFilters] = useState(DEFAULT_FILTERS);
-    const [vendorLookupOptions, setVendorLookupOptions] = useState(DEFAULT_VENDOR_LOOKUP_OPTIONS);
-    const [vendors, setVendors] = useState([]);
-    const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
-    const { showEasterEgg, hasUnlockedHarvestMaster, triggerIfMatch } = useEasterEgg();
+    const { searchText, recenterMap, drawerHeight } = useAppContext();
+    const { showEasterEgg, triggerIfMatch } = useEasterEgg();
 
-    const handleRecenter = () => {
-        if (isLocationEnabled && userCoordinates) {
-            setMapCenter([...userCoordinates]);
-        } else {
-            setMapCenter([...DEFAULT_MAP_CENTER]);
-        }
-    };
+    const recenterBottom = Math.min(drawerHeight, window.innerHeight * 0.5);
 
     useEffect(() => {
-        if (isLocationEnabled && userCoordinates) {
-            setMapCenter(userCoordinates);
-        }
-    }, [userCoordinates, isLocationEnabled]);
-
-    useEffect(() => {
-        if (!isLocationEnabled) {
-            console.log("Locational data is turned off.");
-            return;
-        }
-
-        const currentKnownAreaName = getAreaName(mapCenter, setAreaName);
-        const currentKnownVendors = getNearbyVendors(
-            mapCenter,
-            vendorLookupOptions,
-            setVendors
-        );
-
-        setAreaName(currentKnownAreaName);
-        setVendors(currentKnownVendors);
-    }, [mapCenter, vendorLookupOptions, isLocationEnabled]);
-
-    useEffect(() => {
-        /*
-         * Later:
-         * - submit ingredient search
-         * - ask backend for matching vendors
-         * - prepare autocomplete/suggestion state if we choose to track typing
-         */
         triggerIfMatch(searchText);
         console.log("Search text changed:", searchText);
     }, [searchText]);
 
-    useEffect(() => {
-        /*
-         * Later:
-         * - refilter vendors
-         * - update drawer results
-         * - update map marker visibility
-         */
-
-        console.log("Filters changed:", activeFilters);
-    }, [activeFilters]);
-
     return (
-        <AuthProvider>
-            <main className="App">
-                <Map
-                    center={mapCenter}
-                    onCenterChange={setMapCenter}
+        <main className="App">
+            <Map />
+
+            <section className="map-overlay" aria-label="Map search controls">
+                <SearchBar />
+            </section>
+
+            <button
+                className="map-overlay__recenter-button"
+                type="button"
+                onClick={recenterMap}
+                aria-label="Recenter map"
+                title="Recenter Map"
+                style={{ bottom: `${recenterBottom + 12}px` }}
+            >
+                <img
+                    src={RecenterIcon}
+                    alt="Recenter icon"
+                    className="recenter-icon"
                 />
+            </button>
 
-                <section className="map-overlay" aria-label="Map search controls">
-                    <SearchBar
-                        onSearch={setSearchText}
-                        onMenuButtonClick={() => setSidebarIsOpen(true)}
-                    />
+            <Sidebar />
+            <AuthOverlay />
+            <ResultsDrawer />
 
-                    <button
-                        className="map-overlay__recenter-button"
-                        type="button"
-                        onClick={handleRecenter}
-                        aria-label="Recenter map"
-                        title="Recenter Map"
-                    >
-                        <img
-                            src={RecenterIcon}
-                            alt="Recenter icon"
-                            className="recenter-icon"
-                        />
-                    </button>
-                </section>
-
-                <Sidebar
-                    isOpen={sidebarIsOpen}
-                    onClose={() => setSidebarIsOpen(false)}
-                    hasUnlockedHarvestMaster={hasUnlockedHarvestMaster}
-                />
-
-                <AuthOverlay />
-
-                <ResultsDrawer
-                    searchedText={searchText}
-                    areaName={areaName}
-                    vendors={vendors}
-                    activeFilters={activeFilters}
-                    onFiltersChange={setActiveFilters}
-                />
-
-                {showEasterEgg && <EasterEggCredits />}
-            </main>
-        </AuthProvider>
+            {showEasterEgg && <EasterEggCredits />}
+        </main>
     );
 }
 
