@@ -95,13 +95,19 @@ function VendorCard({ vendor, isSelected, onClick, tier }) {
             className={`results-drawer__vendor-card${isSelected ? " results-drawer__vendor-card--selected" : ""}`}
             // onClick={onClick}
             id={'vendorCard' + vendor.id} onClick={() => {
-            // hides all extra vendor details so we only show one at a time
-            resetAllVendorDetails()
+
+            onClick()
 
             // gets this vendor card's expanded info container and toggles it on click of this card
             let card = document.getElementById('vendorCard' + vendor.id)
             let extraInfoContainer = card.querySelector('.results-drawer__vendor-info-container-expanded')
+
+            if (extraInfoContainer.classList.contains("hidden")) { // only want to hide other cards if this one is being selected
+                resetAllVendorDetails()
+            }
             extraInfoContainer.classList.toggle("hidden")
+
+
         }}>
             {tier && TIER_LABEL[tier] && (
                 <span className={`results-drawer__tier-badge results-drawer__tier-badge--${tier === 1 ? "confirmed" : "likely"}`}>
