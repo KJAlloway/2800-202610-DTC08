@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 export const DESKTOP_BREAKPOINT = "(min-width: 800px)";
+export const DESKTOP_DRAWER_WIDTH = 450;
 
 export function useMediaQuery(query) {
     const [matches, setMatches] = useState(() => window.matchMedia(query).matches);

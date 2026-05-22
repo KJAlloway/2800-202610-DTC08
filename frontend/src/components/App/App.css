@@ -17,6 +17,36 @@
     pointer-events: none;
 }
 
+/* Full-width row that sits below the search bar in the flex layout */
+.map-overlay__search-area-row {
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.map-overlay__search-area-button {
+    pointer-events: auto;
+    border: none;
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    background: rgba(255, 255, 255, 0.94);
+    color: #314c2f;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0.25rem 1rem rgba(31, 36, 28, 0.18);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.map-overlay__search-area-button:hover {
+    box-shadow: 0 0.4rem 1.25rem rgba(31, 36, 28, 0.22);
+}
+
+.map-overlay__search-area-button:active {
+    transform: scale(0.96);
+}
+
 .recenter-icon {
     width: 1.35rem;
     height: 1.35rem;
@@ -53,4 +83,40 @@
 
 .map-overlay__recenter-button:active {
     transform: scale(0.95);
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.map-loading-spinner {
+    position: fixed;
+    z-index: 800;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #8aaa88;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: spin 0.75s linear infinite;
+    /* left and top set via inline style to the visual center of the map */
+    transform: translate(-50%, -50%);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* On desktop, the results drawer is a 450px left-side panel. Shift the
+   search area button so it centers within the visible map area, not the
+   full screen width. */
+@media (min-width: 800px) {
+    .map-overlay__search-area-row {
+        padding-left: calc(450px - 1rem);
+    }
 }

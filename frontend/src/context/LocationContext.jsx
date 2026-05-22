@@ -44,7 +44,7 @@ export function LocationProvider({ children }) {
     }
 
     return (
-        <LocationContext.Provider value={{ isLocationEnabled, userCoordinates, toggleLocationTracking }}>
+        <LocationContext.Provider value={{ isLocationEnabled, isLocationPending, userCoordinates, toggleLocationTracking }}>
             {children}
         </LocationContext.Provider>
     );

@@ -1,4 +1,25 @@
 .map {
-    min-height: 100vh;
+    position: absolute;
+    inset: 0;
     width: 100%;
+    height: 100%;
+}
+
+.vendor-marker-pin {
+    display: block;
+    width: 28px;
+    height: 28px;
+    color: #7eae7b;
+}
+
+.vendor-marker-pin svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.vendor-marker-pin--selected {
+    width: 36px;
+    height: 36px;
+    color: #3d7a38;
 }
