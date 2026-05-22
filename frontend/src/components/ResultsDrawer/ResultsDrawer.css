@@ -147,3 +147,19 @@
     max-height: 0.7rem;
     padding-left: 0.25rem;
 }
+
+/* --- Desktop: side panel --- */
+
+@media (min-width: 800px) {
+    .results-drawer {
+        top: 0;
+        right: auto;
+        width: 450px;
+        height: 100%;
+        border-radius: 0;
+        box-shadow: 0.75rem 0 2rem rgba(31, 36, 28, 0.15);
+    }
+    .results-drawer__title-row {
+        padding-top: 6rem; /* bump this until it clears the search bar */
+    }
+}

@@ -3,6 +3,7 @@ import { clamp, toTitleCase } from "../../utils/HelperFunctions.js";
 import "./ResultsDrawer.css";
 import { useAppContext } from "../../context/AppContext.jsx";
 import { COLLAPSED_DRAWER_HEIGHT } from "../../context/AppContext.jsx";
+import { useMediaQuery, DESKTOP_BREAKPOINT } from "../../hooks/useMediaQuery.js";
 
 const DEFAULT_DRAWER_HEIGHT = 360;
 const MAX_DRAWER_HEIGHT_RATIO = 0.85;
@@ -36,6 +37,7 @@ function OpenInGoogleMapsButton({ vendorName, vendorAddress }) {
 
 function ResultsDrawer() {
     const { searchText, areaName, vendors, activeFilters, setActiveFilters, drawerHeight, setDrawerHeight } = useAppContext();
+    const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT);
     const dragStartRef = useRef(null);
 
     const hasSearchedText = searchText.trim().length > 0;
@@ -69,6 +71,8 @@ function ResultsDrawer() {
     }, [hasSearchedText]);
 
     useEffect(() => {
+        if (isDesktop) return;
+
         function handlePointerMove(event) {
             if (dragStartRef.current === null) return;
 
@@ -90,22 +94,24 @@ function ResultsDrawer() {
             window.removeEventListener("pointermove", handlePointerMove);
             window.removeEventListener("pointerup", handlePointerUp);
         };
-    }, []);
+    }, [isDesktop]);
 
     return (
         <aside
             className="results-drawer"
-            style={{ height: `${drawerHeight}px` }}
+            style={isDesktop ? undefined : { height: `${drawerHeight}px` }}
             aria-label="Search results"
         >
-            <button
-                className="results-drawer__resize-handle"
-                type="button"
-                aria-label="Resize results drawer"
-                onPointerDown={handleDragStart}
-            >
-                <span className="results-drawer__handle-bar" />
-            </button>
+            {!isDesktop && (
+                <button
+                    className="results-drawer__resize-handle"
+                    type="button"
+                    aria-label="Resize results drawer"
+                    onPointerDown={handleDragStart}
+                >
+                    <span className="results-drawer__handle-bar" />
+                </button>
+            )}
 
             <header className="results-drawer__title-row">
                 <div>

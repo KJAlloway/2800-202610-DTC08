@@ -8,14 +8,17 @@ import Sidebar from "../Sidebar/Sidebar.jsx";
 import RecenterIcon from "../../../assets/recenter-icon.svg";
 import { AuthOverlay } from "../Auth/AuthOverlay.jsx";
 import EasterEggCredits, { useEasterEgg } from "../EasterEggCredits/EasterEggCredits.jsx";
-
+import { useMediaQuery, DESKTOP_BREAKPOINT } from "../../hooks/useMediaQuery.js";
 import { useAppContext } from "../../context/AppContext.jsx";
 
 function App() {
     const { searchText, recenterMap, drawerHeight } = useAppContext();
     const { showEasterEgg, triggerIfMatch } = useEasterEgg();
+    const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT);
 
-    const recenterBottom = Math.min(drawerHeight, window.innerHeight * 0.5);
+    const recenterBottom = isDesktop
+        ? 20
+        : Math.min(drawerHeight, window.innerHeight * 0.5);
 
     useEffect(() => {
         triggerIfMatch(searchText);
